@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;font-family:'Nunito',sans-serif;background:#F6F8FB;color:#0F172A;-webkit-font-smoothing:antialiased}
+  ::-webkit-scrollbar{width:10px;height:10px}
+  ::-webkit-scrollbar-thumb{background:#D5DEEA;border-radius:8px;border:3px solid #F6F8FB}
+  @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+  @keyframes pop{0%{transform:scale(.92);opacity:0}100%{transform:scale(1);opacity:1}}
+  @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+  @keyframes ring{0%{box-shadow:0 0 0 0 rgba(236,72,153,.45)}100%{box-shadow:0 0 0 22px rgba(236,72,153,0)}}
+  @keyframes barGrow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+  @keyframes wave{0%,100%{height:10px}50%{height:48px}}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @keyframes shrink{from{width:100%}to{width:0%}}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+</style>
+</helmet>
+
+<!-- ============ AUTH: LOGIN ============ -->
+<sc-if value="{{ showLogin }}" hint-placeholder-val="{{ true }}">
+<div style="min-height:100vh;width:100%;display:flex;background:#F6F8FB">
+  <div style="flex:1;min-width:0;background:linear-gradient(150deg,#22C55E 0%,#16A34A 55%,#15803D 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px;position:relative;overflow:hidden;color:#fff">
+    <div style="position:absolute;right:-60px;top:-60px;width:300px;height:300px;border-radius:50%;background:rgba(255,255,255,.08)"></div>
+    <div style="position:absolute;left:-50px;bottom:-40px;width:220px;height:220px;border-radius:50%;background:rgba(255,255,255,.07)"></div>
+    <div style="animation:floaty 4s ease-in-out infinite;z-index:2">
+      <svg viewBox="0 0 120 120" width="170" height="170" style="display:block;filter:drop-shadow(0 12px 18px rgba(0,0,0,.18))">
+        <ellipse cx="56" cy="116" rx="30" ry="6" fill="#0F172A" opacity="0.12"/>
+        <ellipse cx="62" cy="84" rx="33" ry="32" fill="#FFFFFF"/>
+        <path d="M30 70 Q20 92 40 106 Q53 96 50 76 Z" fill="#E2E8F0"/>
+        <ellipse cx="58" cy="50" rx="31" ry="29" fill="#FFFFFF"/>
+        <path d="M58 16 Q66 6 70 20 Q74 12 76 24 L66 32 Z" fill="#FACC15"/>
+        <circle cx="50" cy="48" r="13" fill="#0F172A"/><circle cx="50" cy="48" r="11.5" fill="#fff"/><circle cx="52" cy="50" r="6.5" fill="#0F172A"/><circle cx="54.5" cy="48" r="2.2" fill="#fff"/>
+        <path d="M76 48 Q98 50 87 67 Q74 65 72 56 Z" fill="#F97316"/>
+        <ellipse cx="43" cy="63" rx="7" ry="4.5" fill="#FCA5A5"/>
+      </svg>
+    </div>
+    <h1 style="font-family:'Baloo 2';font-weight:800;font-size:44px;margin:18px 0 6px;z-index:2">Bilimdon</h1>
+    <p style="font-size:17px;font-weight:700;color:rgba(255,255,255,.92);text-align:center;max-width:380px;z-index:2;margin:0 0 26px">5–6 sinf o'quvchilari uchun ingliz tili so'zlarini o'yin orqali o'rganish platformasi</p>
+    <div style="display:flex;flex-direction:column;gap:12px;z-index:2">
+      <div style="display:flex;align-items:center;gap:11px;font-weight:700;font-size:15px"><span style="width:30px;height:30px;border-radius:9px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center">🎙️</span> Mikrofon bilan talaffuz mashqi</div>
+      <div style="display:flex;align-items:center;gap:11px;font-weight:700;font-size:15px"><span style="width:30px;height:30px;border-radius:9px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center">⚔️</span> Do'stlar bilan jonli batl o'yinlari</div>
+      <div style="display:flex;align-items:center;gap:11px;font-weight:700;font-size:15px"><span style="width:30px;height:30px;border-radius:9px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center">🏆</span> Kunlik maqsad, streak va reyting</div>
+    </div>
+  </div>
+  <div style="width:480px;flex:none;display:flex;align-items:center;justify-content:center;padding:40px">
+    <div style="width:100%;max-width:350px">
+      <h2 style="font-family:'Baloo 2';font-weight:800;font-size:28px;color:#0F172A;margin:0 0 4px">Xush kelibsiz! 👋</h2>
+      <p style="font-size:14.5px;font-weight:700;color:#94A3B8;margin:0 0 26px">Davom etish uchun hisobingizga kiring</p>
+      <label style="font-size:13px;font-weight:800;color:#475569;margin-bottom:6px;display:block">Foydalanuvchi nomi</label>
+      <input type="text" value="aziz_06a" style="width:100%;padding:13px 15px;border:2px solid #E8EDF3;border-radius:14px;font-family:'Nunito';font-weight:700;font-size:14.5px;color:#0F172A;background:#F8FAFC;outline:none;box-sizing:border-box;margin-bottom:16px" style-focus="border-color:#22C55E;background:#fff"/>
+      <label style="font-size:13px;font-weight:800;color:#475569;margin-bottom:6px;display:block">Parol</label>
+      <input type="password" value="123456" style="width:100%;padding:13px 15px;border:2px solid #E8EDF3;border-radius:14px;font-family:'Nunito';font-weight:700;font-size:14.5px;color:#0F172A;background:#F8FAFC;outline:none;box-sizing:border-box;margin-bottom:14px" style-focus="border-color:#22C55E;background:#fff"/>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:22px">
+        <label style="display:flex;align-items:center;gap:7px;font-size:13px;font-weight:700;color:#64748B;cursor:pointer"><span style="width:18px;height:18px;border-radius:6px;background:#22C55E;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px">✓</span> Eslab qolish</label>
+        <span style="font-size:13px;font-weight:800;color:#3B82F6;cursor:pointer">Parolni unutdingizmi?</span>
+      </div>
+      <button onClick="{{ doLogin }}" style="width:100%;background:#22C55E;color:#fff;border:none;border-radius:15px;padding:15px;font-family:'Baloo 2';font-weight:800;font-size:17px;cursor:pointer;box-shadow:0 5px 0 #15803D;margin-bottom:14px">Kirish →</button>
+      <button onClick="{{ doLogin }}" style="width:100%;background:#fff;color:#475569;border:2px solid #E8EDF3;border-radius:15px;padding:12px;font-family:'Nunito';font-weight:800;font-size:14px;cursor:pointer;margin-bottom:22px">👀 Demo sifatida ko'rish</button>
+      <div style="text-align:center;font-size:14px;font-weight:700;color:#94A3B8">Hisobingiz yo'qmi? <span onClick="{{ goSignup }}" style="color:#22C55E;font-weight:800;cursor:pointer">Ro'yxatdan o'ting</span></div>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<!-- ============ AUTH: SIGNUP ============ -->
+<sc-if value="{{ showSignup }}" hint-placeholder-val="">
+<div style="min-height:100vh;width:100%;display:flex;align-items:center;justify-content:center;background:#F6F8FB;padding:40px;background-image:radial-gradient(circle at 15% 20%,#DCFCE7,transparent 40%),radial-gradient(circle at 85% 80%,#DBEAFE,transparent 40%)">
+  <div style="width:100%;max-width:440px;background:#fff;border:1px solid #EAF0F6;border-radius:26px;padding:36px;box-shadow:0 18px 50px rgba(15,23,42,.1)">
+    <div style="display:flex;align-items:center;gap:11px;margin-bottom:22px">
+      <div style="width:46px;height:46px;flex:none;background:linear-gradient(150deg,#22C55E,#16A34A);border-radius:14px;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 14px rgba(34,197,94,.35)">
+        <svg viewBox="0 0 120 120" width="32" height="32"><ellipse cx="58" cy="50" rx="31" ry="29" fill="#fff"/><path d="M58 18 Q66 8 70 22 Q74 14 76 26 L66 34 Z" fill="#FACC15"/><circle cx="50" cy="48" r="13" fill="#fff"/><circle cx="53" cy="50" r="6.5" fill="#0F172A"/><circle cx="55.5" cy="48" r="2" fill="#fff"/><path d="M76 48 Q96 50 86 66 Q74 64 72 56 Z" fill="#F97316"/></svg>
+      </div>
+      <div><div style="font-family:'Baloo 2';font-weight:800;font-size:22px;color:#0F172A;line-height:1">Bilimdon</div><div style="font-size:12px;font-weight:800;color:#22C55E">Yangi hisob yaratish</div></div>
+    </div>
+    <label style="font-size:13px;font-weight:800;color:#475569;margin-bottom:6px;display:block">Ism familiya</label>
+    <input type="text" placeholder="Aziz Karimov" style="width:100%;padding:13px 15px;border:2px solid #E8EDF3;border-radius:14px;font-family:'Nunito';font-weight:700;font-size:14.5px;color:#0F172A;background:#F8FAFC;outline:none;box-sizing:border-box;margin-bottom:14px" style-focus="border-color:#22C55E;background:#fff"/>
+    <div style="display:flex;gap:12px;margin-bottom:14px">
+      <div style="flex:1"><label style="font-size:13px;font-weight:800;color:#475569;margin-bottom:6px;display:block">Foydalanuvchi nomi</label><input type="text" placeholder="aziz_06a" style="width:100%;padding:13px 15px;border:2px solid #E8EDF3;border-radius:14px;font-family:'Nunito';font-weight:700;font-size:14.5px;color:#0F172A;background:#F8FAFC;outline:none;box-sizing:border-box" style-focus="border-color:#22C55E;background:#fff"/></div>
+      <div style="flex:1"><label style="font-size:13px;font-weight:800;color:#475569;margin-bottom:6px;display:block">Parol</label><input type="password" placeholder="••••••" style="width:100%;padding:13px 15px;border:2px solid #E8EDF3;border-radius:14px;font-family:'Nunito';font-weight:700;font-size:14.5px;color:#0F172A;background:#F8FAFC;outline:none;box-sizing:border-box" style-focus="border-color:#22C55E;background:#fff"/></div>
+    </div>
+    <label style="font-size:13px;font-weight:800;color:#475569;margin-bottom:6px;display:block">Hududingiz va maktabingiz</label>
+    <div style="position:relative;margin-bottom:12px">
+      <select value="{{ region }}" onChange="{{ setRegion }}" style="{{ selStyle }}">
+        <option value="">Viloyat / Respublikani tanlang</option>
+        <sc-for list="{{ regionOpts }}" as="r" hint-placeholder-count="14"><option value="{{ r }}">{{ r }}</option></sc-for>
+      </select>
+      <span style="position:absolute;right:15px;top:50%;transform:translateY(-50%);pointer-events:none;color:#94A3B8;font-size:11px">▼</span>
+    </div>
+    <div style="display:flex;gap:12px;margin-bottom:20px">
+      <div style="flex:1;position:relative">
+        <select value="{{ district }}" onChange="{{ setDistrict }}" disabled="{{ districtDisabled }}" style="{{ selStyle2 }}">
+          <option value="">Shahar / Tuman</option>
+          <sc-for list="{{ districtOpts }}" as="d" hint-placeholder-count="4"><option value="{{ d }}">{{ d }}</option></sc-for>
+        </select>
+        <span style="position:absolute;right:13px;top:50%;transform:translateY(-50%);pointer-events:none;color:#CBD5E1;font-size:11px">▼</span>
+      </div>
+      <div style="flex:1;position:relative">
+        <select value="{{ school }}" onChange="{{ setSchool }}" disabled="{{ schoolDisabled }}" style="{{ selStyle3 }}">
+          <option value="">Maktab</option>
+          <sc-for list="{{ schoolOpts }}" as="sch" hint-placeholder-count="5"><option value="{{ sch }}">{{ sch }}</option></sc-for>
+        </select>
+        <span style="position:absolute;right:13px;top:50%;transform:translateY(-50%);pointer-events:none;color:#CBD5E1;font-size:11px">▼</span>
+      </div>
+    </div>
+    <label style="font-size:13px;font-weight:800;color:#475569;margin-bottom:8px;display:block">Sinfingizni tanlang</label>
+    <div style="display:flex;gap:12px;margin-bottom:24px">
+      <sc-for list="{{ gradeChips }}" as="g" hint-placeholder-count="2">
+        <button onClick="{{ g.onClick }}" style="{{ g.style }}">{{ g.label }}</button>
+      </sc-for>
+    </div>
+    <button onClick="{{ doLogin }}" style="width:100%;background:#22C55E;color:#fff;border:none;border-radius:15px;padding:15px;font-family:'Baloo 2';font-weight:800;font-size:17px;cursor:pointer;box-shadow:0 5px 0 #15803D;margin-bottom:18px">Ro'yxatdan o'tish ✨</button>
+    <div style="text-align:center;font-size:14px;font-weight:700;color:#94A3B8">Hisobingiz bormi? <span onClick="{{ goLogin }}" style="color:#22C55E;font-weight:800;cursor:pointer">Kirish</span></div>
+  </div>
+</div>
+</sc-if>
+
+<!-- ============ APP ============ -->
+<sc-if value="{{ inApp }}" hint-placeholder-val="">
+<div style="display:flex;min-height:100vh;width:100%;background:#F6F8FB">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside style="width:260px;flex:none;background:#FFFFFF;border-right:1px solid #E8EDF3;display:flex;flex-direction:column;padding:22px 16px;position:sticky;top:0;height:100vh">
+    <div style="display:flex;align-items:center;gap:11px;padding:4px 8px 22px 8px">
+      <div style="width:42px;height:42px;flex:none;background:linear-gradient(150deg,#22C55E,#16A34A);border-radius:13px;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 14px rgba(34,197,94,.35)">
+        <svg viewBox="0 0 120 120" width="30" height="30" style="display:block">
+          <ellipse cx="62" cy="84" rx="33" ry="32" fill="#15803D"/>
+          <ellipse cx="58" cy="50" rx="31" ry="29" fill="#FFFFFF"/>
+          <path d="M58 18 Q66 8 70 22 Q74 14 76 26 L66 34 Z" fill="#FACC15"/>
+          <circle cx="50" cy="48" r="13" fill="#FFFFFF"/><circle cx="53" cy="50" r="6.5" fill="#0F172A"/><circle cx="55.5" cy="48" r="2" fill="#fff"/>
+          <path d="M76 48 Q96 50 86 66 Q74 64 72 56 Z" fill="#F97316"/>
+        </svg>
+      </div>
+      <div>
+        <div style="font-family:'Baloo 2';font-weight:800;font-size:20px;line-height:1;color:#0F172A">Bilimdon</div>
+        <div style="font-size:11px;font-weight:700;color:#22C55E;letter-spacing:.04em">5–6 SINF · INGLIZ TILI</div>
+      </div>
+    </div>
+
+    <nav style="display:flex;flex-direction:column;gap:4px;flex:1">
+      <sc-for list="{{ navItems }}" as="it" hint-placeholder-count="8">
+        <button onClick="{{ it.onClick }}" style="{{ it.style }}">
+          <span style="{{ it.dot }}"></span>
+          <span>{{ it.label }}</span>
+          <sc-if value="{{ it.badge }}" hint-placeholder-val="">
+            <span style="margin-left:auto;background:#EC4899;color:#fff;font-size:10px;font-weight:800;padding:2px 7px;border-radius:20px">{{ it.badge }}</span>
+          </sc-if>
+        </button>
+      </sc-for>
+    </nav>
+
+    <div style="margin-top:14px;background:linear-gradient(160deg,#EFF6FF,#DBEAFE);border:1px solid #BFDBFE;border-radius:18px;padding:16px">
+      <div style="font-family:'Baloo 2';font-weight:700;font-size:15px;color:#1E40AF">Bugungi maqsad</div>
+      <div style="font-size:12.5px;color:#3B82F6;font-weight:700;margin:3px 0 10px">{{ goalDone }} / {{ goalTotal }} daqiqa</div>
+      <div style="height:9px;background:#fff;border-radius:20px;overflow:hidden"><div style="{{ goalBar }}"></div></div>
+    </div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <div style="flex:1;min-width:0;display:flex;flex-direction:column">
+
+    <!-- TOPBAR -->
+    <header style="display:flex;align-items:center;gap:18px;padding:18px 34px;background:rgba(246,248,251,.85);backdrop-filter:blur(8px);position:sticky;top:0;z-index:20;border-bottom:1px solid #EBF0F6">
+      <div style="display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #E8EDF3;border-radius:14px;padding:10px 14px;width:340px;max-width:38%">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
+        <span style="color:#94A3B8;font-weight:600;font-size:13.5px">So'z yoki mavzu qidirish…</span>
+      </div>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:12px">
+        <div style="display:flex;align-items:center;gap:7px;background:#FFF7ED;border:1px solid #FED7AA;border-radius:13px;padding:8px 13px">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="#F59E0B"><path d="M12 2c1 4-2 5-2 8a4 4 0 008 0c0-1-1-3-1-3 2 1 3 3 3 6a8 8 0 11-16 0c0-5 5-7 8-11z"/></svg>
+          <span style="font-weight:800;color:#B45309;font-size:14px">{{ streak }}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:7px;background:#FEFCE8;border:1px solid #FEF08A;border-radius:13px;padding:8px 13px">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="#EAB308"><path d="M12 2l2.9 6.3 6.9.7-5.1 4.7 1.4 6.8L12 17.8 5.9 20.5l1.4-6.8L2.2 9l6.9-.7z"/></svg>
+          <span style="font-weight:800;color:#A16207;font-size:14px">{{ xp }} XP</span>
+        </div>
+        <div style="width:42px;height:42px;border-radius:13px;background:linear-gradient(150deg,#3B82F6,#2563EB);display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Baloo 2';font-weight:800;font-size:17px;box-shadow:0 5px 12px rgba(59,130,246,.35)">{{ initial }}</div>
+      </div>
+    </header>
+
+    <!-- CONTENT -->
+    <div style="flex:1;padding:26px 34px 60px">
+
+      <!-- ====== DASHBOARD ====== -->
+      <sc-if value="{{ showDashboard }}" hint-placeholder-val="{{ true }}">
+      <div style="animation:pop .35s ease;max-width:1180px">
+
+        <!-- HERO -->
+        <div style="position:relative;overflow:hidden;background:linear-gradient(125deg,#22C55E 0%,#16A34A 60%,#15803D 100%);border-radius:26px;padding:32px 36px;display:flex;align-items:center;gap:24px;box-shadow:0 18px 40px rgba(22,163,74,.32)">
+          <div style="position:absolute;right:-40px;top:-50px;width:230px;height:230px;border-radius:50%;background:rgba(255,255,255,.08)"></div>
+          <div style="position:absolute;right:120px;bottom:-70px;width:170px;height:170px;border-radius:50%;background:rgba(255,255,255,.07)"></div>
+          <div style="flex:1;position:relative;z-index:2">
+            <div style="display:inline-block;background:rgba(255,255,255,.2);color:#fff;font-weight:800;font-size:12px;padding:5px 12px;border-radius:20px;margin-bottom:12px">👋 Xush kelibsiz</div>
+            <h1 style="font-family:'Baloo 2';font-weight:800;font-size:32px;color:#fff;margin:0 0 6px">Salom, {{ name }}!</h1>
+            <p style="color:rgba(255,255,255,.92);font-size:15px;font-weight:600;margin:0 0 20px;max-width:440px">Bugun yana <b>{{ remaining }} daqiqa</b> qoldi. Keling, <b>Unit 4 — Animals</b> mavzusini davom ettiramiz!</p>
+            <div style="display:flex;gap:12px">
+              <button onClick="{{ goLearn }}" style="background:#fff;color:#16A34A;font-family:'Baloo 2';font-weight:800;font-size:15px;border:none;border-radius:14px;padding:13px 24px;cursor:pointer;box-shadow:0 6px 0 rgba(0,0,0,.12)">Davom ettirish →</button>
+              <button onClick="{{ goBattle }}" style="background:rgba(255,255,255,.16);color:#fff;font-family:'Baloo 2';font-weight:700;font-size:15px;border:2px solid rgba(255,255,255,.4);border-radius:14px;padding:11px 22px;cursor:pointer">⚔️ Batlga kirish</button>
+            </div>
+          </div>
+          <div style="flex:none;width:180px;position:relative;z-index:2;animation:floaty 4s ease-in-out infinite">
+            <svg viewBox="0 0 120 120" width="180" height="180" style="display:block;filter:drop-shadow(0 12px 18px rgba(0,0,0,.18))">
+              <ellipse cx="56" cy="116" rx="30" ry="6" fill="#0F172A" opacity="0.12"/>
+              <ellipse cx="62" cy="84" rx="33" ry="32" fill="#FFFFFF"/>
+              <path d="M30 70 Q20 92 40 106 Q53 96 50 76 Z" fill="#E2E8F0"/>
+              <ellipse cx="58" cy="50" rx="31" ry="29" fill="#FFFFFF"/>
+              <path d="M58 16 Q66 6 70 20 Q74 12 76 24 L66 32 Z" fill="#FACC15"/>
+              <circle cx="50" cy="48" r="13" fill="#0F172A"/><circle cx="50" cy="48" r="11.5" fill="#fff"/><circle cx="52" cy="50" r="6.5" fill="#0F172A"/><circle cx="54.5" cy="48" r="2.2" fill="#fff"/>
+              <path d="M76 48 Q98 50 87 67 Q74 65 72 56 Z" fill="#F97316"/>
+              <ellipse cx="43" cy="63" rx="7" ry="4.5" fill="#FCA5A5"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- STAT ROW -->
+        <div style="display:grid;grid-template-columns:1.15fr 1fr 1fr;gap:18px;margin-top:18px">
+          <div style="background:#fff;border:1px solid #EAF0F6;border-radius:22px;padding:22px;display:flex;align-items:center;gap:20px;box-shadow:0 2px 10px rgba(15,23,42,.04)">
+            <div style="position:relative;width:96px;height:96px;flex:none">
+              <svg width="96" height="96" viewBox="0 0 96 96">
+                <circle cx="48" cy="48" r="40" fill="none" stroke="#EEF2F7" stroke-width="11"/>
+                <circle cx="48" cy="48" r="40" fill="none" stroke="#22C55E" stroke-width="11" stroke-linecap="round" stroke-dasharray="251" stroke-dashoffset="{{ ringOffset }}" transform="rotate(-90 48 48)"/>
+              </svg>
+              <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
+                <div style="font-family:'Baloo 2';font-weight:800;font-size:22px;color:#16A34A;line-height:1">{{ goalPct }}%</div>
+                <div style="font-size:10px;font-weight:700;color:#94A3B8">maqsad</div>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:13px;font-weight:700;color:#94A3B8">Bugungi mashg'ulot</div>
+              <div style="font-family:'Baloo 2';font-weight:800;font-size:26px;color:#0F172A">{{ goalDone }} <span style="font-size:15px;color:#94A3B8">/ {{ goalTotal }} daq</span></div>
+              <div style="font-size:12.5px;font-weight:700;color:#22C55E;margin-top:2px">Ajoyib! Davom eting 💪</div>
+            </div>
+          </div>
+
+          <div style="background:#fff;border:1px solid #EAF0F6;border-radius:22px;padding:22px;box-shadow:0 2px 10px rgba(15,23,42,.04)">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+              <div style="width:42px;height:42px;border-radius:13px;background:#FFF7ED;display:flex;align-items:center;justify-content:center">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="#F59E0B"><path d="M12 2c1 4-2 5-2 8a4 4 0 008 0c0-1-1-3-1-3 2 1 3 3 3 6a8 8 0 11-16 0c0-5 5-7 8-11z"/></svg>
+              </div>
+              <div style="font-size:13px;font-weight:700;color:#94A3B8">Ketma-ket kunlar</div>
+            </div>
+            <div style="font-family:'Baloo 2';font-weight:800;font-size:34px;color:#0F172A;line-height:1">{{ streak }} <span style="font-size:16px;color:#94A3B8">kun</span></div>
+            <div style="display:flex;gap:5px;margin-top:12px">
+              <sc-for list="{{ week }}" as="d" hint-placeholder-count="7">
+                <div style="{{ d.style }}">{{ d.label }}</div>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="background:#fff;border:1px solid #EAF0F6;border-radius:22px;padding:22px;box-shadow:0 2px 10px rgba(15,23,42,.04)">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+              <div style="width:42px;height:42px;border-radius:13px;background:#EFF6FF;display:flex;align-items:center;justify-content:center">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="#3B82F6"><path d="M12 2l2.9 6.3 6.9.7-5.1 4.7 1.4 6.8L12 17.8 5.9 20.5l1.4-6.8L2.2 9l6.9-.7z"/></svg>
+              </div>
+              <div style="font-size:13px;font-weight:700;color:#94A3B8">Jami so'zlar</div>
+            </div>
+            <div style="font-family:'Baloo 2';font-weight:800;font-size:34px;color:#0F172A;line-height:1">342 <span style="font-size:16px;color:#94A3B8">so'z</span></div>
+            <div style="font-size:12.5px;font-weight:700;color:#3B82F6;margin-top:10px">+18 so'z bu hafta ↑</div>
+          </div>
+        </div>
+
+        <!-- DASHBOARD LOWER -->
+        <div style="display:grid;grid-template-columns:1.6fr 1fr;gap:18px;margin-top:18px">
+          <div style="background:#fff;border:1px solid #EAF0F6;border-radius:22px;padding:24px;box-shadow:0 2px 10px rgba(15,23,42,.04)">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+              <h3 style="font-family:'Baloo 2';font-weight:800;font-size:19px;margin:0;color:#0F172A">Bugungi mashg'ulotlar</h3>
+              <span style="font-size:12.5px;font-weight:700;color:#94A3B8">~30 daqiqa</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:11px">
+              <div onClick="{{ goLearn }}" style="display:flex;align-items:center;gap:14px;padding:14px;border:1px solid #DCFCE7;background:#F0FDF4;border-radius:16px;cursor:pointer">
+                <div style="width:48px;height:48px;flex:none;border-radius:13px;background:#22C55E;display:flex;align-items:center;justify-content:center;font-size:22px">📖</div>
+                <div style="flex:1"><div style="font-weight:800;font-size:15px;color:#0F172A">So'z o'rganish — Animals</div><div style="font-size:12.5px;font-weight:700;color:#16A34A">12 ta yangi so'z · 10 daqiqa</div></div>
+                <div style="font-weight:800;font-size:13px;color:#22C55E;background:#DCFCE7;padding:6px 12px;border-radius:20px">Boshlash</div>
+              </div>
+              <div onClick="{{ goSpeak }}" style="display:flex;align-items:center;gap:14px;padding:14px;border:1px solid #EDE9FE;background:#FAF5FF;border-radius:16px;cursor:pointer">
+                <div style="width:48px;height:48px;flex:none;border-radius:13px;background:#8B5CF6;display:flex;align-items:center;justify-content:center;font-size:22px">🎙️</div>
+                <div style="flex:1"><div style="font-weight:800;font-size:15px;color:#0F172A">Talaffuz mashqi</div><div style="font-size:12.5px;font-weight:700;color:#7C3AED">Mikrofonga gapiring · 8 daqiqa</div></div>
+                <div style="font-weight:800;font-size:13px;color:#8B5CF6;background:#EDE9FE;padding:6px 12px;border-radius:20px">Boshlash</div>
+              </div>
+              <div onClick="{{ goQuiz }}" style="display:flex;align-items:center;gap:14px;padding:14px;border:1px solid #FEF3C7;background:#FFFBEB;border-radius:16px;cursor:pointer">
+                <div style="width:48px;height:48px;flex:none;border-radius:13px;background:#F59E0B;display:flex;align-items:center;justify-content:center;font-size:22px">✅</div>
+                <div style="flex:1"><div style="font-weight:800;font-size:15px;color:#0F172A">Kunlik test</div><div style="font-size:12.5px;font-weight:700;color:#B45309">10 ta savol · 7 daqiqa</div></div>
+                <div style="font-weight:800;font-size:13px;color:#F59E0B;background:#FEF3C7;padding:6px 12px;border-radius:20px">Boshlash</div>
+              </div>
+            </div>
+          </div>
+
+          <div style="background:linear-gradient(160deg,#1E293B,#0F172A);border-radius:22px;padding:24px;color:#fff;box-shadow:0 10px 26px rgba(15,23,42,.2)">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+              <h3 style="font-family:'Baloo 2';font-weight:800;font-size:18px;margin:0;color:#fff">Sinf reytingi</h3>
+              <span style="font-size:11px;font-weight:800;color:#FACC15;background:rgba(250,204,21,.15);padding:4px 9px;border-radius:20px">TOP 5</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:9px">
+              <sc-for list="{{ leaders }}" as="p" hint-placeholder-count="5">
+                <div style="{{ p.row }}">
+                  <span style="{{ p.rank }}">{{ p.n }}</span>
+                  <span style="flex:1;font-weight:700;font-size:14px;{{ p.meText }}">{{ p.name }}</span>
+                  <span style="font-weight:800;font-size:13px;color:#FACC15">{{ p.xp }}</span>
+                </div>
+              </sc-for>
+            </div>
+            <button onClick="{{ goLeaders }}" style="width:100%;margin-top:14px;background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.18);border-radius:12px;padding:10px;font-weight:700;font-size:13px;cursor:pointer;font-family:'Nunito'">To'liq reytingni ko'rish →</button>
+          </div>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ====== LEARN / FLASHCARD ====== -->
+      <sc-if value="{{ showLearn }}" hint-placeholder-val="">
+      <div style="animation:pop .35s ease;max-width:760px;margin:0 auto">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <div><h2 style="font-family:'Baloo 2';font-weight:800;font-size:24px;margin:0;color:#0F172A">Unit 4 — Animals</h2><div style="font-size:13.5px;font-weight:700;color:#94A3B8">So'z {{ cardNo }} / {{ cardTotal }} · kartani aylantiring</div></div>
+          <div style="display:flex;gap:6px;align-items:center;background:#fff;border:1px solid #EAF0F6;padding:7px 13px;border-radius:13px"><span style="font-size:13px;font-weight:800;color:#22C55E">{{ knownCount }}</span><span style="font-size:12.5px;font-weight:700;color:#94A3B8">o'rganildi</span></div>
+        </div>
+        <div style="height:9px;background:#E8EDF3;border-radius:20px;overflow:hidden;margin:14px 0 22px"><div style="{{ learnBar }}"></div></div>
+
+        <div style="perspective:1500px;height:340px">
+          <div style="{{ flipInner }}">
+            <!-- FRONT -->
+            <div style="position:absolute;inset:0;backface-visibility:hidden;background:#fff;border:1px solid #EAF0F6;border-radius:28px;box-shadow:0 14px 40px rgba(15,23,42,.08);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px;cursor:pointer" onClick="{{ flipCard }}">
+              <div style="font-size:64px;margin-bottom:8px">{{ word.emoji }}</div>
+              <div style="font-family:'Baloo 2';font-weight:800;font-size:46px;color:#0F172A;line-height:1">{{ word.en }}</div>
+              <div style="font-size:18px;font-weight:700;color:#94A3B8;margin-top:6px">{{ word.ipa }}</div>
+              <button onClick="{{ stopAndSpeak }}" style="margin-top:18px;display:flex;align-items:center;gap:8px;background:#EFF6FF;color:#2563EB;border:1px solid #BFDBFE;border-radius:14px;padding:11px 18px;font-weight:800;font-size:14px;cursor:pointer;font-family:'Nunito'">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="#2563EB"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 010 7" stroke="#2563EB" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+                Tinglash
+              </button>
+              <div style="position:absolute;bottom:16px;font-size:12px;font-weight:700;color:#CBD5E1">Tarjimani ko'rish uchun bosing ↻</div>
+            </div>
+            <!-- BACK -->
+            <div style="position:absolute;inset:0;backface-visibility:hidden;transform:rotateY(180deg);background:linear-gradient(150deg,#22C55E,#16A34A);border-radius:28px;box-shadow:0 14px 40px rgba(22,163,74,.3);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:36px;cursor:pointer;text-align:center" onClick="{{ flipCard }}">
+              <div style="font-size:13px;font-weight:800;color:rgba(255,255,255,.7);letter-spacing:.08em">TARJIMA</div>
+              <div style="font-family:'Baloo 2';font-weight:800;font-size:42px;color:#fff;margin:4px 0 18px">{{ word.uz }}</div>
+              <div style="background:rgba(255,255,255,.16);border-radius:16px;padding:16px 20px;max-width:90%"><div style="font-size:12px;font-weight:800;color:rgba(255,255,255,.7);margin-bottom:4px">MISOL</div><div style="font-size:17px;font-weight:700;color:#fff;font-style:italic">"{{ word.ex }}"</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:12px;margin-top:24px;align-items:stretch">
+          <button onClick="{{ prevCard }}" style="flex:none;width:56px;background:#fff;color:#64748B;border:1.5px solid #E8EDF3;border-radius:16px;font-family:'Baloo 2';font-weight:800;font-size:22px;cursor:pointer" style-hover="border-color:#3B82F6;color:#3B82F6">‹</button>
+          <button onClick="{{ reviewCard }}" style="flex:1;background:#FEF2F2;color:#DC2626;border:1.5px solid #FECACA;border-radius:16px;padding:15px;font-family:'Baloo 2';font-weight:700;font-size:16px;cursor:pointer">↻ Takrorlash kerak</button>
+          <button onClick="{{ knowCard }}" style="flex:1;background:#22C55E;color:#fff;border:none;border-radius:16px;padding:15px;font-family:'Baloo 2';font-weight:800;font-size:16px;cursor:pointer;box-shadow:0 5px 0 #15803D">✓ Bilaman</button>
+        </div>
+        <div style="text-align:center;margin-top:14px;font-size:12px;font-weight:700;color:#CBD5E1">Klaviatura: ← oldingi · → keyingi · bo'sh joy aylantirish · S tinglash</div>
+      </div>
+      </sc-if>
+
+      <!-- ====== SPEAK / MIC ====== -->
+      <sc-if value="{{ showSpeak }}" hint-placeholder-val="">
+      <div style="animation:pop .35s ease;max-width:720px;margin:0 auto;text-align:center">
+        <div style="display:inline-flex;align-items:center;gap:8px;background:#F3E8FF;color:#7C3AED;font-weight:800;font-size:12.5px;padding:6px 14px;border-radius:20px;margin-bottom:10px">🎙️ TALAFFUZ MASHQI</div>
+        <h2 style="font-family:'Baloo 2';font-weight:800;font-size:25px;margin:0 0 4px;color:#0F172A">Bu so'zni baland ovozda ayting</h2>
+        <p style="font-size:14px;font-weight:700;color:#94A3B8;margin:0 0 22px">Naushnik kiying, mikrofonni yoqing va talaffuzingizni tekshiring</p>
+
+        <div style="background:#fff;border:1px solid #EAF0F6;border-radius:26px;padding:32px;box-shadow:0 10px 30px rgba(15,23,42,.06)">
+          <div style="font-size:11px;font-weight:800;color:#A78BFA;letter-spacing:.06em;margin-bottom:8px">SO'Z {{ spNo }} / {{ spTotal }}</div>
+          <div style="font-family:'Baloo 2';font-weight:800;font-size:44px;color:#0F172A">{{ spWord.en }}</div>
+          <div style="font-size:18px;font-weight:700;color:#8B5CF6;margin:2px 0 16px">{{ spWord.ipa }} · {{ spWord.uz }}</div>
+          <button onClick="{{ speakModel }}" style="display:inline-flex;align-items:center;gap:8px;background:#F3E8FF;color:#7C3AED;border:1px solid #E9D5FF;border-radius:13px;padding:9px 16px;font-weight:800;font-size:13.5px;cursor:pointer;font-family:'Nunito'">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="#7C3AED"><path d="M11 5L6 9H2v6h4l5 4V5z"/></svg> Namunani tinglash
+          </button>
+
+          <!-- waveform -->
+          <div style="display:flex;align-items:center;justify-content:center;gap:4px;height:60px;margin:24px 0">
+            <sc-for list="{{ waves }}" as="w" hint-placeholder-count="13">
+              <div style="{{ w }}"></div>
+            </sc-for>
+          </div>
+
+          <!-- mic button -->
+          <button onClick="{{ toggleRec }}" style="{{ micStyle }}">
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="#fff"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+          </button>
+          <div style="font-size:13.5px;font-weight:800;color:{{ micLabelColor }};margin-top:14px">{{ micLabel }}</div>
+        </div>
+
+        <!-- result -->
+        <sc-if value="{{ hasScore }}" hint-placeholder-val="">
+          <div style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:22px;padding:22px 24px;margin-top:18px;display:flex;align-items:center;gap:22px;text-align:left;animation:pop .3s ease">
+            <div style="position:relative;width:88px;height:88px;flex:none">
+              <svg width="88" height="88" viewBox="0 0 88 88"><circle cx="44" cy="44" r="37" fill="none" stroke="#DCFCE7" stroke-width="9"/><circle cx="44" cy="44" r="37" fill="none" stroke="#22C55E" stroke-width="9" stroke-linecap="round" stroke-dasharray="232" stroke-dashoffset="{{ scoreOffset }}" transform="rotate(-90 44 44)"/></svg>
+              <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-weight:800;font-size:24px;color:#16A34A">{{ recScore }}%</div>
+            </div>
+            <div style="flex:1">
+              <div style="font-family:'Baloo 2';font-weight:800;font-size:18px;color:#15803D">Zo'r talaffuz! 🎉</div>
+              <div style="font-size:13.5px;font-weight:700;color:#16A34A;margin:2px 0 10px">{{ spSyl }}</div>
+              <div style="display:flex;gap:8px">
+                <button onClick="{{ toggleRec }}" style="background:#fff;color:#16A34A;border:1px solid #BBF7D0;border-radius:11px;padding:8px 14px;font-weight:800;font-size:13px;cursor:pointer;font-family:'Nunito'">↻ Qayta</button>
+                <button onClick="{{ nextSpeak }}" style="background:#22C55E;color:#fff;border:none;border-radius:11px;padding:8px 16px;font-weight:800;font-size:13px;cursor:pointer;font-family:'Nunito'">Keyingi so'z →</button>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+      </div>
+      </sc-if>
+
+      <!-- ====== LISTEN ====== -->
+      <sc-if value="{{ showListen }}" hint-placeholder-val="">
+      <div style="animation:pop .35s ease;max-width:680px;margin:0 auto;text-align:center">
+        <div style="display:inline-flex;align-items:center;gap:8px;background:#CFFAFE;color:#0E7490;font-weight:800;font-size:12.5px;padding:6px 14px;border-radius:20px;margin-bottom:10px">🎧 TINGLAB TUSHUNISH</div>
+        <sc-if value="{{ listenPlaying }}" hint-placeholder-val="{{ true }}">
+        <h2 style="font-family:'Baloo 2';font-weight:800;font-size:25px;margin:0 0 4px;color:#0F172A">Tinglang va to'g'ri so'zni tanlang</h2>
+        <p style="font-size:14px;font-weight:700;color:#94A3B8;margin:0 0 16px">Naushnikdan jumlani eshiting va qaysi so'z ishlatilganini toping.</p>
+        <div style="display:flex;align-items:center;gap:10px;max-width:300px;margin:0 auto 22px"><span style="font-size:12.5px;font-weight:800;color:#0891B2;white-space:nowrap">{{ lqNo }}/{{ lqTotal }}</span><div style="flex:1;height:8px;background:#E8EDF3;border-radius:20px;overflow:hidden"><div style="{{ listenProgress }}"></div></div></div>
+
+        <button onClick="{{ playListen }}" style="{{ listenBtn }}">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg>
+        </button>
+        <div style="font-size:13.5px;font-weight:800;color:#0891B2;margin:14px 0 24px">▶ Jumlani tinglash uchun bosing</div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <sc-for list="{{ listenOpts }}" as="o" hint-placeholder-count="4">
+            <button onClick="{{ o.onClick }}" style="{{ o.style }}">{{ o.label }}</button>
+          </sc-for>
+        </div>
+        <sc-if value="{{ listenFeedback }}" hint-placeholder-val="">
+          <div style="{{ listenFbStyle }}">{{ listenFeedback }}</div>
+        </sc-if>
+        <sc-if value="{{ listenAnswered }}" hint-placeholder-val="">
+          <button onClick="{{ nextListen }}" style="margin-top:16px;background:#06B6D4;color:#fff;border:none;border-radius:14px;padding:13px 28px;font-family:'Baloo 2';font-weight:800;font-size:16px;cursor:pointer;box-shadow:0 5px 0 #0E7490">Keyingi →</button>
+        </sc-if>
+        </sc-if>
+
+        <sc-if value="{{ listenEnd }}" hint-placeholder-val="">
+        <div style="background:#fff;border:1px solid #EAF0F6;border-radius:24px;padding:40px;box-shadow:0 8px 26px rgba(15,23,42,.06);animation:pop .4s ease">
+          <div style="font-size:64px">{{ listenResultEmoji }}</div>
+          <h2 style="font-family:'Baloo 2';font-weight:800;font-size:30px;margin:8px 0 4px;color:#0F172A">Mashq tugadi!</h2>
+          <p style="font-size:15px;font-weight:700;color:#94A3B8;margin:0 0 16px">Siz <b style="color:#06B6D4">{{ listenScore }}/{{ lqTotal }}</b> ta jumlani to'g'ri tushundingiz</p>
+          <div style="display:inline-flex;align-items:center;gap:8px;background:#FEFCE8;border:1px solid #FEF08A;border-radius:14px;padding:10px 18px;margin-bottom:24px"><svg width="18" height="18" viewBox="0 0 24 24" fill="#EAB308"><path d="M12 2l2.9 6.3 6.9.7-5.1 4.7 1.4 6.8L12 17.8 5.9 20.5l1.4-6.8L2.2 9l6.9-.7z"/></svg><span style="font-weight:800;color:#A16207">+{{ listenXp }} XP</span></div>
+          <div style="display:flex;gap:12px;justify-content:center">
+            <button onClick="{{ retryListen }}" style="background:#06B6D4;color:#fff;border:none;border-radius:15px;padding:14px 26px;font-family:'Baloo 2';font-weight:800;font-size:16px;cursor:pointer;box-shadow:0 5px 0 #0E7490">↻ Qayta</button>
+            <button onClick="{{ goDash }}" style="background:#F1F5F9;color:#475569;border:none;border-radius:15px;padding:14px 26px;font-family:'Baloo 2';font-weight:700;font-size:16px;cursor:pointer">Bosh sahifa</button>
+          </div>
+        </div>
+        </sc-if>
+      </div>
+      </sc-if>
+
+      <!-- ====== BATTLE ====== -->
+      <sc-if value="{{ showBattle }}" hint-placeholder-val="">
+      <div style="animation:pop .35s ease;max-width:860px;margin:0 auto">
+
+        <!-- Players header -->
+        <div style="background:linear-gradient(125deg,#1E293B,#0F172A);border-radius:24px;padding:20px 26px;display:flex;align-items:center;gap:18px;box-shadow:0 14px 36px rgba(15,23,42,.28)">
+          <div style="display:flex;align-items:center;gap:13px;flex:1">
+            <div style="width:54px;height:54px;border-radius:16px;background:linear-gradient(150deg,#22C55E,#16A34A);display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Baloo 2';font-weight:800;font-size:22px;box-shadow:0 0 0 3px rgba(34,197,94,.3)">{{ initial }}</div>
+            <div><div style="color:#fff;font-weight:800;font-size:15px">{{ name }} (siz)</div><div style="color:#22C55E;font-weight:800;font-size:13px">{{ myScore }} ball</div></div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+            <div style="font-family:'Baloo 2';font-weight:800;font-size:22px;color:#FACC15;background:rgba(250,204,21,.12);width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center">VS</div>
+            <div style="font-size:11px;font-weight:800;color:#64748B">SAVOL {{ bNo }}/{{ bTotal }}</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:13px;flex:1;justify-content:flex-end;text-align:right">
+            <div><div style="color:#fff;font-weight:800;font-size:15px">Jasur T. 🤖</div><div style="color:#EC4899;font-weight:800;font-size:13px">{{ oppScore }} ball</div></div>
+            <div style="width:54px;height:54px;border-radius:16px;background:linear-gradient(150deg,#EC4899,#DB2777);display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Baloo 2';font-weight:800;font-size:22px;box-shadow:0 0 0 3px rgba(236,72,153,.3)">J</div>
+          </div>
+        </div>
+
+        <sc-if value="{{ battlePlaying }}" hint-placeholder-val="{{ true }}">
+        <div style="margin-top:18px">
+          <!-- timer -->
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px">
+            <div style="flex:1;height:8px;background:#E8EDF3;border-radius:20px;overflow:hidden"><div style="{{ bTimerStyle }}"></div></div>
+            <span style="font-family:'Baloo 2';font-weight:800;font-size:15px;color:{{ bTimerColor }};min-width:34px;text-align:right">{{ bTime }}s</span>
+          </div>
+
+          <div style="background:#fff;border:1px solid #EAF0F6;border-radius:24px;padding:30px;text-align:center;box-shadow:0 8px 26px rgba(15,23,42,.06)">
+            <div style="font-size:12.5px;font-weight:800;color:#EC4899;letter-spacing:.06em;margin-bottom:8px">⚡ TEZ JAVOB BERING</div>
+            <h2 style="font-family:'Baloo 2';font-weight:800;font-size:28px;color:#0F172A;margin:0 0 22px">{{ bQ.q }}</h2>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:13px">
+              <sc-for list="{{ bOpts }}" as="o" hint-placeholder-count="4">
+                <button onClick="{{ o.onClick }}" style="{{ o.style }}">{{ o.label }}</button>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+        </sc-if>
+
+        <sc-if value="{{ battleEnd }}" hint-placeholder-val="">
+        <div style="margin-top:18px;background:#fff;border:1px solid #EAF0F6;border-radius:24px;padding:38px;text-align:center;box-shadow:0 8px 26px rgba(15,23,42,.06);animation:pop .4s ease">
+          <div style="font-size:64px;animation:floaty 3s ease-in-out infinite">{{ bResultEmoji }}</div>
+          <h2 style="font-family:'Baloo 2';font-weight:800;font-size:32px;margin:8px 0 4px;color:{{ bResultColor }}">{{ bResultTitle }}</h2>
+          <p style="font-size:15px;font-weight:700;color:#94A3B8;margin:0 0 8px">Yakuniy hisob</p>
+          <div style="display:inline-flex;align-items:center;gap:18px;font-family:'Baloo 2';font-weight:800;font-size:34px;margin-bottom:22px">
+            <span style="color:#16A34A">{{ myScore }}</span><span style="color:#CBD5E1;font-size:20px">—</span><span style="color:#DB2777">{{ oppScore }}</span>
+          </div>
+          <div style="display:flex;gap:12px;justify-content:center">
+            <button onClick="{{ rematch }}" style="background:#EC4899;color:#fff;border:none;border-radius:15px;padding:14px 26px;font-family:'Baloo 2';font-weight:800;font-size:16px;cursor:pointer;box-shadow:0 5px 0 #BE185D">⚔️ Qayta o'ynash</button>
+            <button onClick="{{ goDash }}" style="background:#F1F5F9;color:#475569;border:none;border-radius:15px;padding:14px 26px;font-family:'Baloo 2';font-weight:700;font-size:16px;cursor:pointer">Bosh sahifa</button>
+          </div>
+        </div>
+        </sc-if>
+      </div>
+      </sc-if>
+
+      <!-- ====== QUIZ ====== -->
+      <sc-if value="{{ showQuiz }}" hint-placeholder-val="">
+      <div style="animation:pop .35s ease;max-width:680px;margin:0 auto">
+        <sc-if value="{{ quizPlaying }}" hint-placeholder-val="{{ true }}">
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <h2 style="font-family:'Baloo 2';font-weight:800;font-size:23px;margin:0;color:#0F172A">Kunlik test</h2>
+            <span style="font-size:13.5px;font-weight:800;color:#F59E0B;background:#FEF3C7;padding:6px 13px;border-radius:20px">{{ qNo }} / {{ qTotal }}</span>
+          </div>
+          <div style="height:9px;background:#E8EDF3;border-radius:20px;overflow:hidden;margin-bottom:22px"><div style="{{ quizBar }}"></div></div>
+          <div style="background:#fff;border:1px solid #EAF0F6;border-radius:24px;padding:30px;box-shadow:0 8px 26px rgba(15,23,42,.06)">
+            <h3 style="font-family:'Baloo 2';font-weight:800;font-size:24px;color:#0F172A;margin:0 0 22px;text-align:center">{{ qQ.q }}</h3>
+            <div style="display:flex;flex-direction:column;gap:11px">
+              <sc-for list="{{ qOpts }}" as="o" hint-placeholder-count="4">
+                <button onClick="{{ o.onClick }}" style="{{ o.style }}"><span style="{{ o.badge }}">{{ o.letter }}</span>{{ o.label }}</button>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+        </sc-if>
+        <sc-if value="{{ quizEnd }}" hint-placeholder-val="">
+        <div style="background:#fff;border:1px solid #EAF0F6;border-radius:24px;padding:40px;text-align:center;box-shadow:0 8px 26px rgba(15,23,42,.06);animation:pop .4s ease">
+          <div style="font-size:64px">{{ qResultEmoji }}</div>
+          <h2 style="font-family:'Baloo 2';font-weight:800;font-size:30px;margin:8px 0 4px;color:#0F172A">Test tugadi!</h2>
+          <p style="font-size:15px;font-weight:700;color:#94A3B8;margin:0 0 16px">Siz <b style="color:#F59E0B">{{ qScore }}/{{ qTotal }}</b> ta to'g'ri javob berdingiz</p>
+          <div style="display:inline-flex;align-items:center;gap:8px;background:#FEFCE8;border:1px solid #FEF08A;border-radius:14px;padding:10px 18px;margin-bottom:24px"><svg width="18" height="18" viewBox="0 0 24 24" fill="#EAB308"><path d="M12 2l2.9 6.3 6.9.7-5.1 4.7 1.4 6.8L12 17.8 5.9 20.5l1.4-6.8L2.2 9l6.9-.7z"/></svg><span style="font-weight:800;color:#A16207">+{{ qXp }} XP yutdingiz</span></div>
+          <div style="display:flex;gap:12px;justify-content:center">
+            <button onClick="{{ retryQuiz }}" style="background:#F59E0B;color:#fff;border:none;border-radius:15px;padding:14px 26px;font-family:'Baloo 2';font-weight:800;font-size:16px;cursor:pointer;box-shadow:0 5px 0 #B45309">↻ Qayta</button>
+            <button onClick="{{ goDash }}" style="background:#F1F5F9;color:#475569;border:none;border-radius:15px;padding:14px 26px;font-family:'Baloo 2';font-weight:700;font-size:16px;cursor:pointer">Bosh sahifa</button>
+          </div>
+        </div>
+        </sc-if>
+      </div>
+      </sc-if>
+
+      <!-- ====== LEADERS ====== -->
+      <sc-if value="{{ showLeaders }}" hint-placeholder-val="">
+      <div style="animation:pop .35s ease;max-width:760px;margin:0 auto">
+        <h2 style="font-family:'Baloo 2';font-weight:800;font-size:25px;margin:0 0 4px;color:#0F172A">Reyting 🏆</h2>
+        <p style="font-size:14px;font-weight:700;color:#94A3B8;margin:0 0 20px">Hudud va maktab bo'yicha eng faol 5–6 sinf o'quvchilari</p>
+
+        <!-- your rank across scopes -->
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px">
+          <sc-for list="{{ rankStats }}" as="rs" hint-placeholder-count="4">
+            <div style="background:{{ rs.bg }};border:1px solid #EAF0F6;border-radius:18px;padding:16px;text-align:center">
+              <div style="font-size:12px;font-weight:800;color:#94A3B8;margin-bottom:4px">{{ rs.l }}</div>
+              <div style="font-family:'Baloo 2';font-weight:800;font-size:26px;color:{{ rs.c }}">{{ rs.v }}</div>
+            </div>
+          </sc-for>
+        </div>
+
+        <!-- scope tabs -->
+        <div style="display:flex;gap:8px;margin-bottom:8px">
+          <sc-for list="{{ scopeTabs }}" as="t" hint-placeholder-count="4">
+            <button onClick="{{ t.onClick }}" style="{{ t.style }}">{{ t.label }}</button>
+          </sc-for>
+        </div>
+        <div style="font-size:12.5px;font-weight:800;color:#0F172A;margin:0 0 18px;display:flex;align-items:center;gap:7px"><span style="width:8px;height:8px;border-radius:3px;background:#22C55E"></span>{{ scopeLabel }}</div>
+        <!-- podium -->
+        <div style="display:flex;align-items:flex-end;justify-content:center;gap:14px;margin-bottom:22px">
+          <sc-for list="{{ podium }}" as="p" hint-placeholder-count="3">
+            <div style="{{ p.wrap }}">
+              <div style="{{ p.av }}">{{ p.init }}</div>
+              <div style="font-weight:800;font-size:14px;color:#0F172A;margin-top:8px">{{ p.name }}</div>
+              <div style="font-weight:800;font-size:13px;color:#A16207">{{ p.xp }} XP</div>
+              <div style="{{ p.bar }}">{{ p.medal }}</div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="background:#fff;border:1px solid #EAF0F6;border-radius:22px;padding:10px;box-shadow:0 2px 10px rgba(15,23,42,.04)">
+          <sc-for list="{{ board }}" as="r" hint-placeholder-count="6">
+            <div style="{{ r.row }}">
+              <span style="width:30px;text-align:center;font-weight:800;font-size:15px;color:#94A3B8">{{ r.n }}</span>
+              <div style="{{ r.av }}">{{ r.init }}</div>
+              <span style="flex:1;font-weight:700;font-size:15px;{{ r.meCol }}">{{ r.name }}</span>
+              <span style="font-weight:700;font-size:13px;color:#94A3B8;margin-right:14px">{{ r.words }} so'z</span>
+              <span style="font-weight:800;font-size:14px;color:#EAB308">{{ r.xp }} XP</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ====== PROFILE ====== -->
+      <sc-if value="{{ showProfile }}" hint-placeholder-val="">
+      <div style="animation:pop .35s ease;max-width:880px;margin:0 auto">
+        <div style="background:linear-gradient(125deg,#3B82F6,#2563EB);border-radius:24px;padding:30px;display:flex;align-items:center;gap:22px;box-shadow:0 14px 36px rgba(59,130,246,.3);position:relative;overflow:hidden">
+          <div style="position:absolute;right:-30px;top:-40px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.08)"></div>
+          <div style="width:90px;height:90px;border-radius:26px;background:#fff;display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-weight:800;font-size:40px;color:#2563EB;flex:none;z-index:2">{{ initial }}</div>
+          <div style="flex:1;z-index:2">
+            <h2 style="font-family:'Baloo 2';font-weight:800;font-size:28px;color:#fff;margin:0">{{ name }}</h2>
+            <div style="color:rgba(255,255,255,.9);font-weight:700;font-size:14px;margin:2px 0 8px">6-A sinf · Daraja 7 — "Tilshunos" 🦉</div>
+            <div style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px">
+              <span style="display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.18);color:#fff;font-weight:700;font-size:12px;padding:4px 11px;border-radius:20px">📍 {{ myRegion }}</span>
+              <span style="display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.18);color:#fff;font-weight:700;font-size:12px;padding:4px 11px;border-radius:20px">🏫 {{ myDistrict }}, {{ mySchool }}</span>
+            </div>
+            <div style="height:10px;background:rgba(255,255,255,.25);border-radius:20px;overflow:hidden;max-width:340px"><div style="height:100%;width:64%;background:#FACC15;border-radius:20px"></div></div>
+            <div style="color:rgba(255,255,255,.85);font-weight:700;font-size:12px;margin-top:6px">1,240 / 1,800 XP · 8-darajagacha 560 XP</div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:18px 0">
+          <sc-for list="{{ pstats }}" as="st" hint-placeholder-count="4">
+            <div style="background:#fff;border:1px solid #EAF0F6;border-radius:18px;padding:18px;text-align:center;box-shadow:0 2px 10px rgba(15,23,42,.04)">
+              <div style="font-family:'Baloo 2';font-weight:800;font-size:26px;color:{{ st.c }}">{{ st.v }}</div>
+              <div style="font-size:12.5px;font-weight:700;color:#94A3B8">{{ st.l }}</div>
+            </div>
+          </sc-for>
+        </div>
+        <h3 style="font-family:'Baloo 2';font-weight:800;font-size:19px;margin:0 0 14px;color:#0F172A">Yutuqlar va nishonlar</h3>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px">
+          <sc-for list="{{ badges }}" as="b" hint-placeholder-count="8">
+            <div style="{{ b.wrap }}">
+              <div style="{{ b.icon }}">{{ b.emoji }}</div>
+              <div style="font-weight:800;font-size:13px;color:{{ b.titleCol }};margin-top:8px">{{ b.title }}</div>
+              <div style="font-size:11.5px;font-weight:700;color:#94A3B8">{{ b.desc }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ====== LESSONS / UNITS ====== -->
+      <sc-if value="{{ showLessons }}" hint-placeholder-val="">
+      <div style="animation:pop .35s ease;max-width:1080px">
+        <h2 style="font-family:'Baloo 2';font-weight:800;font-size:25px;margin:0 0 4px;color:#0F172A">Mavzular 📚</h2>
+        <p style="font-size:14px;font-weight:700;color:#94A3B8;margin:0 0 22px">5–6 sinf darsligi asosida tuzilgan birliklar. Tartib bilan o'rganing.</p>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:18px">
+          <sc-for list="{{ units }}" as="u" hint-placeholder-count="6">
+            <div onClick="{{ u.onClick }}" style="{{ u.wrap }}">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+                <div style="{{ u.icon }}">{{ u.emoji }}</div>
+                <span style="{{ u.tag }}">{{ u.tagText }}</span>
+              </div>
+              <div style="font-family:'Baloo 2';font-weight:800;font-size:19px;color:{{ u.titleCol }}">{{ u.title }}</div>
+              <div style="font-size:13px;font-weight:700;color:#94A3B8;margin:2px 0 14px">{{ u.words }} ta so'z</div>
+              <div style="height:8px;background:#EEF2F7;border-radius:20px;overflow:hidden"><div style="{{ u.bar }}"></div></div>
+              <div style="font-size:12px;font-weight:800;color:{{ u.pctCol }};margin-top:7px">{{ u.pctText }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ====== SETTINGS ====== -->
+      <sc-if value="{{ showSettings }}" hint-placeholder-val="">
+      <div style="animation:pop .35s ease;max-width:680px;margin:0 auto">
+        <h2 style="font-family:'Baloo 2';font-weight:800;font-size:25px;margin:0 0 22px;color:#0F172A">Sozlamalar ⚙️</h2>
+
+        <div style="background:#fff;border:1px solid #EAF0F6;border-radius:22px;padding:8px 22px;box-shadow:0 2px 10px rgba(15,23,42,.04);margin-bottom:18px">
+          <div style="padding:18px 0;border-bottom:1px solid #F1F5F9"><div style="font-size:11px;font-weight:800;color:#94A3B8;letter-spacing:.06em;margin-bottom:14px">AUDIO VA QURILMA</div></div>
+          <sc-for list="{{ toggles }}" as="t" hint-placeholder-count="4">
+            <div style="display:flex;align-items:center;gap:14px;padding:16px 0;border-bottom:1px solid #F1F5F9">
+              <div style="{{ t.icon }}">{{ t.emoji }}</div>
+              <div style="flex:1"><div style="font-weight:800;font-size:15px;color:#0F172A">{{ t.title }}</div><div style="font-size:12.5px;font-weight:700;color:#94A3B8">{{ t.desc }}</div></div>
+              <div onClick="{{ t.onClick }}" style="{{ t.track }}"><div style="{{ t.knob }}"></div></div>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="background:#fff;border:1px solid #EAF0F6;border-radius:22px;padding:22px;box-shadow:0 2px 10px rgba(15,23,42,.04);margin-bottom:18px">
+          <div style="font-size:11px;font-weight:800;color:#94A3B8;letter-spacing:.06em;margin-bottom:14px">KUNLIK MAQSAD</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><span style="font-weight:800;font-size:15px;color:#0F172A">Har kuni mashg'ulot vaqti</span><span style="font-family:'Baloo 2';font-weight:800;font-size:18px;color:#22C55E">{{ goalTotal }} daqiqa</span></div>
+          <div style="display:flex;gap:10px">
+            <sc-for list="{{ goalOpts }}" as="o" hint-placeholder-count="4">
+              <button onClick="{{ o.onClick }}" style="{{ o.style }}">{{ o.label }}</button>
+            </sc-for>
+          </div>
+        </div>
+
+        <button onClick="{{ logout }}" style="width:100%;background:#FEF2F2;color:#DC2626;border:1.5px solid #FECACA;border-radius:15px;padding:15px;font-family:'Baloo 2';font-weight:800;font-size:16px;cursor:pointer">↩ Hisobdan chiqish</button>
+      </div>
+      </sc-if>
+
+      <!-- SCREENS-INSERT -->
+
+    </div>
+  </div>
+</div>
+</sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:940},&quot;studentName&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Aziz&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;dailyGoal&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:30,&quot;min&quot;:10,&quot;max&quot;:60,&quot;step&quot;:5,&quot;tsType&quot;:&quot;number&quot;}}">
+class Component extends DCLogic {
+  state = {
+    screen: 'login',
+    grade: '5', goalMin: 30,
+    region: '', district: '', school: '', scope: 'school',
+    set: {mic:true, sfx:true, head:true, notify:false},
+    card: 0, flipped: false, known: [],
+    recording: false, recScore: null, spIdx: 0,
+    lq: 0, listenSel: null, listenScore: 0,
+    bq: 0, myScore: 0, oppScore: 0, bAnswered: false, bPicked: null, bTime: 10,
+    qq: 0, qSel: null, qScore: 0,
+  };
+
+  WORDS = [
+    {en:'Brave', ipa:'/breɪv/', uz:'Jasur', ex:'The brave boy helped his friend.', emoji:'🦁'},
+    {en:'Forest', ipa:'/ˈfɒrɪst/', uz:'O‘rmon', ex:'Many animals live in the forest.', emoji:'🌲'},
+    {en:'Curious', ipa:'/ˈkjʊəriəs/', uz:'Qiziquvchan', ex:'A curious cat opened the box.', emoji:'🐱'},
+    {en:'Weather', ipa:'/ˈweðə/', uz:'Ob-havo', ex:'The weather is sunny today.', emoji:'☀️'},
+    {en:'Journey', ipa:'/ˈdʒɜːni/', uz:'Sayohat', ex:'Our journey to the sea was fun.', emoji:'🧭'},
+  ];
+  BATTLE = [
+    {q:'“Brave” so‘zining ma’nosi?', opts:['Qo‘rqoq','Jasur','Sekin','Yangi'], a:1},
+    {q:'“Forest” nima?', opts:['Dengiz','Tog‘','O‘rmon','Cho‘l'], a:2},
+    {q:'“Fast” so‘zining ma’nosi?', opts:['Tez','Issiq','Katta','Yumshoq'], a:0},
+  ];
+  QUIZ = [
+    {q:'Choose: A place with many trees.', opts:['Desert','Forest','Ocean','City'], a:1},
+    {q:'“Curious” means…', opts:['Bored','Tired','Inquisitive','Angry'], a:2},
+    {q:'Antonym of “brave”?', opts:['Bold','Strong','Coward','Kind'], a:2},
+  ];
+  SPEAK = [
+    {en:'Curious', ipa:'/ˈkjʊəriəs/', uz:'Qiziquvchan', syl:'cu·ri·ous'},
+    {en:'Weather', ipa:'/ˈweðə/', uz:'Ob-havo', syl:'wea·ther'},
+    {en:'Journey', ipa:'/ˈdʒɜːni/', uz:'Sayohat', syl:'jour·ney'},
+    {en:'Forest', ipa:'/ˈfɒrɪst/', uz:'O‘rmon', syl:'for·est'},
+  ];
+  LISTEN = [
+    {sentence:'The curious cat opened the box.', opts:['Furious','Curious','Serious','Carry'], a:1},
+    {sentence:'We had a long journey to the sea.', opts:['Journey','Money','Jungle','Jury'], a:0},
+    {sentence:'The weather is very sunny today.', opts:['Wealth','Whether','Weather','Wonder'], a:2},
+  ];
+
+  REGIONS = {
+    'Qoraqalpogʻiston Respublikasi': ['Nukus shahri','Xoʻjayli tumani','Chimboy tumani','Qoʻngʻirot tumani'],
+    'Andijon viloyati': ['Andijon shahri','Asaka tumani','Xonobod shahri','Shahrixon tumani'],
+    'Buxoro viloyati': ['Buxoro shahri','Kogon shahri','Gʻijduvon tumani','Vobkent tumani'],
+    'Fargʻona viloyati': ['Fargʻona shahri','Qoʻqon shahri','Margʻilon shahri','Quvasoy shahri'],
+    'Jizzax viloyati': ['Jizzax shahri','Zomin tumani','Gʻallaorol tumani','Doʻstlik tumani'],
+    'Xorazm viloyati': ['Urganch shahri','Xiva shahri','Shovot tumani','Hazorasp tumani'],
+    'Namangan viloyati': ['Namangan shahri','Chust tumani','Pop tumani','Toʻraqoʻrgʻon tumani'],
+    'Navoiy viloyati': ['Navoiy shahri','Zarafshon shahri','Karmana tumani','Nurota tumani'],
+    'Qashqadaryo viloyati': ['Qarshi shahri','Shahrisabz shahri','Kitob tumani','Gʻuzor tumani'],
+    'Samarqand viloyati': ['Samarqand shahri','Kattaqoʻrgʻon shahri','Urgut tumani','Bulungʻur tumani'],
+    'Sirdaryo viloyati': ['Guliston shahri','Shirin shahri','Sayxunobod tumani','Boyovut tumani'],
+    'Surxondaryo viloyati': ['Termiz shahri','Denov tumani','Sherobod tumani','Boysun tumani'],
+    'Toshkent viloyati': ['Nurafshon shahri','Chirchiq shahri','Olmaliq shahri','Bekobod shahri'],
+    'Toshkent shahri': ['Chilonzor tumani','Yunusobod tumani','Mirzo Ulugʻbek tumani','Yakkasaroy tumani'],
+  };
+  SCHOOLS = ['1-son maktab','12-son maktab','24-son maktab','45-son maktab','IDUM № 2'];
+
+  BOARDS = {
+    school: [
+      {name:'Malika R.',init:'M',xp:'2,310',words:512},
+      {name:'Jasur T.',init:'J',xp:'1,980',words:478},
+      {name:'__ME__',xp:'1,240',words:342,me:true},
+      {name:'Dilnoza K.',init:'D',xp:'1,120',words:301},
+      {name:'Sardor M.',init:'S',xp:'940',words:266},
+      {name:'Nodira A.',init:'N',xp:'820',words:240},
+    ],
+    district: [
+      {name:'Sevara X.',init:'S',xp:'4,120',words:880},
+      {name:'Bobur N.',init:'B',xp:'3,760',words:812},
+      {name:'Malika R.',init:'M',xp:'2,310',words:512},
+      {name:'Akbar G.',init:'A',xp:'2,050',words:470},
+      {name:'__ME__',xp:'1,240',words:342,me:true,rank:28},
+    ],
+    region: [
+      {name:'Diyor T.',init:'D',xp:'6,940',words:1320},
+      {name:'Madina Y.',init:'M',xp:'6,210',words:1208},
+      {name:'Sevara X.',init:'S',xp:'4,120',words:880},
+      {name:'__ME__',xp:'1,240',words:342,me:true,rank:156},
+    ],
+    republic: [
+      {name:'Asror K.',init:'A',xp:'12,480',words:2410},
+      {name:'Gulnoza R.',init:'G',xp:'11,900',words:2280},
+      {name:'Diyor T.',init:'D',xp:'6,940',words:1320},
+      {name:'__ME__',xp:'1,240',words:342,me:true,rank:1204},
+    ],
+  };
+
+  go(s){ return () => this.setState(s==='battle' ? {screen:s, bTime:10} : {screen:s}); }
+  setRegion(e){ this.setState({region:e.target.value, district:'', school:''}); }
+  setDistrict(e){ this.setState({district:e.target.value, school:''}); }
+  setSchool(e){ this.setState({school:e.target.value}); }
+  toggle(key){ this.setState(s=>({set:{...s.set,[key]:!s.set[key]}})); }
+
+  speak(text, e){
+    if(e){ e.stopPropagation(); }
+    try{
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang='en-US'; u.rate=.9;
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(u);
+    }catch(err){}
+  }
+  flip(){ this.setState(s=>({flipped:!s.flipped})); }
+
+  toggleRec(){
+    if(this.state.recording){
+      clearTimeout(this._recT);
+      this.setState({recording:false, recScore: 80+Math.floor(Math.random()*16)});
+      return;
+    }
+    this.setState({recording:true, recScore:null});
+    this._recT = setTimeout(()=>{
+      this.setState({recording:false, recScore: 80+Math.floor(Math.random()*16)});
+    }, 2400);
+  }
+  pickListen(i){
+    if(this.state.listenSel!=null) return;
+    const correct = this.LISTEN[this.state.lq].a;
+    this.setState(s=>({listenSel:i, listenScore: s.listenScore+(i===correct?1:0)}));
+  }
+  nextListen(){ this.setState(s=>({lq:s.lq+1, listenSel:null})); }
+  retryListen(){ this.setState({lq:0, listenSel:null, listenScore:0}); }
+  nextSpeak(){ this.setState(s=>({spIdx:(s.spIdx+1)%this.SPEAK.length, recScore:null, recording:false})); }
+  prevCard(){ this.setState(s=>({card:(s.card-1+this.WORDS.length)%this.WORDS.length, flipped:false})); }
+
+  componentDidMount(){
+    this._tick = setInterval(()=>this.battleTick(), 1000);
+    this._key = (e)=>{
+      if(this.state.screen!=='learn') return;
+      if(e.key==='ArrowRight'){ this.advance(false); }
+      else if(e.key==='ArrowLeft'){ this.prevCard(); }
+      else if(e.key===' '){ e.preventDefault(); this.flip(); }
+      else if(e.key==='s'||e.key==='S'){ this.speak(this.WORDS[this.state.card].en); }
+    };
+    window.addEventListener('keydown', this._key);
+  }
+  componentWillUnmount(){ clearInterval(this._tick); window.removeEventListener('keydown', this._key); }
+  battleTick(){
+    const s = this.state;
+    if(s.screen!=='battle' || s.bAnswered || s.bq>=this.BATTLE.length) return;
+    if(s.bTime<=1){ this.pickBattle(-1); }
+    else { this.setState({bTime:s.bTime-1}); }
+  }
+
+  pickBattle(i){
+    if(this.state.bAnswered) return;
+    const correct = this.BATTLE[this.state.bq].a;
+    this.setState(s=>{
+      const oppRight = Math.random()<0.55;
+      return {
+        bPicked:i, bAnswered:true,
+        myScore: s.myScore + (i===correct?1:0),
+        oppScore: s.oppScore + (oppRight?1:0),
+      };
+    });
+    setTimeout(()=>{
+      this.setState(s=>({ bq:s.bq+1, bAnswered:false, bPicked:null, bTime:10 }));
+    }, 1500);
+  }
+  rematch(){ this.setState({bq:0,myScore:0,oppScore:0,bAnswered:false,bPicked:null,bTime:10}); }
+
+  pickQuiz(i){
+    if(this.state.qSel!=null) return;
+    const correct = this.QUIZ[this.state.qq].a;
+    this.setState(s=>({ qSel:i, qScore: s.qScore + (i===correct?1:0) }));
+    setTimeout(()=>{ this.setState(s=>({ qq:s.qq+1, qSel:null })); }, 1300);
+  }
+  retryQuiz(){ this.setState({qq:0,qSel:null,qScore:0}); }
+  advance(markKnown){
+    this.setState(s=>{
+      const known = markKnown && !s.known.includes(s.card) ? [...s.known, s.card] : s.known;
+      return { card:(s.card+1)%this.WORDS.length, flipped:false, known };
+    });
+  }
+
+  renderVals(){
+    const s = this.state;
+    const name = this.props.studentName ?? 'Aziz';
+    const goalTotal = s.goalMin ?? this.props.dailyGoal ?? 30;
+    const goalDone = 18;
+    const pct = Math.round(goalDone/goalTotal*100);
+
+    const navBase = {display:'flex',alignItems:'center',gap:'11px',width:'100%',textAlign:'left',border:'none',cursor:'pointer',fontFamily:"'Nunito',sans-serif",fontWeight:'700',fontSize:'14.5px',padding:'11px 12px',borderRadius:'13px',transition:'all .15s'};
+    const items = [
+      {id:'dashboard',label:'Bosh sahifa',c:'#22C55E'},
+      {id:'learn',label:'So‘z o‘rganish',c:'#3B82F6'},
+      {id:'lessons',label:'Mavzular',c:'#14B8A6'},
+      {id:'speak',label:'Talaffuz mashqi',c:'#8B5CF6'},
+      {id:'listen',label:'Tinglab tushunish',c:'#06B6D4'},
+      {id:'battle',label:'Batl o‘yini',c:'#EC4899',badge:'JONLI'},
+      {id:'quiz',label:'Test / Viktorina',c:'#F59E0B'},
+      {id:'leaders',label:'Reyting',c:'#EAB308'},
+      {id:'profile',label:'Profil',c:'#64748B'},
+      {id:'settings',label:'Sozlamalar',c:'#94A3B8'},
+    ];
+    const navItems = items.map(it=>{
+      const on = s.screen===it.id;
+      return {
+        label: it.label,
+        badge: it.badge || '',
+        onClick: this.go(it.id),
+        dot: `width:10px;height:10px;border-radius:4px;flex:none;background:${it.c};box-shadow:${on?`0 0 0 4px ${it.c}33`:'none'}`,
+        style: {...navBase, background: on?'#F1F5F9':'transparent', color: on?'#0F172A':'#64748B'},
+      };
+    });
+
+    const lb = [
+      {name:'Malika R.', xp:'2,310'},
+      {name:'Jasur T.', xp:'1,980'},
+      {name:name+' (siz)', xp:'1,240', me:true},
+      {name:'Dilnoza K.', xp:'1,120'},
+      {name:'Sardor M.', xp:'940'},
+    ];
+    const leaders = lb.map((p,i)=>({
+      n:i+1, name:p.name, xp:p.xp,
+      row:`display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:13px;${p.me?'background:rgba(34,197,94,.16);border:1px solid rgba(34,197,94,.4)':'background:rgba(255,255,255,.05)'}`,
+      rank:`width:24px;height:24px;flex:none;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;${i===0?'background:#FACC15;color:#0F172A':(i===1?'background:#CBD5E1;color:#0F172A':(i===2?'background:#F59E0B;color:#fff':'background:rgba(255,255,255,.1);color:#94A3B8'))}`,
+      meText: p.me?'color:#86EFAC':'color:#fff',
+    }));
+
+    const days = ['D','S','C','P','J','S','Y'];
+    const week = days.map((d,i)=>({
+      label:d,
+      style:`width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;${i<5?'background:#22C55E;color:#fff':(i===5?'background:#FEF3C7;color:#B45309;border:2px dashed #F59E0B':'background:#F1F5F9;color:#CBD5E1')}`,
+    }));
+
+    return {
+      name, initial: name.charAt(0).toUpperCase(),
+      showDashboard: s.screen==='dashboard',
+      showLearn: s.screen==='learn',
+      showSpeak: s.screen==='speak',
+      showListen: s.screen==='listen',
+      showBattle: s.screen==='battle',
+      showQuiz: s.screen==='quiz',
+      showLeaders: s.screen==='leaders',
+      showProfile: s.screen==='profile',
+      showLessons: s.screen==='lessons',
+      showSettings: s.screen==='settings',
+      showLogin: s.screen==='login',
+      showSignup: s.screen==='signup',
+      inApp: !['login','signup'].includes(s.screen),
+      doLogin: this.go('dashboard'), goSignup: this.go('signup'), goLogin: this.go('login'),
+      logout: this.go('login'),
+      goLearn: this.go('learn'), goBattle: this.go('battle'),
+      goSpeak: this.go('speak'), goQuiz: this.go('quiz'), goLeaders: this.go('leaders'),
+      leaders,
+      word: this.WORDS[s.card], cardNo: s.card+1, cardTotal: this.WORDS.length,
+      knownCount: s.known.length,
+      learnBar: `height:100%;width:${(s.card+1)/this.WORDS.length*100}%;background:linear-gradient(90deg,#22C55E,#16A34A);border-radius:20px;transition:width .3s`,
+      flipInner: `position:relative;width:100%;height:100%;transition:transform .5s cubic-bezier(.4,.2,.2,1);transform-style:preserve-3d;transform:rotateY(${s.flipped?180:0}deg)`,
+      flipCard: ()=>this.flip(),
+      stopAndSpeak: (e)=>this.speak(this.WORDS[s.card].en, e),
+      knowCard: ()=>this.advance(true), reviewCard: ()=>this.advance(false),
+
+      // SPEAK
+      goListen: this.go('listen'),
+      spWord: this.SPEAK[s.spIdx],
+      spNo: s.spIdx+1, spTotal: this.SPEAK.length,
+      nextSpeak: ()=>this.nextSpeak(),
+      speakModel: (e)=>this.speak(this.SPEAK[s.spIdx].en, e),
+      toggleRec: ()=>this.toggleRec(),
+      hasScore: s.recScore!=null,
+      recScore: s.recScore,
+      spSyl: '"'+this.SPEAK[s.spIdx].syl+'" — bo\u02bcg\u02bcinlarni aniq ayting',
+      scoreOffset: 232 - 232*(s.recScore||0)/100,
+      micLabel: s.recording ? "Tinglayapman… to'xtatish uchun bosing" : "Mikrofonni yoqish uchun bosing",
+      micLabelColor: s.recording ? '#EC4899' : '#8B5CF6',
+      micStyle: `width:96px;height:96px;border-radius:50%;border:none;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:all .2s;${s.recording?'background:linear-gradient(150deg,#F43F5E,#EC4899);animation:ring 1.2s infinite;box-shadow:0 8px 22px rgba(236,72,153,.5)':'background:linear-gradient(150deg,#8B5CF6,#7C3AED);box-shadow:0 8px 22px rgba(139,92,246,.45)'}`,
+      waves: Array.from({length:13},(_,i)=>{
+        const h = s.recording ? 0 : [12,18,10,22,14,26,16,22,12,18,10,20,14][i];
+        return `width:5px;border-radius:6px;background:linear-gradient(180deg,#8B5CF6,#A78BFA);${s.recording?`height:14px;animation:wave .7s ease-in-out ${i*0.07}s infinite`:`height:${h}px`}`;
+      }),
+
+      // LISTEN
+      listenPlaying: s.lq < this.LISTEN.length,
+      listenEnd: s.lq >= this.LISTEN.length,
+      listenAnswered: s.listenSel!=null,
+      lqNo: Math.min(s.lq+1,this.LISTEN.length), lqTotal: this.LISTEN.length,
+      listenProgress: `height:100%;width:${Math.min(s.lq+1,this.LISTEN.length)/this.LISTEN.length*100}%;background:linear-gradient(90deg,#06B6D4,#0891B2);border-radius:20px;transition:width .3s`,
+      playListen: ()=>this.speak(this.LISTEN[Math.min(s.lq,this.LISTEN.length-1)].sentence),
+      nextListen: ()=>this.nextListen(),
+      retryListen: ()=>this.retryListen(),
+      listenScore: s.listenScore, listenXp: s.listenScore*12,
+      listenBtn: `width:96px;height:96px;border-radius:50%;border:none;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;background:linear-gradient(150deg,#06B6D4,#0891B2);box-shadow:0 10px 26px rgba(6,182,212,.45);transition:transform .15s${s.listenSel==null?';animation:pulse 1.6s ease-in-out infinite':''}`,
+      listenOpts: (this.LISTEN[Math.min(s.lq,this.LISTEN.length-1)]||{opts:[]}).opts.map((label,i)=>{
+        const sel = s.listenSel;
+        const correct = this.LISTEN[Math.min(s.lq,this.LISTEN.length-1)].a;
+        let bg='#fff',bd='#E8EDF3',col='#0F172A';
+        if(sel!=null){
+          if(i===correct){bg='#F0FDF4';bd='#86EFAC';col='#15803D';}
+          else if(i===sel){bg='#FEF2F2';bd='#FCA5A5';col='#DC2626';}
+        }
+        return { label, onClick:()=>this.pickListen(i),
+          style:`padding:16px;border-radius:16px;border:2px solid ${bd};background:${bg};color:${col};font-family:'Baloo 2';font-weight:700;font-size:17px;cursor:${sel==null?'pointer':'default'};transition:all .15s` };
+      }),
+      listenFeedback: s.listenSel==null ? '' : (s.listenSel===this.LISTEN[Math.min(s.lq,this.LISTEN.length-1)].a ? '✓ To\u02bcg\u02bcri! «'+this.LISTEN[Math.min(s.lq,this.LISTEN.length-1)].sentence+'»' : '✗ Jumla: «'+this.LISTEN[Math.min(s.lq,this.LISTEN.length-1)].sentence+'»'),
+      listenFbStyle: `margin-top:16px;padding:13px;border-radius:14px;font-weight:800;font-size:14.5px;${s.listenSel===this.LISTEN[Math.min(s.lq,this.LISTEN.length-1)].a?'background:#DCFCE7;color:#15803D':'background:#FEE2E2;color:#DC2626'}`,
+      listenResultEmoji: s.listenScore>=this.LISTEN.length-1?'🌟':(s.listenScore>=1?'👍':'💪'),
+
+      // BATTLE
+      goDash: this.go('dashboard'),
+      bNo: Math.min(s.bq+1,this.BATTLE.length), bTotal: this.BATTLE.length,
+      myScore: s.myScore, oppScore: s.oppScore,
+      battlePlaying: s.bq < this.BATTLE.length,
+      battleEnd: s.bq >= this.BATTLE.length,
+      bQ: this.BATTLE[Math.min(s.bq,this.BATTLE.length-1)],
+      bOpts: (this.BATTLE[Math.min(s.bq,this.BATTLE.length-1)]||{opts:[]}).opts.map((label,i)=>{
+        const correct = this.BATTLE[Math.min(s.bq,this.BATTLE.length-1)].a;
+        let bg='#F8FAFC',bd='#E8EDF3',col='#0F172A';
+        if(s.bAnswered){
+          if(i===correct){bg='#DCFCE7';bd='#22C55E';col='#15803D';}
+          else if(i===s.bPicked){bg='#FEE2E2';bd='#EF4444';col='#DC2626';}
+        }
+        return { label, onClick:()=>this.pickBattle(i),
+          style:`padding:18px;border-radius:16px;border:2px solid ${bd};background:${bg};color:${col};font-family:'Baloo 2';font-weight:700;font-size:18px;cursor:${s.bAnswered?'default':'pointer'};transition:all .15s` };
+      }),
+      bResultTitle: s.myScore>s.oppScore?"G'alaba! 🏆":(s.myScore<s.oppScore?'Mag\u02bclubiyat':'Durrang'),
+      bResultEmoji: s.myScore>s.oppScore?'🎉':(s.myScore<s.oppScore?'😅':'🤝'),
+      bResultColor: s.myScore>s.oppScore?'#16A34A':(s.myScore<s.oppScore?'#DB2777':'#F59E0B'),
+      rematch: ()=>this.rematch(),
+      bTime: s.bTime,
+      bTimerColor: s.bTime<=3?'#DC2626':'#B45309',
+      bTimerStyle: `height:100%;width:${s.bTime/10*100}%;border-radius:20px;transition:width 1s linear;background:${s.bTime<=3?'linear-gradient(90deg,#EF4444,#DC2626)':'linear-gradient(90deg,#F59E0B,#EC4899)'}`,
+
+      // QUIZ
+      quizPlaying: s.qq < this.QUIZ.length,
+      quizEnd: s.qq >= this.QUIZ.length,
+      qNo: Math.min(s.qq+1,this.QUIZ.length), qTotal: this.QUIZ.length,
+      quizBar: `height:100%;width:${Math.min(s.qq+1,this.QUIZ.length)/this.QUIZ.length*100}%;background:linear-gradient(90deg,#F59E0B,#EA580C);border-radius:20px;transition:width .3s`,
+      qQ: this.QUIZ[Math.min(s.qq,this.QUIZ.length-1)],
+      qOpts: (this.QUIZ[Math.min(s.qq,this.QUIZ.length-1)]||{opts:[]}).opts.map((label,i)=>{
+        const correct = this.QUIZ[Math.min(s.qq,this.QUIZ.length-1)].a;
+        let bg='#F8FAFC',bd='#E8EDF3',col='#0F172A',bbg='#E2E8F0',bcol='#64748B';
+        if(s.qSel!=null){
+          if(i===correct){bg='#DCFCE7';bd='#22C55E';col='#15803D';bbg='#22C55E';bcol='#fff';}
+          else if(i===s.qSel){bg='#FEE2E2';bd='#EF4444';col='#DC2626';bbg='#EF4444';bcol='#fff';}
+        }
+        return { label, letter:String.fromCharCode(65+i), onClick:()=>this.pickQuiz(i),
+          badge:`width:30px;height:30px;flex:none;border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;margin-right:13px;background:${bbg};color:${bcol}`,
+          style:`display:flex;align-items:center;width:100%;text-align:left;padding:14px;border-radius:15px;border:2px solid ${bd};background:${bg};color:${col};font-family:'Nunito';font-weight:700;font-size:16px;cursor:${s.qSel!=null?'default':'pointer'};transition:all .15s` };
+      }),
+      qScore: s.qScore, qXp: s.qScore*15,
+      qResultEmoji: s.qScore>=this.QUIZ.length-1?'🌟':(s.qScore>=1?'👍':'💪'),
+      retryQuiz: ()=>this.retryQuiz(),
+
+      // LEADERS / location-based stats
+      myRegion: s.region || 'Toshkent shahri',
+      myDistrict: s.district || 'Chilonzor tumani',
+      mySchool: s.school || '24-son maktab',
+      scopeLabel: ({school:(s.school||'24-son maktab'),district:(s.district||'Chilonzor tumani'),region:(s.region||'Toshkent shahri'),republic:'Butun Oʻzbekiston'})[s.scope],
+      scopeTabs: [['school','Maktab'],['district','Tuman'],['region','Viloyat'],['republic','Respublika']].map(([id,label])=>{
+        const on = s.scope===id;
+        return { label, onClick:()=>this.setState({scope:id}),
+          style:`flex:1;padding:11px;border-radius:12px;border:none;cursor:pointer;font-family:'Baloo 2';font-weight:800;font-size:14px;transition:all .15s;${on?'background:#0F172A;color:#fff;box-shadow:0 4px 12px rgba(15,23,42,.2)':'background:#fff;color:#64748B;border:1px solid #E8EDF3'}` };
+      }),
+      rankStats: [
+        {l:'Maktabda',v:'#3',c:'#22C55E',bg:'#F0FDF4'},
+        {l:'Tumanda',v:'#28',c:'#0891B2',bg:'#ECFEFF'},
+        {l:'Viloyatda',v:'#156',c:'#7C3AED',bg:'#F5F3FF'},
+        {l:'Respublikada',v:'#1,204',c:'#B45309',bg:'#FFFBEB'},
+      ],
+      podium: this.BOARDS[s.scope].slice(0,3).map((p,i)=>({...p, rank:i+1, name: p.me?name+' (siz)':p.name, init: p.me?name.charAt(0).toUpperCase():p.init}))
+        .map(p=>{
+          const h = p.rank===1?108:(p.rank===2?80:60);
+          const c = p.rank===1?'#FACC15':(p.rank===2?'#CBD5E1':'#F59E0B');
+          return { name:p.name, init:p.init, xp:p.xp, medal:p.rank===1?'🥇':(p.rank===2?'🥈':'🥉'),
+            wrap:`display:flex;flex-direction:column;align-items:center;width:130px;${p.rank===1?'order:2':(p.rank===2?'order:1':'order:3')}`,
+            av:`width:${p.rank===1?'68px':'56px'};height:${p.rank===1?'68px':'56px'};border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Baloo 2';font-weight:800;font-size:${p.rank===1?'26px':'22px'};background:linear-gradient(150deg,${p.me?'#22C55E,#16A34A':(p.rank===1?'#F59E0B,#EA580C':'#3B82F6,#2563EB')});box-shadow:0 0 0 4px ${c}55`,
+            bar:`margin-top:10px;width:100%;height:${h}px;border-radius:16px 16px 0 0;background:linear-gradient(180deg,${c},${c}cc);display:flex;align-items:flex-start;justify-content:center;padding-top:10px;font-size:26px` };
+        }),
+      board: this.BOARDS[s.scope].map((r,i)=>({
+        n: r.rank || (i+1),
+        name: r.me?name+' (siz)':r.name,
+        init: r.me?name.charAt(0).toUpperCase():r.init,
+        xp:r.xp, words:r.words,
+        row:`display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:14px;${r.me?'background:#F0FDF4;border:1px solid #BBF7D0':''}`,
+        av:`width:38px;height:38px;flex:none;border-radius:11px;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Baloo 2';font-weight:800;font-size:16px;background:linear-gradient(150deg,${r.me?'#22C55E,#16A34A':'#94A3B8,#64748B'})`,
+        meCol: r.me?'color:#15803D':'color:#0F172A',
+      })),
+
+      // PROFILE
+      pstats: [
+        {v:'342', l:"O'rganilgan so'z", c:'#22C55E'},
+        {v:'12', l:'Kun ketma-ket', c:'#F59E0B'},
+        {v:'28', l:"G'alabalar", c:'#EC4899'},
+        {v:'7', l:'Daraja', c:'#3B82F6'},
+      ],
+      badges: [
+        {emoji:'🔥',title:'Olovli start',desc:'7 kun ketma-ket',earned:true},
+        {emoji:'📚',title:'100 so\u02bcz',desc:'Bajarildi',earned:true},
+        {emoji:'🎙️',title:'Notiq',desc:'50 talaffuz',earned:true},
+        {emoji:'⚔️',title:'Jangchi',desc:'10 batl g\u02bbalaba',earned:true},
+        {emoji:'🎧',title:'Tinglovchi',desc:'Yana 12 mashq',earned:false},
+        {emoji:'🏆',title:'Chempion',desc:'TOP 1 bo\u02bcling',earned:false},
+        {emoji:'💎',title:'500 so\u02bcz',desc:'158 so\u02bcz qoldi',earned:false},
+        {emoji:'🌙',title:'30 kun',desc:'18 kun qoldi',earned:false},
+      ].map(b=>({
+        emoji:b.emoji, title:b.title, desc:b.desc,
+        wrap:`background:#fff;border:1px solid ${b.earned?'#EAF0F6':'#EEF2F7'};border-radius:18px;padding:18px;text-align:center;box-shadow:0 2px 10px rgba(15,23,42,.04);${b.earned?'':'opacity:.55'}`,
+        icon:`width:54px;height:54px;margin:0 auto;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:28px;background:${b.earned?'linear-gradient(150deg,#FEF3C7,#FDE68A)':'#F1F5F9'};${b.earned?'':'filter:grayscale(1)'}`,
+        titleCol: b.earned?'#0F172A':'#94A3B8',
+      })),
+
+      // SIGNUP location selects
+      regionOpts: Object.keys(this.REGIONS),
+      districtOpts: this.REGIONS[s.region] || [],
+      schoolOpts: this.SCHOOLS,
+      region: s.region, district: s.district, school: s.school,
+      setRegion: (e)=>this.setRegion(e), setDistrict: (e)=>this.setDistrict(e), setSchool: (e)=>this.setSchool(e),
+      districtDisabled: !s.region, schoolDisabled: !s.district,
+      selStyle: `width:100%;padding:13px 15px;border:2px solid #E8EDF3;border-radius:14px;font-family:'Nunito';font-weight:700;font-size:14.5px;color:${s.region?'#0F172A':'#94A3B8'};background:#F8FAFC;outline:none;box-sizing:border-box;cursor:pointer;-webkit-appearance:none;appearance:none`,
+      selStyle2: `width:100%;padding:13px 15px;border:2px solid #E8EDF3;border-radius:14px;font-family:'Nunito';font-weight:700;font-size:14.5px;color:${s.district?'#0F172A':'#94A3B8'};background:${s.region?'#F8FAFC':'#F1F5F9'};outline:none;box-sizing:border-box;cursor:${s.region?'pointer':'not-allowed'};-webkit-appearance:none;appearance:none`,
+      selStyle3: `width:100%;padding:13px 15px;border:2px solid #E8EDF3;border-radius:14px;font-family:'Nunito';font-weight:700;font-size:14.5px;color:${s.school?'#0F172A':'#94A3B8'};background:${s.district?'#F8FAFC':'#F1F5F9'};outline:none;box-sizing:border-box;cursor:${s.district?'pointer':'not-allowed'};-webkit-appearance:none;appearance:none`,
+
+      // SIGNUP grade chips
+      gradeChips: ['5','6'].map(g=>{
+        const on = s.grade===g;
+        return { label:g+'-sinf', onClick:()=>this.setState({grade:g}),
+          style:`flex:1;padding:14px;border-radius:14px;border:2px solid ${on?'#22C55E':'#E8EDF3'};background:${on?'#F0FDF4':'#F8FAFC'};color:${on?'#15803D':'#64748B'};font-family:'Baloo 2';font-weight:800;font-size:16px;cursor:pointer;transition:all .15s` };
+      }),
+
+      // LESSONS / UNITS
+      units: [
+        {emoji:'👨‍👩‍👧',title:'Unit 1 — Family',words:14,pct:100},
+        {emoji:'🏫',title:'Unit 2 — School',words:16,pct:100},
+        {emoji:'🍎',title:'Unit 3 — Food',words:18,pct:72},
+        {emoji:'🦁',title:'Unit 4 — Animals',words:12,pct:40,current:true},
+        {emoji:'⚽',title:'Unit 5 — Sport',words:15,pct:0,lock:true},
+        {emoji:'✈️',title:'Unit 6 — Travel',words:20,pct:0,lock:true},
+      ].map(u=>{
+        const done = u.pct===100;
+        const tagText = u.lock?'🔒 Yopiq':(u.current?'Joriy':(done?'✓ Tugadi':'Davom'));
+        const accent = u.lock?'#CBD5E1':(u.current?'#22C55E':(done?'#3B82F6':'#F59E0B'));
+        return {
+          emoji:u.emoji, title:u.title, words:u.words,
+          onClick: u.lock ? (()=>{}) : this.go('learn'),
+          wrap:`background:#fff;border:1px solid ${u.current?'#BBF7D0':'#EAF0F6'};border-radius:22px;padding:22px;box-shadow:${u.current?'0 8px 22px rgba(34,197,94,.15)':'0 2px 10px rgba(15,23,42,.04)'};cursor:${u.lock?'not-allowed':'pointer'};${u.lock?'opacity:.6':''};transition:transform .15s`,
+          icon:`width:52px;height:52px;border-radius:15px;display:flex;align-items:center;justify-content:center;font-size:26px;background:${u.lock?'#F1F5F9':'#F0FDF4'}`,
+          tag:`font-size:11px;font-weight:800;padding:5px 11px;border-radius:20px;color:#fff;background:${accent}`,
+          tagText,
+          titleCol: u.lock?'#94A3B8':'#0F172A',
+          bar:`height:100%;width:${u.pct}%;background:linear-gradient(90deg,${accent},${accent});border-radius:20px`,
+          pctText: u.lock?'Avval oldingi mavzuni tugating':`${u.pct}% o'rganildi`,
+          pctCol: u.lock?'#CBD5E1':accent,
+        };
+      }),
+
+      // SETTINGS toggles
+      toggles: [
+        {key:'mic', emoji:'🎙️', title:'Mikrofon', desc:'Talaffuz mashqlari uchun'},
+        {key:'head', emoji:'🎧', title:'Naushnik / Ovoz', desc:'Tinglab tushunish mashqlari'},
+        {key:'sfx', emoji:'🔔', title:'Ovoz effektlari', desc:"To'g'ri/xato javob tovushlari"},
+        {key:'notify', emoji:'📅', title:'Eslatmalar', desc:'Har kuni mashq qilishni eslatish'},
+      ].map(t=>{
+        const on = s.set[t.key];
+        return { emoji:t.emoji, title:t.title, desc:t.desc, onClick:()=>this.toggle(t.key),
+          icon:`width:42px;height:42px;flex:none;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:21px;background:#F1F5F9`,
+          track:`width:50px;height:28px;border-radius:20px;flex:none;cursor:pointer;padding:3px;transition:background .2s;background:${on?'#22C55E':'#CBD5E1'};display:flex;justify-content:${on?'flex-end':'flex-start'}`,
+          knob:`width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2)` };
+      }),
+      goalOpts: [15,20,30,45].map(m=>{
+        const on = goalTotal===m;
+        return { label:m+' daq', onClick:()=>this.setState({goalMin:m}),
+          style:`flex:1;padding:12px;border-radius:13px;border:2px solid ${on?'#22C55E':'#E8EDF3'};background:${on?'#F0FDF4':'#F8FAFC'};color:${on?'#15803D':'#64748B'};font-family:'Baloo 2';font-weight:800;font-size:14.5px;cursor:pointer;transition:all .15s` };
+      }),
+      navItems,
+      streak: 12, xp: '1,240',
+      goalDone, goalTotal, goalPct: pct, remaining: Math.max(0,goalTotal-goalDone),
+      ringOffset: 251 - 251*pct/100,
+      goalBar: `height:100%;width:${pct}%;background:linear-gradient(90deg,#3B82F6,#2563EB);border-radius:20px`,
+      week,
+    };
+  }
+}
+</script>
+</body>
+</html>

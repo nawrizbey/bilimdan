@@ -1,0 +1,189 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Region {
+  id        Int        @id @default(autoincrement())
+  name      String     @unique
+  districts District[]
+  users     User[]
+}
+
+model District {
+  id       Int      @id @default(autoincrement())
+  name     String
+  regionId Int
+  region   Region   @relation(fields: [regionId], references: [id])
+  users    User[]
+  schools  School[]
+
+  @@unique([regionId, name])
+}
+
+model School {
+  id         Int      @id @default(autoincrement())
+  name       String
+  districtId Int
+  district   District @relation(fields: [districtId], references: [id])
+  users      User[]
+
+  @@unique([districtId, name])
+}
+
+model User {
+  id              Int       @id @default(autoincrement())
+  username        String    @unique
+  passwordHash    String
+  fullName        String
+  grade           String
+  regionId        Int
+  districtId      Int
+  schoolId        Int
+  xp              Int       @default(0)
+  streak          Int       @default(0)
+  goalMin         Int       @default(30)
+  goalDoneToday   Int       @default(0)
+  lastActiveDate  DateTime?
+  micEnabled      Boolean   @default(true)
+  sfxEnabled      Boolean   @default(true)
+  headEnabled     Boolean   @default(true)
+  notifyEnabled   Boolean   @default(false)
+  wordsKnownCount Int       @default(0)
+  speakAttemptsCount Int    @default(0)
+  battleWins      Int       @default(0)
+  battleLosses    Int       @default(0)
+  battleDraws     Int       @default(0)
+  createdAt       DateTime  @default(now())
+  lastLoginAt     DateTime?
+
+  region   Region   @relation(fields: [regionId], references: [id])
+  district District @relation(fields: [districtId], references: [id])
+  school   School   @relation(fields: [schoolId], references: [id])
+
+  wordProgress UserWordProgress[]
+  badges       UserBadge[]
+  matchesAsP1  BattleMatch[]      @relation("Player1")
+  matchesAsP2  BattleMatch[]      @relation("Player2")
+
+  @@index([districtId, xp])
+  @@index([regionId, xp])
+  @@index([schoolId, xp])
+  @@index([xp])
+}
+
+model Unit {
+  id    Int    @id @default(autoincrement())
+  title String
+  order Int
+  emoji String
+  words Word[]
+}
+
+model Word {
+  id       Int                @id @default(autoincrement())
+  unitId   Int
+  en       String
+  ipa      String
+  uz       String
+  example  String
+  emoji    String
+  order    Int
+  unit     Unit               @relation(fields: [unitId], references: [id])
+  progress UserWordProgress[]
+}
+
+model UserWordProgress {
+  id      Int       @id @default(autoincrement())
+  userId  Int
+  wordId  Int
+  known   Boolean   @default(false)
+  knownAt DateTime?
+
+  user User @relation(fields: [userId], references: [id])
+  word Word @relation(fields: [wordId], references: [id])
+
+  @@unique([userId, wordId])
+}
+
+model QuizQuestion {
+  id           Int      @id @default(autoincrement())
+  question     String
+  options      String[]
+  correctIndex Int
+  order        Int
+}
+
+model ListenQuestion {
+  id           Int      @id @default(autoincrement())
+  sentence     String
+  options      String[]
+  correctIndex Int
+  order        Int
+}
+
+model BattleQuestion {
+  id           Int      @id @default(autoincrement())
+  question     String
+  options      String[]
+  correctIndex Int
+  order        Int
+}
+
+enum BadgeCriteriaType {
+  STREAK_GTE
+  WORDS_KNOWN_GTE
+  BATTLE_WINS_GTE
+  SPEAK_ATTEMPTS_GTE
+}
+
+model Badge {
+  id            Int               @id @default(autoincrement())
+  key           String            @unique
+  title         String
+  desc          String
+  emoji         String
+  criteriaType  BadgeCriteriaType
+  criteriaValue Int
+  userBadges    UserBadge[]
+}
+
+model UserBadge {
+  id       Int      @id @default(autoincrement())
+  userId   Int
+  badgeId  Int
+  earnedAt DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id])
+  badge Badge @relation(fields: [badgeId], references: [id])
+
+  @@unique([userId, badgeId])
+}
+
+enum BattleMatchStatus {
+  waiting
+  active
+  completed
+  abandoned
+}
+
+model BattleMatch {
+  id           Int               @id @default(autoincrement())
+  player1Id    Int
+  player2Id    Int?
+  isBot        Boolean           @default(false)
+  status       BattleMatchStatus @default(waiting)
+  player1Score Int               @default(0)
+  player2Score Int               @default(0)
+  winnerId     Int?
+  questionIds  Int[]
+  startedAt    DateTime          @default(now())
+  endedAt      DateTime?
+
+  player1 User  @relation("Player1", fields: [player1Id], references: [id])
+  player2 User? @relation("Player2", fields: [player2Id], references: [id])
+}

@@ -1,0 +1,119 @@
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap');
+
+@import "tailwindcss";
+
+@theme {
+  --font-display: 'Baloo 2', sans-serif;
+  --font-sans: 'Nunito', sans-serif;
+
+  --color-primary: #22C55E;
+  --color-primary-dark: #16A34A;
+  --color-primary-darker: #15803D;
+  --color-primary-light: #F0FDF4;
+  --color-primary-light-2: #DCFCE7;
+
+  --color-secondary: #3B82F6;
+  --color-secondary-dark: #2563EB;
+
+  --color-speak: #8B5CF6;
+  --color-speak-dark: #7C3AED;
+
+  --color-listen: #06B6D4;
+  --color-listen-dark: #0891B2;
+
+  --color-battle: #EC4899;
+  --color-battle-dark: #DB2777;
+
+  --color-quiz: #F59E0B;
+  --color-quiz-dark: #EA580C;
+
+  --color-xp: #EAB308;
+  --color-xp-light: #FACC15;
+
+  --color-lessons: #14B8A6;
+
+  --color-danger: #EF4444;
+  --color-danger-dark: #DC2626;
+  --color-danger-light: #FEF2F2;
+
+  --color-text: #0F172A;
+  --color-text-soft: #64748B;
+  --color-text-softer: #94A3B8;
+
+  --color-border: #E8EDF3;
+  --color-border-2: #EAF0F6;
+  --color-border-3: #F1F5F9;
+
+  --color-app-bg: #F6F8FB;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Nunito', sans-serif;
+  background: #F6F8FB;
+  color: #0F172A;
+  -webkit-font-smoothing: antialiased;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: #D5DEEA;
+  border-radius: 8px;
+  border: 3px solid #F6F8FB;
+}
+
+:focus-visible {
+  outline: 2px solid #2563EB;
+  outline-offset: 2px;
+}
+
+button:not(:disabled),
+a {
+  transition: transform .12s ease, box-shadow .12s ease, background-color .12s ease, border-color .12s ease;
+}
+button:not(:disabled):active {
+  transform: scale(0.97);
+}
+
+@keyframes floaty {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+@keyframes pop {
+  0% { transform: scale(.92); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes ring {
+  0% { box-shadow: 0 0 0 0 rgba(236,72,153,.45); }
+  100% { box-shadow: 0 0 0 22px rgba(236,72,153,0); }
+}
+@keyframes wave {
+  0%, 100% { height: 10px; }
+  50% { height: 48px; }
+}
+@keyframes shrink {
+  from { width: 100%; }
+  to { width: 0%; }
+}
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+@keyframes shake {
+  10%, 90% { transform: translateX(-1px); }
+  20%, 80% { transform: translateX(2px); }
+  30%, 50%, 70% { transform: translateX(-4px); }
+  40%, 60% { transform: translateX(4px); }
+}
+
+.animate-floaty { animation: floaty 4s ease-in-out infinite; }
+.animate-pop { animation: pop .35s ease; }
+.animate-ring { animation: ring 1.1s ease-out infinite; }
+.animate-shake { animation: shake .4s ease; }
