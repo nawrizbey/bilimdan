@@ -11,9 +11,10 @@ const SESSION_MINUTES_CAP = 20;
 const WRITE_CORRECT_XP = 6;
 const TEST_CORRECT_XP = 12;
 
-function nonNegativeInt(value: unknown): number {
+function boundedInt(value: unknown, max: number): number {
   const n = Number(value);
-  return Number.isFinite(n) && n >= 0 ? Math.floor(n) : 0;
+  if (!Number.isFinite(n) || n < 0) return 0;
+  return Math.min(Math.floor(n), max);
 }
 
 learnRouter.post('/session-complete', requireAuth, rateLimit(15, 60_000), async (req, res, next) => {
@@ -45,7 +46,10 @@ learnRouter.post('/session-complete', requireAuth, rateLimit(15, 60_000), async 
       ),
     );
 
-    const xpGain = nonNegativeInt(writeCorrect) * WRITE_CORRECT_XP + nonNegativeInt(testCorrect) * TEST_CORRECT_XP;
+    // writeCorrect/testCorrect are client-reported; clamp each to the unit's word
+    // count so a tampered request can't farm XP disproportionate to the unit size.
+    const xpGain =
+      boundedInt(writeCorrect, words.length) * WRITE_CORRECT_XP + boundedInt(testCorrect, words.length) * TEST_CORRECT_XP;
 
     const user = await awardProgress(req.userId!, {
       minutes: Math.min(words.length, SESSION_MINUTES_CAP),

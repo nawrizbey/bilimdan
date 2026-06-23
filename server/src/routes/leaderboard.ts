@@ -37,12 +37,14 @@ leaderboardRouter.get('/', requireAuth, async (req, res, next) => {
       include: { region: true, district: true, school: true },
     });
 
-    const ranks: Record<Scope, number> = { school: 0, district: 0, region: 0, republic: 0 };
-    for (const s of SCOPES) {
-      const where = scopeWhere(s, me);
-      const higherCount = await prisma.user.count({ where: { ...where, xp: { gt: me.xp } } });
-      ranks[s] = higherCount + 1;
-    }
+    const rankEntries = await Promise.all(
+      SCOPES.map(async (s) => {
+        const where = scopeWhere(s, me);
+        const higherCount = await prisma.user.count({ where: { ...where, xp: { gt: me.xp } } });
+        return [s, higherCount + 1] as const;
+      }),
+    );
+    const ranks = Object.fromEntries(rankEntries) as Record<Scope, number>;
 
     const where = scopeWhere(typedScope, me);
     const boardUsers = await prisma.user.findMany({

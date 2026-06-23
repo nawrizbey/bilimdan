@@ -1,16 +1,27 @@
 const TOKEN_KEY = 'bilimdon_token';
 
-let token: string | null = typeof window !== 'undefined' ? localStorage.getItem(TOKEN_KEY) : null;
+function readStoredToken(): string | null {
+  if (typeof window === 'undefined') return null;
+  return localStorage.getItem(TOKEN_KEY) ?? sessionStorage.getItem(TOKEN_KEY);
+}
+
+let token: string | null = readStoredToken();
 
 export function getToken(): string | null {
   return token;
 }
 
-export function setToken(next: string | null) {
+/** Persists the token. `remember=true` (default) survives browser restarts via
+ * localStorage; `remember=false` keeps it in sessionStorage so it's gone once the
+ * tab closes — this is what the login screen's "Eslab qolish" checkbox controls. */
+export function setToken(next: string | null, remember = true) {
   token = next;
   if (typeof window === 'undefined') return;
-  if (next) localStorage.setItem(TOKEN_KEY, next);
-  else localStorage.removeItem(TOKEN_KEY);
+  localStorage.removeItem(TOKEN_KEY);
+  sessionStorage.removeItem(TOKEN_KEY);
+  if (next) {
+    (remember ? localStorage : sessionStorage).setItem(TOKEN_KEY, next);
+  }
 }
 
 export class ApiError extends Error {

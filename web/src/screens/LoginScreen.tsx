@@ -12,6 +12,7 @@ export function LoginScreen() {
   const [rememberMe, setRememberMe] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [showForgotMessage, setShowForgotMessage] = useState(false);
 
   const doLogin = async (u: string, p: string) => {
     if (!u.trim() || !p.trim()) {
@@ -21,7 +22,7 @@ export function LoginScreen() {
     setError(null);
     setSubmitting(true);
     try {
-      await login(u.trim(), p);
+      await login(u.trim(), p, rememberMe);
       navigate('/app/dashboard');
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Tarmoqqa ulanishda xatolik. Qaytadan urinib ko'ring.");
@@ -119,8 +120,21 @@ export function LoginScreen() {
               </span>
               Eslab qolish
             </label>
-            <span className="text-[13px] font-extrabold text-secondary cursor-pointer">Parolni unutdingizmi?</span>
+            <button
+              type="button"
+              onClick={() => setShowForgotMessage(true)}
+              className="text-[13px] font-extrabold text-secondary cursor-pointer bg-transparent border-none p-0 font-sans"
+            >
+              Parolni unutdingizmi?
+            </button>
           </div>
+
+          {showForgotMessage && (
+            <div className="bg-[#EFF6FF] border border-[#BFDBFE] text-secondary-dark text-[13px] font-bold rounded-[12px] p-3 mb-[14px]">
+              Hozircha bu funksiya mavjud emas. Parolni tiklash uchun o'qituvchingiz yoki maktab administratoriga
+              murojaat qiling.
+            </div>
+          )}
 
           {error && (
             <div className="bg-danger-light border border-[#FECACA] text-danger-dark text-[13px] font-bold rounded-[12px] p-3 mb-[14px]" role="alert">

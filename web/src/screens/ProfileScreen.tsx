@@ -1,6 +1,7 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useAppStore } from '../store/useAppStore';
 import { computeLevel } from '../lib/level';
+import { ContentLoader } from '../components/ContentLoader';
 
 export function ProfileScreen() {
   const studentName = useAppStore((s) => s.studentName);
@@ -16,8 +17,21 @@ export function ProfileScreen() {
   const loadBadges = useAppStore((s) => s.loadBadges);
   const initial = studentName.charAt(0).toUpperCase();
 
+  const [badgesError, setBadgesError] = useState(false);
+  const fetchBadges = () => {
+    loadBadges().catch((err) => {
+      console.error('Badges load failed:', err);
+      setBadgesError(true);
+    });
+  };
+  const retryBadges = () => {
+    setBadgesError(false);
+    fetchBadges();
+  };
+
   useEffect(() => {
-    loadBadges();
+    fetchBadges();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loadBadges]);
 
   const { level, xpInLevel, xpForNextLevel } = computeLevel(xp);
@@ -72,8 +86,21 @@ export function ProfileScreen() {
       </div>
 
       <h3 className="font-display font-extrabold text-[19px] mb-[14px] text-text">Yutuqlar va nishonlar</h3>
+      {badgesError ? (
+        <div className="bg-white border border-border-2 rounded-[18px] p-8 text-center">
+          <div className="text-[13.5px] font-bold text-text-softer mb-3">Yutuqlarni yuklab bo'lmadi</div>
+          <button
+            onClick={retryBadges}
+            className="text-[12.5px] font-extrabold text-primary bg-primary-light border border-[#BBF7D0] rounded-[11px] py-2 px-4 cursor-pointer font-sans"
+          >
+            ↻ Qayta urinish
+          </button>
+        </div>
+      ) : badges == null ? (
+        <ContentLoader />
+      ) : (
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-[14px]">
-        {(badges ?? []).map((b) => (
+        {badges.map((b) => (
           <div
             key={b.key}
             className="rounded-[18px] p-[18px] text-center border"
@@ -100,6 +127,7 @@ export function ProfileScreen() {
           </div>
         ))}
       </div>
+      )}
     </div>
   );
 }

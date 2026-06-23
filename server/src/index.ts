@@ -16,8 +16,12 @@ import { badgesRouter } from './routes/badges';
 import { setupBattleWebSocket } from './ws/battle';
 import { AppError } from './lib/errors';
 
+// Defaults to the Vite dev server; set CORS_ORIGIN (comma-separated for multiple)
+// in production to the real frontend domain instead of leaving this wide open.
+const corsOrigins = (process.env.CORS_ORIGIN ?? 'http://localhost:5173').split(',').map((o) => o.trim());
+
 const app = express();
-app.use(cors());
+app.use(cors({ origin: corsOrigins }));
 app.use(express.json());
 
 app.get('/api/health', (_req, res) => {

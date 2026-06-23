@@ -50,6 +50,14 @@ function shuffled<T>(arr: T[]): T[] {
   return [...arr].sort(() => Math.random() - 0.5);
 }
 
+/** The unit Learn/Dashboard should point a student at: the first not-yet-complete
+ * unit that actually has words, falling back to the first playable unit if every
+ * unit is already 100% known. */
+export function pickTargetUnit(units: ApiUnit[]): ApiUnit | undefined {
+  const playable = units.filter((u) => u.wordsCount > 0);
+  return playable.find((u) => u.pct < 100) ?? playable[0];
+}
+
 /** Builds one 4-option (or fewer, for tiny units) MCQ per word: "so'zning tarjimasi
  * qaysi?" with distractors drawn from the other words in the same unit. */
 function buildTestQuestions(words: ApiWord[]): TestQuestion[] {
@@ -84,6 +92,7 @@ const emptyLearnSessionFields = {
 
 interface AppState {
   authStatus: AuthStatus;
+  userId: number | null;
   studentName: string;
   region: string;
   district: string;
@@ -103,7 +112,7 @@ interface AppState {
   loadLocations: () => Promise<void>;
 
   loadSession: () => Promise<void>;
-  login: (username: string, password: string) => Promise<void>;
+  login: (username: string, password: string, remember?: boolean) => Promise<void>;
   signup: () => Promise<void>;
   logout: () => void;
 
@@ -217,6 +226,7 @@ let quizAdvanceTimeout: ReturnType<typeof setTimeout> | undefined;
 
 function userToFields(user: ApiUser) {
   return {
+    userId: user.id,
     studentName: user.fullName.split(' ')[0] || user.username,
     region: user.region,
     district: user.district,
@@ -272,6 +282,7 @@ export const useAppStore = create<AppState>((set, get) => {
 
   return {
   authStatus: 'idle',
+  userId: null,
   studentName: '',
   region: '',
   district: '',
@@ -321,9 +332,9 @@ export const useAppStore = create<AppState>((set, get) => {
     }
   },
 
-  login: async (username, password) => {
+  login: async (username, password, remember = true) => {
     const { token, user } = await api.post<AuthResponse>('/api/auth/login', { username, password });
-    setToken(token);
+    setToken(token, remember);
     set({ ...userToFields(user), authStatus: 'authenticated' });
   },
 
@@ -348,6 +359,7 @@ export const useAppStore = create<AppState>((set, get) => {
     clearLearnSession();
     set({
       authStatus: 'unauthenticated',
+      userId: null,
       signupForm: emptySignupForm,
       studentName: '',
       region: '',
@@ -438,9 +450,7 @@ export const useAppStore = create<AppState>((set, get) => {
     }
 
     if (!get().units) await get().loadUnits();
-    const units = get().units ?? [];
-    const playable = units.filter((u) => u.wordsCount > 0);
-    const target = playable.find((u) => u.pct < 100) ?? playable[0];
+    const target = pickTargetUnit(get().units ?? []);
     if (target) await get().loadUnitWords(target.id);
   },
 
@@ -594,8 +604,8 @@ export const useAppStore = create<AppState>((set, get) => {
           battleStatus: 'matched',
           battleOpponent: msg.opponent,
           battleQIndex: 0,
-          battleMyScore: 0,
-          battleOppScore: 0,
+          battleMyScore: msg.yourScore,
+          battleOppScore: msg.oppScore,
           battleYourChoice: null,
           battleOppChoice: null,
           battleCorrectIndex: null,

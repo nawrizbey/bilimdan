@@ -1,7 +1,9 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MascotIcon } from '../components/MascotIcon';
-import { useAppStore } from '../store/useAppStore';
+import { useAppStore, pickTargetUnit } from '../store/useAppStore';
+
+const SESSION_MINUTES_CAP = 20;
 
 const WEEK_DAYS = [
   { label: 'D', state: 'done' },
@@ -35,11 +37,27 @@ export function DashboardScreen() {
   const wordsKnownCount = useAppStore((s) => s.wordsKnownCount);
   const leaderboard = useAppStore((s) => s.leaderboard);
   const loadLeaderboard = useAppStore((s) => s.loadLeaderboard);
+  const units = useAppStore((s) => s.units);
+  const loadUnits = useAppStore((s) => s.loadUnits);
   const goalPct = Math.min(100, Math.round((goalDone / goalMin) * 100));
   const remaining = Math.max(0, goalMin - goalDone);
+  const targetUnit = pickTargetUnit(units ?? []);
+
+  const [leaderboardError, setLeaderboardError] = useState(false);
+  const loadLeaderboardWidget = () => {
+    loadLeaderboard('school').catch((err) => {
+      console.error('Dashboard leaderboard load failed:', err);
+      setLeaderboardError(true);
+    });
+  };
+  const retryLeaderboardWidget = () => {
+    setLeaderboardError(false);
+    loadLeaderboardWidget();
+  };
 
   useEffect(() => {
-    loadLeaderboard('school');
+    loadLeaderboardWidget();
+    loadUnits().catch((err) => console.error('Dashboard units load failed:', err));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -64,7 +82,15 @@ export function DashboardScreen() {
           </div>
           <h1 className="font-display font-extrabold text-[28px] sm:text-[32px] text-white mb-[6px]">Salom, {studentName}!</h1>
           <p className="text-white/90 text-[15px] font-semibold mb-5 max-w-[440px]">
-            Bugun yana <b>{remaining} daqiqa</b> qoldi. Keling, <b>Unit 4 — Animals</b> mavzusini davom ettiramiz!
+            {targetUnit ? (
+              <>
+                Bugun yana <b>{remaining} daqiqa</b> qoldi. Keling, <b>{targetUnit.title}</b> mavzusini davom ettiramiz!
+              </>
+            ) : (
+              <>
+                Bugun yana <b>{remaining} daqiqa</b> qoldi. Davom etamizmi?
+              </>
+            )}
           </p>
           <div className="flex flex-wrap justify-center sm:justify-start gap-3">
             <button
@@ -174,8 +200,14 @@ export function DashboardScreen() {
             >
               <div className="w-12 h-12 flex-none rounded-[13px] bg-primary flex items-center justify-center text-[22px]">📖</div>
               <div className="flex-1 min-w-0">
-                <div className="font-extrabold text-[15px] text-text truncate">So'z o'rganish — Animals</div>
-                <div className="text-[12.5px] font-bold text-[#16A34A]">12 ta yangi so'z · 10 daqiqa</div>
+                <div className="font-extrabold text-[15px] text-text truncate">
+                  So'z o'rganish{targetUnit ? ` — ${targetUnit.title.replace(/^Unit \d+\s*—\s*/, '')}` : ''}
+                </div>
+                <div className="text-[12.5px] font-bold text-[#16A34A]">
+                  {targetUnit
+                    ? `${targetUnit.wordsCount} ta so'z · ~${Math.min(targetUnit.wordsCount, SESSION_MINUTES_CAP)} daqiqa`
+                    : "So'zlar tayyorlanmoqda"}
+                </div>
               </div>
               <div className="font-extrabold text-[13px] text-primary bg-[#DCFCE7] flex-none whitespace-nowrap py-[6px] px-3 rounded-[20px]">Boshlash</div>
             </div>
@@ -202,7 +234,17 @@ export function DashboardScreen() {
             <span className="text-[11px] font-extrabold text-[#FACC15] bg-[#FACC15]/[.15] py-1 px-[9px] rounded-[20px]">TOP 5</span>
           </div>
           <div className="flex flex-col gap-[9px]">
-            {!leaderboard ? (
+            {leaderboardError ? (
+              <div className="text-center py-2">
+                <div className="text-[13px] font-bold text-white/60 mb-2">Yuklab bo'lmadi</div>
+                <button
+                  onClick={retryLeaderboardWidget}
+                  className="text-[12px] font-extrabold text-white bg-white/10 border border-white/20 rounded-[10px] py-[6px] px-3 cursor-pointer font-sans"
+                >
+                  ↻ Qayta urinish
+                </button>
+              </div>
+            ) : !leaderboard ? (
               <div className="text-[13px] font-bold text-white/60 py-2">Yuklanmoqda…</div>
             ) : (
               leaderboard.board.slice(0, 5).map((p) => (

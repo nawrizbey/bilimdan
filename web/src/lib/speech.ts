@@ -1,4 +1,7 @@
+import { useAppStore } from '../store/useAppStore';
+
 export function speak(text: string) {
+  if (!useAppStore.getState().settings.head) return;
   try {
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = 'en-US';

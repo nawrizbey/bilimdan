@@ -128,8 +128,22 @@ async function startMatch(p1: Connection, p2: Connection) {
   pairingInProgress.delete(p1.userId);
   pairingInProgress.delete(p2.userId);
 
-  send(p1, { type: 'match:found', matchId: match.id, opponent: { name: p2.name, initial: p2.initial }, startsInMs: MATCH_START_DELAY_MS });
-  send(p2, { type: 'match:found', matchId: match.id, opponent: { name: p1.name, initial: p1.initial }, startsInMs: MATCH_START_DELAY_MS });
+  send(p1, {
+    type: 'match:found',
+    matchId: match.id,
+    opponent: { name: p2.name, initial: p2.initial },
+    startsInMs: MATCH_START_DELAY_MS,
+    yourScore: match.scores[p1.userId],
+    oppScore: match.scores[p2.userId],
+  });
+  send(p2, {
+    type: 'match:found',
+    matchId: match.id,
+    opponent: { name: p1.name, initial: p1.initial },
+    startsInMs: MATCH_START_DELAY_MS,
+    yourScore: match.scores[p2.userId],
+    oppScore: match.scores[p1.userId],
+  });
 
   setTimeout(() => startQuestion(match), MATCH_START_DELAY_MS);
 }
@@ -294,7 +308,8 @@ function handleAnswerSubmit(conn: Connection, data: { qIndex?: number; choice?: 
   if (!match || match.ended) return;
   if (data.qIndex !== match.qIndex) return; // stale/late answer for a past question
   if (match.answered[conn.userId] !== undefined) return; // already answered
-  if (typeof data.choice !== 'number') return;
+  const optionCount = match.questions[match.qIndex]?.options.length ?? 0;
+  if (typeof data.choice !== 'number' || !Number.isInteger(data.choice) || data.choice < 0 || data.choice >= optionCount) return;
 
   match.answered[conn.userId] = data.choice;
   void awardProgress(conn.userId, { minutes: QUESTION_MINUTES });
@@ -339,7 +354,14 @@ function tryResume(conn: Connection): boolean {
   match.players[idx] = conn;
 
   const opponent = opponentOf(match, conn.userId);
-  send(conn, { type: 'match:found', matchId: match.id, opponent: { name: opponent.name, initial: opponent.initial }, startsInMs: 0 });
+  send(conn, {
+    type: 'match:found',
+    matchId: match.id,
+    opponent: { name: opponent.name, initial: opponent.initial },
+    startsInMs: 0,
+    yourScore: match.scores[conn.userId],
+    oppScore: match.scores[opponent.userId],
+  });
 
   if (match.qIndex < match.questions.length) {
     const q = match.questions[match.qIndex];

@@ -2,14 +2,22 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppStore } from '../store/useAppStore';
 import { connectBattleSocket, sendAnswer, sendQueueJoin } from '../lib/battleSocket';
+import { playCorrect, playIncorrect, playMatchFound, playTick } from '../lib/sound';
 
 const QUESTION_SECONDS = 10;
 const TOTAL_QUESTIONS = 3;
+const RECONNECT_DELAYS_MS = [1500, 2500, 4000, 4000];
+const RESUME_WATCHDOG_MS = 4000;
+
+type ConnectionState = 'connected' | 'reconnecting' | 'reconnect-failed';
 
 export function BattleScreen() {
   const navigate = useNavigate();
+  const userId = useAppStore((s) => s.userId);
   const studentName = useAppStore((s) => s.studentName);
+  const sfxEnabled = useAppStore((s) => s.settings.sfx);
   const battleStatus = useAppStore((s) => s.battleStatus);
+  const battleWinnerId = useAppStore((s) => s.battleWinnerId);
   const battleOpponent = useAppStore((s) => s.battleOpponent);
   const battleQIndex = useAppStore((s) => s.battleQIndex);
   const battleQuestion = useAppStore((s) => s.battleQuestion);
@@ -25,11 +33,75 @@ export function BattleScreen() {
   const battleReset = useAppStore((s) => s.battleReset);
 
   const wsRef = useRef<WebSocket | null>(null);
+  const deliberateCloseRef = useRef(false);
+  const reconnectAttemptsRef = useRef(0);
+  const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const resumeWatchdogRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [remainingSeconds, setRemainingSeconds] = useState(QUESTION_SECONDS);
   const [connectError, setConnectError] = useState<string | null>(null);
+  const [connectionState, setConnectionState] = useState<ConnectionState>('connected');
+  const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
+
+  const clearReconnectTimers = () => {
+    if (reconnectTimeoutRef.current) {
+      clearTimeout(reconnectTimeoutRef.current);
+      reconnectTimeoutRef.current = null;
+    }
+    if (resumeWatchdogRef.current) {
+      clearTimeout(resumeWatchdogRef.current);
+      resumeWatchdogRef.current = null;
+    }
+  };
+
+  const wireSocket = (ws: WebSocket) => {
+    ws.onclose = () => {
+      // A stale/replaced socket (e.g. the previous match's connection, superseded by
+      // a rematch) closing later shouldn't trigger a reconnect for the current one.
+      if (wsRef.current !== ws) return;
+      wsRef.current = null;
+      if (deliberateCloseRef.current) {
+        deliberateCloseRef.current = false;
+        return;
+      }
+      const status = useAppStore.getState().battleStatus;
+      if (status === 'matched' || status === 'playing' || status === 'revealed') {
+        scheduleReconnect();
+      }
+    };
+  };
+
+  const scheduleReconnect = () => {
+    const attempt = reconnectAttemptsRef.current;
+    if (attempt >= RECONNECT_DELAYS_MS.length) {
+      setConnectionState('reconnect-failed');
+      return;
+    }
+    setConnectionState('reconnecting');
+    reconnectTimeoutRef.current = setTimeout(() => {
+      reconnectAttemptsRef.current += 1;
+      const ws = connectBattleSocket((msg) => {
+        battleApplyMessage(msg);
+        if (msg.type === 'match:found' || msg.type === 'question:start' || msg.type === 'question:reveal' || msg.type === 'match:end') {
+          clearReconnectTimers();
+          reconnectAttemptsRef.current = 0;
+          setConnectionState('connected');
+        }
+      });
+      if (!ws) {
+        scheduleReconnect();
+        return;
+      }
+      wsRef.current = ws;
+      wireSocket(ws);
+      ws.onopen = () => {
+        resumeWatchdogRef.current = setTimeout(() => setConnectionState('reconnect-failed'), RESUME_WATCHDOG_MS);
+      };
+    }, RECONNECT_DELAYS_MS[attempt]);
+  };
 
   useEffect(() => {
     return () => {
+      clearReconnectTimers();
       wsRef.current?.close();
       wsRef.current = null;
     };
@@ -43,8 +115,28 @@ export function BattleScreen() {
     return () => clearInterval(id);
   }, [battleStatus, battleDeadline]);
 
+  // Sound effects (gated by the "Ovoz effektlari" setting).
+  useEffect(() => {
+    if (sfxEnabled && battleStatus === 'matched') playMatchFound();
+  }, [battleStatus, sfxEnabled]);
+
+  const prevStatusRef = useRef(battleStatus);
+  useEffect(() => {
+    if (sfxEnabled && battleStatus === 'revealed' && prevStatusRef.current !== 'revealed' && battleYourChoice != null) {
+      if (battleYourChoice === battleCorrectIndex) playCorrect();
+      else playIncorrect();
+    }
+    prevStatusRef.current = battleStatus;
+  }, [battleStatus, battleYourChoice, battleCorrectIndex, sfxEnabled]);
+
+  useEffect(() => {
+    if (sfxEnabled && battleStatus === 'playing' && remainingSeconds > 0 && remainingSeconds <= 3) playTick();
+  }, [remainingSeconds, battleStatus, sfxEnabled]);
+
   const handleJoinQueue = () => {
     setConnectError(null);
+    setConnectionState('connected');
+    reconnectAttemptsRef.current = 0;
     battleSetQueueing();
     const ws = connectBattleSocket((msg) => battleApplyMessage(msg));
     if (!ws) {
@@ -52,11 +144,9 @@ export function BattleScreen() {
       battleReset();
       return;
     }
+    wireSocket(ws);
     ws.onopen = () => sendQueueJoin(ws);
     ws.onerror = () => setConnectError('Ulanishda xatolik yuz berdi');
-    ws.onclose = () => {
-      if (wsRef.current === ws) wsRef.current = null;
-    };
     wsRef.current = ws;
   };
 
@@ -70,14 +160,55 @@ export function BattleScreen() {
     handleJoinQueue();
   };
 
-  const handleLeave = () => {
+  const closeDeliberately = () => {
+    clearReconnectTimers();
+    deliberateCloseRef.current = true;
+    // Let wireSocket's onclose handler null wsRef once the close event actually
+    // fires — nulling it here too would make that handler's `wsRef.current === ws`
+    // check fail, leaving deliberateCloseRef stuck true and never consumed.
     wsRef.current?.close();
-    wsRef.current = null;
+  };
+
+  const handleLeave = () => {
+    closeDeliberately();
     battleReset();
     navigate('/app/dashboard');
   };
 
+  const handleConfirmLeave = () => {
+    setShowLeaveConfirm(false);
+    handleLeave();
+  };
+
   const initial = studentName.charAt(0).toUpperCase();
+  const inActiveMatch = battleStatus === 'matched' || battleStatus === 'playing' || battleStatus === 'revealed';
+
+  if (connectionState === 'reconnect-failed') {
+    return (
+      <div className="animate-pop max-w-[680px] mx-auto text-center bg-white border border-border-2 rounded-[24px] p-10" style={{ boxShadow: '0 8px 26px rgba(15,23,42,.06)' }}>
+        <div className="text-[64px] mb-2">📡</div>
+        <h2 className="font-display font-extrabold text-[24px] text-text mb-1">Ulanish tiklanmadi</h2>
+        <p className="text-[14px] font-bold text-text-softer mb-6">
+          Internet aloqasi uzilib qoldi va o'yinga qayta ulanib bo'lmadi. Agar raqibingiz o'ynashda davom etgan bo'lsa, siz mag'lub deb hisoblangan bo'lishingiz mumkin.
+        </p>
+        <div className="flex gap-3 justify-center">
+          <button
+            onClick={handleRematch}
+            className="bg-battle text-white border-none rounded-[15px] py-[14px] px-[26px] font-display font-extrabold text-[16px] cursor-pointer"
+            style={{ boxShadow: '0 5px 0 #BE185D' }}
+          >
+            ⚔️ Qayta urinish
+          </button>
+          <button
+            onClick={handleLeave}
+            className="bg-border-3 text-[#475569] border-none rounded-[15px] py-[14px] px-[26px] font-display font-bold text-[16px] cursor-pointer"
+          >
+            Bosh sahifa
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (battleStatus === 'idle') {
     return (
@@ -124,6 +255,53 @@ export function BattleScreen() {
 
   return (
     <div className="animate-pop max-w-[860px] mx-auto">
+      {connectionState === 'reconnecting' && (
+        <div className="mb-3 flex items-center justify-center gap-2 bg-[#FFFBEB] border border-[#FDE68A] text-[#92400E] text-[13px] font-bold rounded-[12px] p-3">
+          <span className="w-3.5 h-3.5 rounded-full border-2 border-[#F59E0B] border-t-transparent animate-spin" />
+          📡 Ulanish uzildi, qayta ulanmoqda…
+        </div>
+      )}
+
+      {showLeaveConfirm && (
+        <div className="fixed inset-0 bg-[#0F172A]/50 z-50 flex items-center justify-center p-4" onClick={() => setShowLeaveConfirm(false)}>
+          <div
+            className="bg-white rounded-[20px] p-7 max-w-[360px] w-full text-center"
+            style={{ boxShadow: '0 20px 50px rgba(15,23,42,.25)' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="text-[40px] mb-2">⚠️</div>
+            <h3 className="font-display font-extrabold text-[19px] text-text mb-1">Rostdan chiqasizmi?</h3>
+            <p className="text-[13.5px] font-bold text-text-softer mb-5">Bu mag'lubiyat hisoblanadi va o'yin tugaydi.</p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowLeaveConfirm(false)}
+                className="flex-1 bg-border-3 text-[#475569] border-none rounded-[13px] py-[11px] font-display font-bold text-[14px] cursor-pointer"
+              >
+                Bekor qilish
+              </button>
+              <button
+                onClick={handleConfirmLeave}
+                className="flex-1 bg-danger text-white border-none rounded-[13px] py-[11px] font-display font-extrabold text-[14px] cursor-pointer"
+              >
+                Ha, chiqish
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {inActiveMatch && (
+        <div className="flex justify-end mb-2">
+          <button
+            onClick={() => setShowLeaveConfirm(true)}
+            aria-label="O'yindan chiqish"
+            className="text-[12px] font-bold text-text-softer bg-white border border-border-2 py-[5px] px-[11px] rounded-[11px] cursor-pointer hover:text-danger-dark hover:border-[#FECACA]"
+          >
+            ✕ Chiqish
+          </button>
+        </div>
+      )}
+
       <div
         className="rounded-[24px] p-4 sm:p-[20px_26px] flex items-center gap-2 sm:gap-[18px]"
         style={{ background: 'linear-gradient(125deg,#1E293B,#0F172A)', boxShadow: '0 14px 36px rgba(15,23,42,.28)' }}
@@ -241,8 +419,10 @@ export function BattleScreen() {
           style={{ boxShadow: '0 8px 26px rgba(15,23,42,.06)' }}
         >
           {(() => {
-            const won = battleMyScore > battleOppScore;
-            const lost = battleMyScore < battleOppScore;
+            // Driven by winnerId (not score comparison) so a forfeit ending with
+            // tied scores still correctly shows a win/loss instead of "Durrang".
+            const won = battleWinnerId != null && battleWinnerId === userId;
+            const lost = battleWinnerId != null && battleWinnerId !== userId;
             const resultTitle = won ? "G'alaba! 🏆" : lost ? "Mag'lubiyat" : 'Durrang';
             const resultEmoji = won ? '🎉' : lost ? '😅' : '🤝';
             const resultColor = won ? '#16A34A' : lost ? '#DB2777' : '#F59E0B';

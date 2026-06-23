@@ -128,7 +128,7 @@ export interface BattleQuestionPayload {
 
 export type BattleServerMessage =
   | { type: 'queue:waiting' }
-  | { type: 'match:found'; matchId: number; opponent: BattleOpponent; startsInMs: number }
+  | { type: 'match:found'; matchId: number; opponent: BattleOpponent; startsInMs: number; yourScore: number; oppScore: number }
   | { type: 'question:start'; qIndex: number; question: BattleQuestionPayload; deadline: number }
   | {
       type: 'question:reveal';
