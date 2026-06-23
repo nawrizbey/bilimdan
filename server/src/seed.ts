@@ -22,9 +22,42 @@ const REGIONS: Record<string, string[]> = {
 const SCHOOL_NAME_TEMPLATES = ['1-son maktab', '12-son maktab', '24-son maktab'];
 
 const UNITS: { title: string; order: number; emoji: string; words?: { en: string; ipa: string; uz: string; example: string; emoji: string }[] }[] = [
-  { title: 'Unit 1 — Family', order: 1, emoji: '👨‍👩‍👧' },
-  { title: 'Unit 2 — School', order: 2, emoji: '🏫' },
-  { title: 'Unit 3 — Food', order: 3, emoji: '🍎' },
+  {
+    title: 'Unit 1 — Family',
+    order: 1,
+    emoji: '👨‍👩‍👧',
+    words: [
+      { en: 'Parent', ipa: '/ˈpeərənt/', uz: 'Ota-ona', example: 'My parents work very hard every day.', emoji: '👪' },
+      { en: 'Sibling', ipa: '/ˈsɪblɪŋ/', uz: 'Aka-uka, opa-singil', example: 'I have two siblings, a brother and a sister.', emoji: '👫' },
+      { en: 'Grandmother', ipa: '/ˈɡrænmʌðə/', uz: 'Buvi', example: 'My grandmother bakes delicious bread.', emoji: '👵' },
+      { en: 'Cousin', ipa: '/ˈkʌzən/', uz: 'Amakivachcha', example: 'My cousin lives in another city.', emoji: '🧑' },
+      { en: 'Relative', ipa: '/ˈrelətɪv/', uz: 'Qarindosh', example: 'We invited all our relatives to the party.', emoji: '👨‍👩‍👧‍👦' },
+    ],
+  },
+  {
+    title: 'Unit 2 — School',
+    order: 2,
+    emoji: '🏫',
+    words: [
+      { en: 'Classroom', ipa: '/ˈklɑːsruːm/', uz: 'Sinfxona', example: 'Our classroom has twenty desks.', emoji: '🏫' },
+      { en: 'Homework', ipa: '/ˈhəʊmwɜːk/', uz: 'Uy vazifasi', example: 'I always do my homework after dinner.', emoji: '📝' },
+      { en: 'Teacher', ipa: '/ˈtiːtʃə/', uz: "O'qituvchi", example: 'Our teacher explains the lessons very clearly.', emoji: '👩‍🏫' },
+      { en: 'Subject', ipa: '/ˈsʌbdʒɪkt/', uz: 'Fan (predmet)', example: 'Mathematics is my favorite subject.', emoji: '📚' },
+      { en: 'Library', ipa: '/ˈlaɪbrəri/', uz: 'Kutubxona', example: 'I borrowed three books from the library.', emoji: '📖' },
+    ],
+  },
+  {
+    title: 'Unit 3 — Food',
+    order: 3,
+    emoji: '🍎',
+    words: [
+      { en: 'Breakfast', ipa: '/ˈbrekfəst/', uz: 'Nonushta', example: 'I eat breakfast at seven o\'clock.', emoji: '🍳' },
+      { en: 'Vegetable', ipa: '/ˈvedʒtəbl/', uz: 'Sabzavot', example: 'Carrots and potatoes are vegetables.', emoji: '🥕' },
+      { en: 'Delicious', ipa: '/dɪˈlɪʃəs/', uz: 'Mazali', example: 'This soup is absolutely delicious.', emoji: '😋' },
+      { en: 'Recipe', ipa: '/ˈresəpi/', uz: 'Retsept', example: 'My mother has a great recipe for pilaf.', emoji: '📋' },
+      { en: 'Thirsty', ipa: '/ˈθɜːsti/', uz: 'Chanqagan', example: 'I am very thirsty, can I have some water?', emoji: '🥤' },
+    ],
+  },
   {
     title: 'Unit 4 — Animals',
     order: 4,
@@ -37,8 +70,30 @@ const UNITS: { title: string; order: number; emoji: string; words?: { en: string
       { en: 'Journey', ipa: '/ˈdʒɜːni/', uz: 'Sayohat', example: 'Our journey to the sea was fun.', emoji: '🧭' },
     ],
   },
-  { title: 'Unit 5 — Sport', order: 5, emoji: '⚽' },
-  { title: 'Unit 6 — Travel', order: 6, emoji: '✈️' },
+  {
+    title: 'Unit 5 — Sport',
+    order: 5,
+    emoji: '⚽',
+    words: [
+      { en: 'Athlete', ipa: '/ˈæθliːt/', uz: 'Sportchi', example: 'The athlete trains every morning.', emoji: '🏃' },
+      { en: 'Champion', ipa: '/ˈtʃæmpiən/', uz: 'Chempion', example: 'She became the champion of the competition.', emoji: '🏆' },
+      { en: 'Exercise', ipa: '/ˈeksəsaɪz/', uz: 'Mashq', example: 'Daily exercise keeps you healthy.', emoji: '🏋️' },
+      { en: 'Stadium', ipa: '/ˈsteɪdiəm/', uz: 'Stadion', example: 'Thousands of fans filled the stadium.', emoji: '🏟️' },
+      { en: 'Victory', ipa: '/ˈvɪktəri/', uz: "G'alaba", example: 'Our team celebrated their victory.', emoji: '🥇' },
+    ],
+  },
+  {
+    title: 'Unit 6 — Travel',
+    order: 6,
+    emoji: '✈️',
+    words: [
+      { en: 'Passport', ipa: '/ˈpɑːspɔːt/', uz: 'Pasport', example: "Don't forget your passport at the airport.", emoji: '🛂' },
+      { en: 'Luggage', ipa: '/ˈlʌɡɪdʒ/', uz: 'Bagaj', example: 'We packed our luggage the night before.', emoji: '🧳' },
+      { en: 'Destination', ipa: '/ˌdestɪˈneɪʃən/', uz: 'Manzil', example: 'Our final destination is Samarkand.', emoji: '📍' },
+      { en: 'Adventure', ipa: '/ədˈventʃə/', uz: 'Sarguzasht', example: 'Traveling abroad is a great adventure.', emoji: '🗺️' },
+      { en: 'Souvenir', ipa: '/ˌsuːvəˈnɪə/', uz: 'Esdalik sovg\'a', example: 'I bought a souvenir for my friend.', emoji: '🎁' },
+    ],
+  },
 ];
 
 const QUIZ_QUESTIONS = [
