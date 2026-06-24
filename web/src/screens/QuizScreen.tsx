@@ -1,9 +1,11 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Trans, useTranslation } from 'react-i18next';
 import { useAppStore } from '../store/useAppStore';
 import { ContentLoader } from '../components/ContentLoader';
 
 export function QuizScreen() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const quizQuestions = useAppStore((s) => s.quizQuestions);
   const loadQuiz = useAppStore((s) => s.loadQuiz);
@@ -34,15 +36,15 @@ export function QuizScreen() {
           style={{ boxShadow: '0 8px 26px rgba(15,23,42,.06)' }}
         >
           <div className="text-[64px]">{resultEmoji}</div>
-          <h2 className="font-display font-extrabold text-[30px] my-2 mb-1 text-text">Test tugadi!</h2>
+          <h2 className="font-display font-extrabold text-[30px] my-2 mb-1 text-text">{t('quiz.finished')}</h2>
           <p className="text-[15px] font-bold text-text-softer mb-4">
-            Siz <b className="text-quiz">{qScore}/{quizQuestions.length}</b> ta to'g'ri javob berdingiz
+            <Trans i18nKey="quiz.scoreLine" values={{ score: qScore, total: quizQuestions.length }} components={{ b: <b className="text-quiz" /> }} />
           </p>
           <div className="inline-flex items-center gap-2 bg-[#FEFCE8] border border-[#FEF08A] rounded-[14px] py-[10px] px-[18px] mb-6">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="#EAB308">
               <path d="M12 2l2.9 6.3 6.9.7-5.1 4.7 1.4 6.8L12 17.8 5.9 20.5l1.4-6.8L2.2 9l6.9-.7z" />
             </svg>
-            <span className="font-extrabold text-[#A16207]">+{xp} XP yutdingiz</span>
+            <span className="font-extrabold text-[#A16207]">{t('quiz.xpEarned', { xp })}</span>
           </div>
           <div className="flex gap-3 justify-center">
             <button
@@ -50,13 +52,13 @@ export function QuizScreen() {
               className="bg-quiz text-white border-none rounded-[15px] py-[14px] px-[26px] font-display font-extrabold text-[16px] cursor-pointer"
               style={{ boxShadow: '0 5px 0 #B45309' }}
             >
-              ↻ Qayta
+              {t('quiz.retry')}
             </button>
             <button
               onClick={() => navigate('/app/dashboard')}
               className="bg-border-3 text-[#475569] border-none rounded-[15px] py-[14px] px-[26px] font-display font-bold text-[16px] cursor-pointer"
             >
-              Bosh sahifa
+              {t('common.home')}
             </button>
           </div>
         </div>
@@ -72,7 +74,7 @@ export function QuizScreen() {
       {playing && (
         <div>
           <div className="flex items-center justify-between mb-[10px]">
-            <h2 className="font-display font-extrabold text-[23px] m-0 text-text">Kunlik test</h2>
+            <h2 className="font-display font-extrabold text-[23px] m-0 text-text">{t('dashboard.dailyQuiz')}</h2>
             <span className="text-[13.5px] font-extrabold text-quiz bg-[#FEF3C7] py-[6px] px-[13px] rounded-[20px]">
               {Math.min(qq + 1, quizQuestions.length)} / {quizQuestions.length}
             </span>

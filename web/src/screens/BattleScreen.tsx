@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAppStore } from '../store/useAppStore';
 import { connectBattleSocket, sendAnswer, sendQueueJoin } from '../lib/battleSocket';
 import { playCorrect, playIncorrect, playMatchFound, playTick } from '../lib/sound';
@@ -12,6 +13,7 @@ const RESUME_WATCHDOG_MS = 4000;
 type ConnectionState = 'connected' | 'reconnecting' | 'reconnect-failed';
 
 export function BattleScreen() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const userId = useAppStore((s) => s.userId);
   const studentName = useAppStore((s) => s.studentName);
@@ -140,13 +142,13 @@ export function BattleScreen() {
     battleSetQueueing();
     const ws = connectBattleSocket((msg) => battleApplyMessage(msg));
     if (!ws) {
-      setConnectError('Tizimga kirish talab qilinadi');
+      setConnectError(t('battle.loginRequired'));
       battleReset();
       return;
     }
     wireSocket(ws);
     ws.onopen = () => sendQueueJoin(ws);
-    ws.onerror = () => setConnectError('Ulanishda xatolik yuz berdi');
+    ws.onerror = () => setConnectError(t('battle.connectError'));
     wsRef.current = ws;
   };
 
@@ -187,23 +189,21 @@ export function BattleScreen() {
     return (
       <div className="animate-pop max-w-[680px] mx-auto text-center bg-white border border-border-2 rounded-[24px] p-10" style={{ boxShadow: '0 8px 26px rgba(15,23,42,.06)' }}>
         <div className="text-[64px] mb-2">📡</div>
-        <h2 className="font-display font-extrabold text-[24px] text-text mb-1">Ulanish tiklanmadi</h2>
-        <p className="text-[14px] font-bold text-text-softer mb-6">
-          Internet aloqasi uzilib qoldi va o'yinga qayta ulanib bo'lmadi. Agar raqibingiz o'ynashda davom etgan bo'lsa, siz mag'lub deb hisoblangan bo'lishingiz mumkin.
-        </p>
+        <h2 className="font-display font-extrabold text-[24px] text-text mb-1">{t('battle.reconnectFailedTitle')}</h2>
+        <p className="text-[14px] font-bold text-text-softer mb-6">{t('battle.reconnectFailedDesc')}</p>
         <div className="flex gap-3 justify-center">
           <button
             onClick={handleRematch}
             className="bg-battle text-white border-none rounded-[15px] py-[14px] px-[26px] font-display font-extrabold text-[16px] cursor-pointer"
             style={{ boxShadow: '0 5px 0 #BE185D' }}
           >
-            ⚔️ Qayta urinish
+            {t('battle.retryBtn')}
           </button>
           <button
             onClick={handleLeave}
             className="bg-border-3 text-[#475569] border-none rounded-[15px] py-[14px] px-[26px] font-display font-bold text-[16px] cursor-pointer"
           >
-            Bosh sahifa
+            {t('common.home')}
           </button>
         </div>
       </div>
@@ -214,10 +214,8 @@ export function BattleScreen() {
     return (
       <div className="animate-pop max-w-[680px] mx-auto text-center bg-white border border-border-2 rounded-[24px] p-10" style={{ boxShadow: '0 8px 26px rgba(15,23,42,.06)' }}>
         <div className="text-[64px] mb-2">⚔️</div>
-        <h2 className="font-display font-extrabold text-[26px] text-text mb-1">Jonli batl</h2>
-        <p className="text-[14px] font-bold text-text-softer mb-6">
-          Haqiqiy o'quvchiga qarshi {TOTAL_QUESTIONS} ta savol bo'yicha tezkor bellashuv
-        </p>
+        <h2 className="font-display font-extrabold text-[26px] text-text mb-1">{t('battle.title')}</h2>
+        <p className="text-[14px] font-bold text-text-softer mb-6">{t('battle.subtitle', { n: TOTAL_QUESTIONS })}</p>
         {connectError && (
           <div className="bg-danger-light border border-[#FECACA] text-danger-dark text-[13px] font-bold rounded-[12px] p-3 mb-4">
             {connectError}
@@ -228,7 +226,7 @@ export function BattleScreen() {
           className="bg-battle text-white border-none rounded-[15px] py-[14px] px-[26px] font-display font-extrabold text-[16px] cursor-pointer"
           style={{ boxShadow: '0 5px 0 #BE185D' }}
         >
-          ⚔️ Raqib qidirish
+          {t('battle.findOpponent')}
         </button>
       </div>
     );
@@ -238,27 +236,27 @@ export function BattleScreen() {
     return (
       <div className="animate-pop max-w-[680px] mx-auto text-center bg-white border border-border-2 rounded-[24px] p-10" style={{ boxShadow: '0 8px 26px rgba(15,23,42,.06)' }}>
         <div className="w-12 h-12 mx-auto mb-4 rounded-full border-[3px] border-border-2 animate-spin" style={{ borderTopColor: '#EC4899' }} />
-        <h2 className="font-display font-extrabold text-[22px] text-text mb-1">Raqib qidirilmoqda…</h2>
-        <p className="text-[14px] font-bold text-text-softer mb-6">Boshqa o'quvchi ulanishini kuting</p>
+        <h2 className="font-display font-extrabold text-[22px] text-text mb-1">{t('battle.searching')}</h2>
+        <p className="text-[14px] font-bold text-text-softer mb-6">{t('battle.waitOther')}</p>
         <button
           onClick={handleLeave}
           className="bg-border-3 text-[#475569] border-none rounded-[14px] py-[11px] px-[22px] font-display font-bold text-[15px] cursor-pointer"
         >
-          Bekor qilish
+          {t('common.cancel')}
         </button>
       </div>
     );
   }
 
   const oppInitial = battleOpponent?.initial ?? '?';
-  const oppName = battleOpponent?.name ?? 'Raqib';
+  const oppName = battleOpponent?.name ?? t('battle.defaultOpponent');
 
   return (
     <div className="animate-pop max-w-[860px] mx-auto">
       {connectionState === 'reconnecting' && (
         <div className="mb-3 flex items-center justify-center gap-2 bg-[#FFFBEB] border border-[#FDE68A] text-[#92400E] text-[13px] font-bold rounded-[12px] p-3">
           <span className="w-3.5 h-3.5 rounded-full border-2 border-[#F59E0B] border-t-transparent animate-spin" />
-          📡 Ulanish uzildi, qayta ulanmoqda…
+          {t('battle.reconnecting')}
         </div>
       )}
 
@@ -270,20 +268,20 @@ export function BattleScreen() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="text-[40px] mb-2">⚠️</div>
-            <h3 className="font-display font-extrabold text-[19px] text-text mb-1">Rostdan chiqasizmi?</h3>
-            <p className="text-[13.5px] font-bold text-text-softer mb-5">Bu mag'lubiyat hisoblanadi va o'yin tugaydi.</p>
+            <h3 className="font-display font-extrabold text-[19px] text-text mb-1">{t('battle.confirmLeaveTitle')}</h3>
+            <p className="text-[13.5px] font-bold text-text-softer mb-5">{t('battle.confirmLeaveDesc')}</p>
             <div className="flex gap-3">
               <button
                 onClick={() => setShowLeaveConfirm(false)}
                 className="flex-1 bg-border-3 text-[#475569] border-none rounded-[13px] py-[11px] font-display font-bold text-[14px] cursor-pointer"
               >
-                Bekor qilish
+                {t('common.cancel')}
               </button>
               <button
                 onClick={handleConfirmLeave}
                 className="flex-1 bg-danger text-white border-none rounded-[13px] py-[11px] font-display font-extrabold text-[14px] cursor-pointer"
               >
-                Ha, chiqish
+                {t('battle.confirmLeaveYes')}
               </button>
             </div>
           </div>
@@ -294,10 +292,10 @@ export function BattleScreen() {
         <div className="flex justify-end mb-2">
           <button
             onClick={() => setShowLeaveConfirm(true)}
-            aria-label="O'yindan chiqish"
+            aria-label={t('battle.leaveAria') ?? undefined}
             className="text-[12px] font-bold text-text-softer bg-white border border-border-2 py-[5px] px-[11px] rounded-[11px] cursor-pointer hover:text-danger-dark hover:border-[#FECACA]"
           >
-            ✕ Chiqish
+            {t('battle.leaveBtn')}
           </button>
         </div>
       )}
@@ -314,8 +312,8 @@ export function BattleScreen() {
             {initial}
           </div>
           <div className="min-w-0">
-            <div className="text-white font-extrabold text-[12.5px] sm:text-[15px] truncate">{studentName} (siz)</div>
-            <div className="text-primary font-extrabold text-[11px] sm:text-[13px]">{battleMyScore} ball</div>
+            <div className="text-white font-extrabold text-[12.5px] sm:text-[15px] truncate">{studentName} {t('common.you')}</div>
+            <div className="text-primary font-extrabold text-[11px] sm:text-[13px]">{t('battle.score', { score: battleMyScore })}</div>
           </div>
         </div>
         <div className="flex flex-col items-center gap-[6px] flex-none">
@@ -323,13 +321,13 @@ export function BattleScreen() {
             VS
           </div>
           <div className="text-[10px] sm:text-[11px] font-extrabold text-text-soft whitespace-nowrap">
-            SAVOL {Math.min(battleQIndex + 1, TOTAL_QUESTIONS)}/{TOTAL_QUESTIONS}
+            {t('battle.questionLabel', { n: Math.min(battleQIndex + 1, TOTAL_QUESTIONS), total: TOTAL_QUESTIONS })}
           </div>
         </div>
         <div className="flex items-center gap-2 sm:gap-[13px] flex-1 min-w-0 justify-end text-right">
           <div className="min-w-0">
             <div className="text-white font-extrabold text-[12.5px] sm:text-[15px] truncate">{oppName}</div>
-            <div className="text-battle font-extrabold text-[11px] sm:text-[13px]">{battleOppScore} ball</div>
+            <div className="text-battle font-extrabold text-[11px] sm:text-[13px]">{t('battle.score', { score: battleOppScore })}</div>
           </div>
           <div
             className="w-10 h-10 sm:w-[54px] sm:h-[54px] flex-none rounded-[16px] flex items-center justify-center text-white font-display font-extrabold text-[18px] sm:text-[22px]"
@@ -343,8 +341,8 @@ export function BattleScreen() {
       {battleStatus === 'matched' && (
         <div className="mt-[18px] text-center bg-white border border-border-2 rounded-[24px] p-10" style={{ boxShadow: '0 8px 26px rgba(15,23,42,.06)' }}>
           <div className="text-[40px] mb-2 animate-floaty">⚔️</div>
-          <h2 className="font-display font-extrabold text-[22px] text-text">Raqib topildi!</h2>
-          <p className="text-[14px] font-bold text-text-softer">Boshlanmoqda…</p>
+          <h2 className="font-display font-extrabold text-[22px] text-text">{t('battle.opponentFound')}</h2>
+          <p className="text-[14px] font-bold text-text-softer">{t('battle.starting')}</p>
         </div>
       )}
 
@@ -369,7 +367,7 @@ export function BattleScreen() {
           </div>
 
           <div className="bg-white border border-border-2 rounded-[24px] p-[30px] text-center" style={{ boxShadow: '0 8px 26px rgba(15,23,42,.06)' }}>
-            <div className="text-[12.5px] font-extrabold text-battle tracking-[.06em] mb-2">⚡ TEZ JAVOB BERING</div>
+            <div className="text-[12.5px] font-extrabold text-battle tracking-[.06em] mb-2">{t('battle.answerFast')}</div>
             <h2 className="font-display font-extrabold text-[28px] text-text mb-[22px]">{battleQuestion.question}</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-[13px]">
               {battleQuestion.options.map((label, i) => {
@@ -406,7 +404,7 @@ export function BattleScreen() {
             </div>
             {battleStatus === 'revealed' && battleOppChoice != null && (
               <div className="mt-4 text-[12.5px] font-bold text-text-softer">
-                {oppName} {battleOppChoice === battleCorrectIndex ? "to'g'ri" : "noto'g'ri"} javob berdi
+                {t(battleOppChoice === battleCorrectIndex ? 'battle.opponentAnsweredCorrect' : 'battle.opponentAnsweredWrong', { name: oppName })}
               </div>
             )}
           </div>
@@ -423,7 +421,7 @@ export function BattleScreen() {
             // tied scores still correctly shows a win/loss instead of "Durrang".
             const won = battleWinnerId != null && battleWinnerId === userId;
             const lost = battleWinnerId != null && battleWinnerId !== userId;
-            const resultTitle = won ? "G'alaba! 🏆" : lost ? "Mag'lubiyat" : 'Durrang';
+            const resultTitle = won ? t('battle.win') : lost ? t('battle.lose') : t('battle.draw');
             const resultEmoji = won ? '🎉' : lost ? '😅' : '🤝';
             const resultColor = won ? '#16A34A' : lost ? '#DB2777' : '#F59E0B';
             return (
@@ -432,7 +430,7 @@ export function BattleScreen() {
                 <h2 className="font-display font-extrabold text-[32px] my-2 mb-1" style={{ color: resultColor }}>
                   {resultTitle}
                 </h2>
-                <p className="text-[15px] font-bold text-text-softer mb-2">Yakuniy hisob</p>
+                <p className="text-[15px] font-bold text-text-softer mb-2">{t('battle.finalScore')}</p>
                 <div className="inline-flex items-center gap-[18px] font-display font-extrabold text-[34px] mb-2">
                   <span className="text-[#16A34A]">{battleMyScore}</span>
                   <span className="text-[#CBD5E1] text-[20px]">—</span>
@@ -450,13 +448,13 @@ export function BattleScreen() {
               className="bg-battle text-white border-none rounded-[15px] py-[14px] px-[26px] font-display font-extrabold text-[16px] cursor-pointer"
               style={{ boxShadow: '0 5px 0 #BE185D' }}
             >
-              ⚔️ Qayta o'ynash
+              {t('battle.rematch')}
             </button>
             <button
               onClick={handleLeave}
               className="bg-border-3 text-[#475569] border-none rounded-[15px] py-[14px] px-[26px] font-display font-bold text-[16px] cursor-pointer"
             >
-              Bosh sahifa
+              {t('common.home')}
             </button>
           </div>
         </div>

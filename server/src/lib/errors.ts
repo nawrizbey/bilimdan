@@ -13,8 +13,8 @@ export function badRequest(message: string, code = 'BAD_REQUEST') {
   return new AppError(400, code, message);
 }
 
-export function unauthorized(message = 'Tizimga kirish talab qilinadi') {
-  return new AppError(401, 'UNAUTHORIZED', message);
+export function unauthorized(message = 'Tizimga kirish talab qilinadi', code = 'UNAUTHORIZED') {
+  return new AppError(401, code, message);
 }
 
 export function notFound(message = 'Topilmadi') {

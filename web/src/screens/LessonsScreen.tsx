@@ -1,9 +1,11 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAppStore } from '../store/useAppStore';
 import { ContentLoader } from '../components/ContentLoader';
 
 export function LessonsScreen() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const units = useAppStore((s) => s.units);
   const loadUnits = useAppStore((s) => s.loadUnits);
@@ -24,16 +26,14 @@ export function LessonsScreen() {
 
   return (
     <div className="animate-pop max-w-[1080px]">
-      <h2 className="font-display font-extrabold text-[25px] mb-1 text-text">Mavzular 📚</h2>
-      <p className="text-[14px] font-bold text-text-softer mb-[22px]">
-        5–6 sinf darsligi asosida tuzilgan birliklar. Tartib bilan o'rganing.
-      </p>
+      <h2 className="font-display font-extrabold text-[25px] mb-1 text-text">{t('lessons.title')}</h2>
+      <p className="text-[14px] font-bold text-text-softer mb-[22px]">{t('lessons.subtitle')}</p>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-[18px]">
         {units.map((u) => {
           const noContent = u.wordsCount === 0;
           const done = u.pct === 100;
           const current = !noContent && !done;
-          const tagText = noContent ? 'Tayyorlanmoqda' : done ? "✓ Tugadi" : 'Joriy';
+          const tagText = noContent ? t('lessons.statusPreparing') : done ? t('lessons.statusDone') : t('lessons.statusCurrent');
           const accent = noContent ? '#CBD5E1' : done ? '#3B82F6' : '#22C55E';
 
           return (
@@ -66,7 +66,7 @@ export function LessonsScreen() {
               <div className="font-display font-extrabold text-[19px]" style={{ color: noContent ? '#94A3B8' : '#0F172A' }}>
                 {u.title}
               </div>
-              <div className="text-[13px] font-bold text-text-softer my-[2px] mb-[14px]">{u.wordsCount} ta so'z</div>
+              <div className="text-[13px] font-bold text-text-softer my-[2px] mb-[14px]">{t('lessons.wordCount', { count: u.wordsCount })}</div>
               <div className="h-2 bg-[#EEF2F7] rounded-[20px] overflow-hidden">
                 <div
                   className="h-full rounded-[20px]"
@@ -74,7 +74,7 @@ export function LessonsScreen() {
                 />
               </div>
               <div className="text-[12px] font-extrabold mt-[7px]" style={{ color: noContent ? '#CBD5E1' : accent }}>
-                {noContent ? "So'zlar hali qo'shilmagan" : `${u.pct}% o'rganildi`}
+                {noContent ? t('lessons.noWordsYet') : t('lessons.learnedPct', { pct: u.pct })}
               </div>
             </div>
           );

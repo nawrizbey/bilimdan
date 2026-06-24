@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAppStore } from '../store/useAppStore';
 import { ContentLoader } from '../components/ContentLoader';
 import type { LeaderboardScope } from '../types/api';
@@ -9,21 +10,22 @@ const PODIUM_RANK_STYLE = {
   3: { height: 60, color: '#F59E0B', avatar: 48 },
 } as const;
 
-const SCOPE_TABS: { id: LeaderboardScope; label: string }[] = [
-  { id: 'school', label: 'Maktab' },
-  { id: 'district', label: 'Tuman' },
-  { id: 'region', label: 'Viloyat' },
-  { id: 'republic', label: 'Respublika' },
+const SCOPE_TABS: { id: LeaderboardScope; labelKey: string }[] = [
+  { id: 'school', labelKey: 'leaders.scopeSchool' },
+  { id: 'district', labelKey: 'leaders.scopeDistrict' },
+  { id: 'region', labelKey: 'leaders.scopeRegion' },
+  { id: 'republic', labelKey: 'leaders.scopeRepublic' },
 ];
 
-const RANK_STAT_META: { scope: LeaderboardScope; label: string; color: string; bg: string }[] = [
-  { scope: 'school', label: 'Maktabda', color: '#22C55E', bg: '#F0FDF4' },
-  { scope: 'district', label: 'Tumanda', color: '#0891B2', bg: '#ECFEFF' },
-  { scope: 'region', label: 'Viloyatda', color: '#7C3AED', bg: '#F5F3FF' },
-  { scope: 'republic', label: 'Respublikada', color: '#B45309', bg: '#FFFBEB' },
+const RANK_STAT_META: { scope: LeaderboardScope; labelKey: string; color: string; bg: string }[] = [
+  { scope: 'school', labelKey: 'leaders.rankInSchool', color: '#22C55E', bg: '#F0FDF4' },
+  { scope: 'district', labelKey: 'leaders.rankInDistrict', color: '#0891B2', bg: '#ECFEFF' },
+  { scope: 'region', labelKey: 'leaders.rankInRegion', color: '#7C3AED', bg: '#F5F3FF' },
+  { scope: 'republic', labelKey: 'leaders.rankInRepublic', color: '#B45309', bg: '#FFFBEB' },
 ];
 
 export function LeadersScreen() {
+  const { t } = useTranslation();
   const leaderScope = useAppStore((s) => s.leaderScope);
   const leaderboard = useAppStore((s) => s.leaderboard);
   const loadLeaderboard = useAppStore((s) => s.loadLeaderboard);
@@ -40,18 +42,17 @@ export function LeadersScreen() {
 
   const board = leaderboard.board;
   const podiumOrder = [board[1], board[0], board[2]].filter(Boolean);
+  const scopeLabel = leaderboard.scope === 'republic' ? t('leaders.wholeRepublicLabel') : leaderboard.scopeLabel;
 
   return (
     <div className="animate-pop max-w-[760px] mx-auto">
-      <h2 className="font-display font-extrabold text-[25px] mb-1 text-text">Reyting 🏆</h2>
-      <p className="text-[14px] font-bold text-text-softer mb-5">
-        Hudud va maktab bo'yicha eng faol 5–6 sinf o'quvchilari
-      </p>
+      <h2 className="font-display font-extrabold text-[25px] mb-1 text-text">{t('leaders.title')}</h2>
+      <p className="text-[14px] font-bold text-text-softer mb-5">{t('leaders.subtitle')}</p>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
         {RANK_STAT_META.map((rs) => (
           <div key={rs.scope} className="rounded-[18px] p-4 text-center border border-border-2" style={{ background: rs.bg }}>
-            <div className="text-[12px] font-extrabold text-text-softer mb-1">{rs.label}</div>
+            <div className="text-[12px] font-extrabold text-text-softer mb-1">{t(rs.labelKey)}</div>
             <div className="font-display font-extrabold text-[26px]" style={{ color: rs.color }}>
               #{leaderboard.ranks[rs.scope].toLocaleString('en-US')}
             </div>
@@ -73,18 +74,18 @@ export function LeadersScreen() {
                   : { background: '#fff', color: '#64748B', border: '1px solid #E8EDF3' }
               }
             >
-              {tab.label}
+              {t(tab.labelKey)}
             </button>
           );
         })}
       </div>
       <div className="text-[12.5px] font-extrabold text-text mb-[18px] flex items-center gap-[7px]">
         <span className="w-2 h-2 rounded-[3px] bg-primary" />
-        {leaderboard.scopeLabel}
+        {scopeLabel}
       </div>
 
       {board.length === 0 && (
-        <div className="text-center text-[14px] font-bold text-text-softer py-10">Bu toifada hali o'quvchilar yo'q.</div>
+        <div className="text-center text-[14px] font-bold text-text-softer py-10">{t('leaders.noStudentsYet')}</div>
       )}
 
       {podiumOrder.length > 0 && (
@@ -115,7 +116,10 @@ export function LeadersScreen() {
                 >
                   {p.initial}
                 </div>
-                <div className="font-extrabold text-[12px] sm:text-[14px] text-text mt-2 text-center truncate w-full">{p.name}</div>
+                <div className="font-extrabold text-[12px] sm:text-[14px] text-text mt-2 text-center truncate w-full">
+                  {p.name}
+                  {p.isMe ? ` ${t('common.you')}` : ''}
+                </div>
                 <div className="font-extrabold text-[12px] sm:text-[13px] text-[#A16207]">{p.xp} XP</div>
                 <div
                   className="mt-[10px] w-full rounded-t-[16px] flex items-start justify-center pt-[10px] text-[22px] sm:text-[26px]"
@@ -145,8 +149,9 @@ export function LeadersScreen() {
             </div>
             <span className="flex-1 min-w-0 truncate font-bold text-[15px]" style={{ color: r.isMe ? '#15803D' : '#0F172A' }}>
               {r.name}
+              {r.isMe ? ` ${t('common.you')}` : ''}
             </span>
-            <span className="hidden sm:inline font-bold text-[13px] text-text-softer mr-[14px]">{r.words} so'z</span>
+            <span className="hidden sm:inline font-bold text-[13px] text-text-softer mr-[14px]">{r.words} {t('common.words')}</span>
             <span className="font-extrabold text-[14px] text-[#EAB308] flex-none">{r.xp} XP</span>
           </div>
         ))}

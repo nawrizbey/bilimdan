@@ -16,10 +16,12 @@ function scopeWhere(scope: Scope, me: { schoolId: number; districtId: number; re
   return {};
 }
 
-function displayName(fullName: string, isMe: boolean): string {
+// Returns the bare display name only — no "(siz)"/"you" suffix, since that's
+// locale text. The frontend already gets `isMe` per board entry and appends its
+// own translated suffix when rendering.
+function displayName(fullName: string): string {
   const parts = fullName.trim().split(/\s+/);
   const first = parts[0] ?? fullName;
-  if (isMe) return `${first} (siz)`;
   const lastInitial = parts.length > 1 ? `${parts[parts.length - 1].charAt(0).toUpperCase()}.` : '';
   return lastInitial ? `${first} ${lastInitial}` : first;
 }
@@ -58,20 +60,16 @@ leaderboardRouter.get('/', requireAuth, async (req, res, next) => {
       rank: i + 1,
       id: u.id,
       isMe: u.id === me.id,
-      name: displayName(u.fullName, u.id === me.id),
+      name: displayName(u.fullName),
       initial: u.fullName.trim().charAt(0).toUpperCase(),
       xp: u.xp,
       words: u.wordsKnownCount,
     }));
 
+    // 'republic' has no place-name to look up — the frontend supplies its own
+    // translated label for that scope instead of using this field.
     const scopeLabel =
-      typedScope === 'school'
-        ? me.school.name
-        : typedScope === 'district'
-          ? me.district.name
-          : typedScope === 'region'
-            ? me.region.name
-            : "Butun O'zbekiston";
+      typedScope === 'school' ? me.school.name : typedScope === 'district' ? me.district.name : typedScope === 'region' ? me.region.name : '';
 
     res.json({ scope: typedScope, scopeLabel, ranks, board });
   } catch (err) {

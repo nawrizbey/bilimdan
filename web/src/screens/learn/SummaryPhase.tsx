@@ -1,8 +1,10 @@
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAppStore } from '../../store/useAppStore';
 
 export function SummaryPhase() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const currentUnitTitle = useAppStore((s) => s.currentUnitTitle);
   const currentUnitWords = useAppStore((s) => s.currentUnitWords);
@@ -28,16 +30,14 @@ export function SummaryPhase() {
     return (
       <div className="animate-pop max-w-[560px] mx-auto text-center bg-white border border-border-2 rounded-[24px] p-10" style={{ boxShadow: '0 8px 26px rgba(15,23,42,.06)' }}>
         <div className="text-[64px] mb-2">🏆</div>
-        <h2 className="font-display font-extrabold text-[26px] text-text mb-1">Barcha mavzular tugallandi!</h2>
-        <p className="text-[14px] font-bold text-text-softer mb-6">
-          Siz hozircha mavjud bo'lgan barcha mavzulardagi so'zlarni o'rgandingiz. Tabriklaymiz! 🎉
-        </p>
+        <h2 className="font-display font-extrabold text-[26px] text-text mb-1">{t('summary.allDoneTitle')}</h2>
+        <p className="text-[14px] font-bold text-text-softer mb-6">{t('summary.allDoneDesc')}</p>
         <button
           onClick={() => navigate('/app/dashboard')}
           className="bg-primary text-white border-none rounded-[15px] py-[14px] px-[26px] font-display font-extrabold text-[16px] cursor-pointer"
           style={{ boxShadow: '0 5px 0 #15803D' }}
         >
-          Bosh sahifaga qaytish
+          {t('summary.backToDashboard')}
         </button>
       </div>
     );
@@ -48,27 +48,27 @@ export function SummaryPhase() {
   return (
     <div className="animate-pop max-w-[560px] mx-auto text-center bg-white border border-border-2 rounded-[24px] p-10" style={{ boxShadow: '0 8px 26px rgba(15,23,42,.06)' }}>
       <div className="text-[64px] mb-2">🎉</div>
-      <h2 className="font-display font-extrabold text-[26px] text-text mb-1">Mavzu yakunlandi!</h2>
+      <h2 className="font-display font-extrabold text-[26px] text-text mb-1">{t('summary.unitDoneTitle')}</h2>
       <p className="text-[14px] font-bold text-text-softer mb-6">{currentUnitTitle}</p>
 
       <div className="grid grid-cols-3 gap-3 mb-6">
         <div className="rounded-[16px] p-4 bg-[#EFF6FF] border border-[#BFDBFE]">
           <div className="font-display font-extrabold text-[22px] text-secondary-dark">{writeCorrectCount}/{total}</div>
-          <div className="text-[11.5px] font-bold text-text-softer mt-1">✍️ Yozish</div>
+          <div className="text-[11.5px] font-bold text-text-softer mt-1">{t('summary.statWrite')}</div>
         </div>
         <div className="rounded-[16px] p-4 bg-[#F3E8FF] border border-[#E9D5FF]">
           <div className="font-display font-extrabold text-[22px] text-speak-dark">{total}</div>
-          <div className="text-[11.5px] font-bold text-text-softer mt-1">🎙️ Aytildi</div>
+          <div className="text-[11.5px] font-bold text-text-softer mt-1">{t('summary.statSpoken')}</div>
         </div>
         <div className="rounded-[16px] p-4 bg-[#FEF3C7] border border-[#FDE68A]">
           <div className="font-display font-extrabold text-[22px] text-quiz">{testCorrectCount}/{testQuestions.length}</div>
-          <div className="text-[11.5px] font-bold text-text-softer mt-1">✅ Test</div>
+          <div className="text-[11.5px] font-bold text-text-softer mt-1">{t('summary.statTest')}</div>
         </div>
       </div>
 
       {writeMissedWords.length > 0 && (
         <div className="text-left bg-[#FEF2F2] border border-[#FECACA] rounded-[16px] p-4 mb-5">
-          <div className="text-[12.5px] font-extrabold text-danger-dark mb-2">↻ Qayta ko'rib chiqish tavsiya etiladi</div>
+          <div className="text-[12.5px] font-extrabold text-danger-dark mb-2">{t('summary.reviewSuggested')}</div>
           <div className="flex flex-wrap gap-[7px]">
             {writeMissedWords.map((w) => (
               <span key={w} className="bg-white border border-[#FECACA] text-danger-dark font-bold text-[13px] py-1 px-[11px] rounded-[20px]">
@@ -93,7 +93,7 @@ export function SummaryPhase() {
           className="bg-primary text-white border-none rounded-[15px] py-[14px] px-[26px] font-display font-extrabold text-[16px] cursor-pointer disabled:opacity-60"
           style={{ boxShadow: '0 5px 0 #15803D' }}
         >
-          {loadingNext ? 'Yuklanmoqda…' : 'Keyingi mavzuga o\'tish →'}
+          {loadingNext ? t('common.loading') : t('summary.nextUnit')}
         </button>
       </div>
     </div>

@@ -1,7 +1,9 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAppStore } from '../../store/useAppStore';
 
 export function TestPhase() {
+  const { t } = useTranslation();
   const testIdx = useAppStore((s) => s.testIdx);
   const testSel = useAppStore((s) => s.testSel);
   const testQuestions = useAppStore((s) => s.testQuestions);
@@ -25,7 +27,7 @@ export function TestPhase() {
     return (
       <div className="max-w-[480px] mx-auto text-center bg-white border border-border-2 rounded-[24px] p-9" style={{ boxShadow: '0 8px 26px rgba(15,23,42,.06)' }}>
         <div className="text-[48px] mb-2">📡</div>
-        <h3 className="font-display font-extrabold text-[20px] text-text mb-2">Natijalarni saqlab bo'lmadi</h3>
+        <h3 className="font-display font-extrabold text-[20px] text-text mb-2">{t('test.saveFailedTitle')}</h3>
         <p className="text-[14px] font-bold text-text-softer mb-6">{sessionSaveError}</p>
         <button
           onClick={finishOrRetry}
@@ -33,7 +35,7 @@ export function TestPhase() {
           className="bg-quiz text-white border-none rounded-[14px] py-[13px] px-[26px] font-display font-extrabold text-[16px] cursor-pointer disabled:opacity-60"
           style={{ boxShadow: '0 5px 0 #B45309' }}
         >
-          {saving ? 'Urinilmoqda…' : '↻ Qayta urinish'}
+          {saving ? t('test.saving') : t('common.retry')}
         </button>
       </div>
     );
@@ -49,10 +51,10 @@ export function TestPhase() {
     <div className="max-w-[600px] mx-auto">
       <div className="flex items-center justify-between mb-[10px]">
         <div className="inline-flex items-center gap-2 bg-[#FEF3C7] text-quiz font-extrabold text-[12.5px] py-[6px] px-[14px] rounded-[20px]">
-          ✅ TEST
+          {t('test.badge')}
         </div>
         <span className="text-[13.5px] font-extrabold text-quiz bg-[#FEF3C7] py-[6px] px-[13px] rounded-[20px]">
-          {testIdx + 1} / {testQuestions.length} · to'g'ri: {testCorrectCount}
+          {t('test.progress', { idx: testIdx + 1, total: testQuestions.length, count: testCorrectCount })}
         </span>
       </div>
       <div className="h-[9px] bg-border rounded-[20px] overflow-hidden mb-[22px]">
@@ -64,7 +66,7 @@ export function TestPhase() {
 
       <div className="bg-white border border-border-2 rounded-[24px] p-[30px]" style={{ boxShadow: '0 8px 26px rgba(15,23,42,.06)' }}>
         <h3 className="font-display font-extrabold text-[22px] text-text mb-[22px] text-center">
-          "{question.word}" so'zining tarjimasi qaysi?
+          {t('test.question', { word: question.word })}
         </h3>
         <div className="flex flex-col gap-[11px]">
           {question.options.map((label, i) => {
@@ -114,7 +116,7 @@ export function TestPhase() {
             className="w-full mt-5 bg-quiz text-white border-none rounded-[14px] py-[13px] font-display font-extrabold text-[16px] cursor-pointer disabled:opacity-60"
             style={{ boxShadow: '0 5px 0 #B45309' }}
           >
-            {isLastQuestion ? (saving ? 'Saqlanmoqda…' : 'Yakunlash →') : 'Keyingi savol →'}
+            {isLastQuestion ? (saving ? t('test.savingResults') : t('test.finish')) : t('test.nextQuestion')}
           </button>
         )}
       </div>

@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import { api, ApiError, getToken, setToken } from '../lib/api';
 import { saveLearnSession, loadLearnSession, clearLearnSession } from '../lib/learnSessionStorage';
+import { getErrorMessage } from '../lib/errorMessage';
+import i18n from '../i18n';
 import type {
   ApiBadge,
   ApiQuizQuestion,
@@ -563,8 +565,7 @@ export const useAppStore = create<AppState>((set, get) => {
       clearLearnSession();
     } catch (err) {
       console.error('Session complete failed:', err);
-      const message =
-        err instanceof ApiError ? err.message : "Natijalarni saqlashda xatolik yuz berdi. Internetni tekshirib, qayta urinib ko'ring.";
+      const message = err instanceof ApiError ? getErrorMessage(i18n.t, err) : i18n.t('common.networkError');
       set({ sessionSaveError: message });
     }
   },

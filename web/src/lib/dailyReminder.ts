@@ -1,3 +1,5 @@
+import i18n from '../i18n';
+
 const LAST_NOTIFIED_KEY = 'bilimdon_goal_notified_date';
 
 function todayKey(): string {
@@ -14,8 +16,8 @@ export function maybeNotifyDailyGoal(goalDone: number, goalMin: number) {
 
   const fire = () => {
     localStorage.setItem(LAST_NOTIFIED_KEY, todayKey());
-    new Notification('Bilimdon', {
-      body: `Bugungi ${goalMin} daqiqalik maqsadingizdan ${goalMin - goalDone} daqiqa qoldi. Davom etamizmi? 💪`,
+    new Notification(i18n.t('common.appName'), {
+      body: i18n.t('dailyReminder.body', { goalMin, remaining: goalMin - goalDone }),
       icon: '/favicon.svg',
     });
   };

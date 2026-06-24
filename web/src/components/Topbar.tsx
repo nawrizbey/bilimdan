@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAppStore } from '../store/useAppStore';
 import { NAV_ITEMS } from '../lib/navItems';
 
@@ -8,6 +9,7 @@ interface TopbarProps {
 }
 
 export function Topbar({ onMenuClick }: TopbarProps) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const studentName = useAppStore((s) => s.studentName);
   const streak = useAppStore((s) => s.streak);
@@ -30,7 +32,7 @@ export function Topbar({ onMenuClick }: TopbarProps) {
   }, []);
 
   const q = query.trim().toLowerCase();
-  const navMatches = q ? NAV_ITEMS.filter((item) => item.label.toLowerCase().includes(q)) : [];
+  const navMatches = q ? NAV_ITEMS.filter((item) => t(item.labelKey).toLowerCase().includes(q)) : [];
   const unitMatches = q ? (units ?? []).filter((u) => u.title.toLowerCase().includes(q)) : [];
   const hasResults = navMatches.length > 0 || unitMatches.length > 0;
 
@@ -58,7 +60,7 @@ export function Topbar({ onMenuClick }: TopbarProps) {
       <button
         type="button"
         onClick={onMenuClick}
-        aria-label="Menyuni ochish"
+        aria-label={t('topbar.openMenu') ?? undefined}
         className="lg:hidden flex-none w-10 h-10 rounded-[12px] bg-white border border-border flex items-center justify-center"
       >
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0F172A" strokeWidth="2.2" strokeLinecap="round">
@@ -83,7 +85,7 @@ export function Topbar({ onMenuClick }: TopbarProps) {
             onKeyDown={(e) => {
               if (e.key === 'Escape') setOpen(false);
             }}
-            placeholder="So'z yoki mavzu qidirish…"
+            placeholder={t('topbar.searchPlaceholder') ?? undefined}
             className="flex-1 min-w-0 text-text font-semibold text-[13.5px] outline-none border-none bg-transparent placeholder:text-text-softer"
           />
         </div>
@@ -93,7 +95,7 @@ export function Topbar({ onMenuClick }: TopbarProps) {
             className="absolute top-[calc(100%+6px)] left-0 right-0 bg-white border border-border-2 rounded-[14px] overflow-hidden z-30"
             style={{ boxShadow: '0 14px 36px rgba(15,23,42,.14)' }}
           >
-            {!hasResults && <div className="text-[13px] font-bold text-text-softer p-3 text-center">Hech narsa topilmadi</div>}
+            {!hasResults && <div className="text-[13px] font-bold text-text-softer p-3 text-center">{t('topbar.noResults')}</div>}
             {navMatches.map((item) => (
               <button
                 key={item.to}
@@ -101,7 +103,7 @@ export function Topbar({ onMenuClick }: TopbarProps) {
                 className="w-full text-left flex items-center gap-[10px] py-[10px] px-[14px] hover:bg-border-3 cursor-pointer border-none bg-transparent font-sans"
               >
                 <span className="w-2 h-2 rounded-[3px] flex-none" style={{ background: item.color }} />
-                <span className="text-[13.5px] font-bold text-text">{item.label}</span>
+                <span className="text-[13.5px] font-bold text-text">{t(item.labelKey)}</span>
               </button>
             ))}
             {unitMatches.map((u) => (
@@ -112,7 +114,7 @@ export function Topbar({ onMenuClick }: TopbarProps) {
               >
                 <span className="text-[15px] flex-none">{u.emoji}</span>
                 <span className="text-[13.5px] font-bold text-text truncate">{u.title}</span>
-                <span className="ml-auto text-[11px] font-bold text-text-softer flex-none">{u.wordsCount} so'z</span>
+                <span className="ml-auto text-[11px] font-bold text-text-softer flex-none">{u.wordsCount} {t('common.words')}</span>
               </button>
             ))}
           </div>

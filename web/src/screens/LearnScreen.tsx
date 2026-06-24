@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAppStore, type LearnPhase } from '../store/useAppStore';
 import { speak } from '../lib/speech';
 import { ContentLoader } from '../components/ContentLoader';
@@ -9,14 +10,15 @@ import { SpeakPhase } from './learn/SpeakPhase';
 import { TestPhase } from './learn/TestPhase';
 import { SummaryPhase } from './learn/SummaryPhase';
 
-const STEPS: { phase: LearnPhase; label: string; emoji: string; color: string }[] = [
-  { phase: 'familiarize', label: 'Tanishish', emoji: '📖', color: '#22C55E' },
-  { phase: 'write', label: 'Yozish', emoji: '✍️', color: '#3B82F6' },
-  { phase: 'speak', label: 'Aytish', emoji: '🎙️', color: '#8B5CF6' },
-  { phase: 'test', label: 'Test', emoji: '✅', color: '#F59E0B' },
+const STEPS: { phase: LearnPhase; labelKey: string; emoji: string; color: string }[] = [
+  { phase: 'familiarize', labelKey: 'learn.stepFamiliarize', emoji: '📖', color: '#22C55E' },
+  { phase: 'write', labelKey: 'learn.stepWrite', emoji: '✍️', color: '#3B82F6' },
+  { phase: 'speak', labelKey: 'learn.stepSpeak', emoji: '🎙️', color: '#8B5CF6' },
+  { phase: 'test', labelKey: 'learn.stepTest', emoji: '✅', color: '#F59E0B' },
 ];
 
 function Stepper({ phase }: { phase: LearnPhase }) {
+  const { t } = useTranslation();
   const activeIdx = STEPS.findIndex((s) => s.phase === phase);
   return (
     <div className="flex items-center justify-center gap-2 sm:gap-4 mb-7">
@@ -40,7 +42,7 @@ function Stepper({ phase }: { phase: LearnPhase }) {
                 className="text-[10.5px] sm:text-[11.5px] font-extrabold hidden sm:block"
                 style={{ color: active ? step.color : done ? '#64748B' : '#CBD5E1' }}
               >
-                {step.label}
+                {t(step.labelKey)}
               </span>
             </div>
             {i < STEPS.length - 1 && (
@@ -56,6 +58,7 @@ function Stepper({ phase }: { phase: LearnPhase }) {
 const PHASE_ORDER: LearnPhase[] = ['familiarize', 'write', 'speak', 'test'];
 
 export function LearnScreen() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const learnPhase = useAppStore((s) => s.learnPhase);
   const currentUnitTitle = useAppStore((s) => s.currentUnitTitle);
@@ -99,8 +102,8 @@ export function LearnScreen() {
     return (
       <div className="animate-pop max-w-[760px] mx-auto text-center bg-white border border-border-2 rounded-[24px] p-10">
         <div className="text-[48px] mb-2">📚</div>
-        <h2 className="font-display font-extrabold text-[22px] text-text mb-1">Hozircha so'zlar yo'q</h2>
-        <p className="text-[14px] font-bold text-text-softer">Bu mavzu uchun so'zlar hali tayyorlanmoqda.</p>
+        <h2 className="font-display font-extrabold text-[22px] text-text mb-1">{t('learn.noWords')}</h2>
+        <p className="text-[14px] font-bold text-text-softer">{t('learn.noWordsDesc')}</p>
       </div>
     );
   }
@@ -128,7 +131,7 @@ export function LearnScreen() {
           onClick={() => navigate('/app/dashboard')}
           className="text-[12.5px] font-bold text-text-softer bg-white border border-border-2 py-[7px] px-[13px] rounded-[13px] cursor-pointer"
         >
-          ‹ Bosh sahifa
+          {t('learn.back')}
         </button>
       </div>
 

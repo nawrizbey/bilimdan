@@ -83,11 +83,11 @@ authRouter.post('/login', async (req, res, next) => {
 
     const user = await prisma.user.findUnique({ where: { username: username.trim() }, include: userInclude });
     if (!user) {
-      throw unauthorized("Foydalanuvchi nomi yoki parol noto'g'ri");
+      throw unauthorized("Foydalanuvchi nomi yoki parol noto'g'ri", 'INVALID_CREDENTIALS');
     }
     const valid = await verifyPassword(password, user.passwordHash);
     if (!valid) {
-      throw unauthorized("Foydalanuvchi nomi yoki parol noto'g'ri");
+      throw unauthorized("Foydalanuvchi nomi yoki parol noto'g'ri", 'INVALID_CREDENTIALS');
     }
 
     const updated = await prisma.user.update({

@@ -1,7 +1,9 @@
+import { useTranslation } from 'react-i18next';
 import { useAppStore } from '../../store/useAppStore';
 import { speak } from '../../lib/speech';
 
 export function FamiliarizePhase() {
+  const { t } = useTranslation();
   const card = useAppStore((s) => s.card);
   const flipped = useAppStore((s) => s.flipped);
   const currentUnitWords = useAppStore((s) => s.currentUnitWords);
@@ -17,7 +19,7 @@ export function FamiliarizePhase() {
   return (
     <div>
       <div className="text-center text-[13.5px] font-bold text-text-softer mb-[14px]">
-        So'z {card + 1} / {currentUnitWords.length} · {familiarizeViewed.length}/{currentUnitWords.length} ko'rib chiqildi
+        {t('familiarize.progress', { card: card + 1, total: currentUnitWords.length, viewed: familiarizeViewed.length })}
       </div>
 
       <div style={{ perspective: '1500px', height: '340px' }}>
@@ -35,7 +37,7 @@ export function FamiliarizePhase() {
             role="button"
             tabIndex={flipped ? -1 : 0}
             aria-hidden={flipped}
-            aria-label="Kartani aylantirish, tarjimani ko'rish"
+            aria-label={t('familiarize.flipToTranslation') ?? undefined}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
@@ -59,9 +61,9 @@ export function FamiliarizePhase() {
                 <path d="M11 5L6 9H2v6h4l5 4V5z" />
                 <path d="M15.5 8.5a5 5 0 010 7" stroke="#2563EB" strokeWidth="2" fill="none" strokeLinecap="round" />
               </svg>
-              Tinglash
+              {t('familiarize.listen')}
             </button>
-            <div className="absolute bottom-4 text-[12px] font-bold text-[#CBD5E1]">Tarjimani ko'rish uchun bosing ↻</div>
+            <div className="absolute bottom-4 text-[12px] font-bold text-[#CBD5E1]">{t('familiarize.tapToFlip')}</div>
           </div>
 
           {/* BACK */}
@@ -70,7 +72,7 @@ export function FamiliarizePhase() {
             role="button"
             tabIndex={flipped ? 0 : -1}
             aria-hidden={!flipped}
-            aria-label="Kartani aylantirish, so'zga qaytish"
+            aria-label={t('familiarize.flipToWord') ?? undefined}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
@@ -85,10 +87,10 @@ export function FamiliarizePhase() {
               boxShadow: '0 14px 40px rgba(22,163,74,.3)',
             }}
           >
-            <div className="text-[13px] font-extrabold text-white/70 tracking-[.08em]">TARJIMA</div>
+            <div className="text-[13px] font-extrabold text-white/70 tracking-[.08em]">{t('familiarize.translationLabel')}</div>
             <div className="font-display font-extrabold text-[42px] text-white my-1 mb-[18px]">{word.uz}</div>
             <div className="bg-white/[.16] rounded-[16px] py-4 px-5 max-w-[90%]">
-              <div className="text-[12px] font-extrabold text-white/70 mb-1">MISOL</div>
+              <div className="text-[12px] font-extrabold text-white/70 mb-1">{t('familiarize.exampleLabel')}</div>
               <div className="text-[17px] font-bold text-white italic">"{word.example}"</div>
             </div>
           </div>
@@ -98,7 +100,7 @@ export function FamiliarizePhase() {
       <div className="flex gap-3 mt-6 items-stretch">
         <button
           onClick={prevCard}
-          aria-label="Oldingi karta"
+          aria-label={t('familiarize.prevCard') ?? undefined}
           className="flex-none w-14 bg-white text-text-soft border-[1.5px] border-border rounded-[16px] font-display font-extrabold text-[22px] cursor-pointer hover:border-secondary hover:text-secondary"
         >
           ‹
@@ -107,18 +109,18 @@ export function FamiliarizePhase() {
           onClick={nextCardLocal}
           className="flex-1 bg-white text-text border-[1.5px] border-border rounded-[16px] p-[15px] font-display font-bold text-[16px] cursor-pointer hover:border-secondary hover:text-secondary"
         >
-          Keyingi so'z ›
+          {t('familiarize.nextWord')}
         </button>
         <button
           onClick={finishFamiliarize}
           className="flex-1 bg-primary text-white border-none rounded-[16px] p-[15px] font-display font-extrabold text-[16px] cursor-pointer"
           style={{ boxShadow: '0 5px 0 #15803D' }}
         >
-          Yozishga o'tish →
+          {t('familiarize.continueToWrite')}
         </button>
       </div>
       <div className="hidden sm:block text-center mt-[14px] text-[12px] font-bold text-[#CBD5E1]">
-        Klaviatura: ← oldingi · → keyingi · bo'sh joy aylantirish · S tinglash
+        {t('familiarize.keyboardHint')}
       </div>
     </div>
   );

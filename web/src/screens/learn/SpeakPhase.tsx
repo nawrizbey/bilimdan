@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useAppStore } from '../../store/useAppStore';
 import { speak } from '../../lib/speech';
 import { useMicScoring } from '../../lib/useMicScoring';
@@ -5,6 +6,7 @@ import { useMicScoring } from '../../lib/useMicScoring';
 const WAVE_IDLE_HEIGHTS = [12, 18, 10, 22, 14, 26, 16, 22, 12, 18, 10, 20, 14];
 
 export function SpeakPhase() {
+  const { t } = useTranslation();
   const learnSpeakIdx = useAppStore((s) => s.learnSpeakIdx);
   const learnSpeakScore = useAppStore((s) => s.learnSpeakScore);
   const learnSpeakTranscript = useAppStore((s) => s.learnSpeakTranscript);
@@ -37,15 +39,15 @@ export function SpeakPhase() {
   return (
     <div className="max-w-[560px] mx-auto text-center">
       <div className="inline-flex items-center gap-2 bg-[#F3E8FF] text-speak-dark font-extrabold text-[12.5px] py-[6px] px-[14px] rounded-[20px] mb-[10px]">
-        🎙️ AYTISH MASHQI
+        {t('speak.badge')}
       </div>
       <div className="text-[13.5px] font-bold text-text-softer mb-5">
-        So'z {learnSpeakIdx + 1} / {currentUnitWords.length}
+        {t('speak.progress', { idx: learnSpeakIdx + 1, total: currentUnitWords.length })}
       </div>
 
       {!supported && (
         <div className="bg-[#FFFBEB] border border-[#FDE68A] text-[#92400E] text-[13.5px] font-bold rounded-[14px] p-[14px] mb-4">
-          Brauzeringiz ovozni tanib olishni qo'llab-quvvatlamaydi — "O'tkazib yuborish" tugmasi bilan davom eting.
+          {t('speak.notSupported')}
         </div>
       )}
 
@@ -61,7 +63,7 @@ export function SpeakPhase() {
           <svg width="15" height="15" viewBox="0 0 24 24" fill="#7C3AED">
             <path d="M11 5L6 9H2v6h4l5 4V5z" />
           </svg>
-          Namunani tinglash
+          {t('speak.listenSample')}
         </button>
 
         <div className="flex items-center justify-center gap-1 h-[48px] my-5">
@@ -81,7 +83,7 @@ export function SpeakPhase() {
         <button
           onClick={handleMicClick}
           disabled={!supported}
-          aria-label={recording ? "Yozishni to'xtatish" : 'Mikrofonni yoqish'}
+          aria-label={(recording ? t('speak.stopRecording') : t('speak.startRecording')) ?? undefined}
           aria-pressed={recording}
           className="w-20 h-20 rounded-full border-none inline-flex items-center justify-center transition-all focus-visible:ring-2 focus-visible:ring-speak focus-visible:ring-offset-2"
           style={{
@@ -98,7 +100,7 @@ export function SpeakPhase() {
           </svg>
         </button>
         <div className="text-[13px] font-extrabold mt-3" style={{ color: recording ? '#EC4899' : '#8B5CF6' }}>
-          {recording ? "Tinglayapman…" : 'Mikrofonni yoqish uchun bosing'}
+          {recording ? t('speak.recording') : t('speak.tapToRecord')}
         </div>
 
         {error && (
@@ -131,10 +133,10 @@ export function SpeakPhase() {
             </div>
             <div className="flex-1">
               <div className="font-display font-extrabold text-[15px] text-[#15803D]">
-                {learnSpeakScore != null && learnSpeakScore >= 70 ? "Zo'r! 🎉" : "Yana urinib ko'ring 💪"}
+                {learnSpeakScore != null && learnSpeakScore >= 70 ? t('speak.great') : t('speak.tryAgain')}
               </div>
               {learnSpeakTranscript && (
-                <div className="text-[12px] font-bold text-[#15803D]/80">Siz aytdingiz: "{learnSpeakTranscript}"</div>
+                <div className="text-[12px] font-bold text-[#15803D]/80">{t('speak.youSaid', { transcript: learnSpeakTranscript })}</div>
               )}
             </div>
           </div>
@@ -147,7 +149,7 @@ export function SpeakPhase() {
             onClick={handleNext}
             className="flex-1 bg-border-3 text-[#475569] border-none rounded-[15px] py-[14px] font-display font-bold text-[15px] cursor-pointer"
           >
-            O'tkazib yuborish
+            {t('speak.skip')}
           </button>
         )}
         {hasScore && (
@@ -156,14 +158,14 @@ export function SpeakPhase() {
               onClick={handleMicClick}
               className="flex-1 bg-white text-speak-dark border-2 border-[#E9D5FF] rounded-[15px] py-[13px] font-display font-extrabold text-[15px] cursor-pointer"
             >
-              ↻ Qayta
+              {t('speak.retry')}
             </button>
             <button
               onClick={handleNext}
               className="flex-1 bg-speak text-white border-none rounded-[15px] py-[14px] font-display font-extrabold text-[15px] cursor-pointer"
               style={{ boxShadow: '0 5px 0 #7C3AED' }}
             >
-              Keyingi so'z →
+              {t('speak.next')}
             </button>
           </>
         )}

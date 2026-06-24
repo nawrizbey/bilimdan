@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAppStore } from '../store/useAppStore';
 import { computeLevel } from '../lib/level';
 import { ContentLoader } from '../components/ContentLoader';
 
 export function ProfileScreen() {
+  const { t } = useTranslation();
   const studentName = useAppStore((s) => s.studentName);
   const region = useAppStore((s) => s.region);
   const district = useAppStore((s) => s.district);
@@ -38,10 +40,10 @@ export function ProfileScreen() {
   const levelPct = Math.round((xpInLevel / xpForNextLevel) * 100);
 
   const pstats = [
-    { value: wordsKnownCount, label: "O'rganilgan so'z", color: '#22C55E' },
-    { value: streak, label: 'Kun ketma-ket', color: '#F59E0B' },
-    { value: battleWins, label: "G'alabalar", color: '#EC4899' },
-    { value: level, label: 'Daraja', color: '#3B82F6' },
+    { value: wordsKnownCount, label: t('profile.statWords'), color: '#22C55E' },
+    { value: streak, label: t('profile.statStreak'), color: '#F59E0B' },
+    { value: battleWins, label: t('profile.statWins'), color: '#EC4899' },
+    { value: level, label: t('profile.statLevel'), color: '#3B82F6' },
   ];
 
   return (
@@ -56,7 +58,7 @@ export function ProfileScreen() {
         </div>
         <div className="flex-1 relative z-10 w-full">
           <h2 className="font-display font-extrabold text-[28px] text-white m-0">{studentName}</h2>
-          <div className="text-white/90 font-bold text-[14px] my-[2px] mb-2">{grade}-sinf · Daraja {level}</div>
+          <div className="text-white/90 font-bold text-[14px] my-[2px] mb-2">{t('profile.gradeLevel', { grade, level })}</div>
           <div className="flex flex-wrap justify-center sm:justify-start gap-[7px] mb-3">
             <span className="inline-flex items-center gap-[5px] bg-white/[.18] text-white font-bold text-[12px] py-1 px-[11px] rounded-[20px]">
               📍 {region || 'Toshkent shahri'}
@@ -69,7 +71,7 @@ export function ProfileScreen() {
             <div className="h-full rounded-[20px] bg-[#FACC15]" style={{ width: `${levelPct}%` }} />
           </div>
           <div className="text-white/85 font-bold text-[12px] mt-[6px]">
-            {xpInLevel} / {xpForNextLevel} XP · {level + 1}-darajagacha {xpForNextLevel - xpInLevel} XP
+            {t('profile.xpToNextLevel', { xpInLevel, xpForNextLevel, nextLevel: level + 1, remaining: xpForNextLevel - xpInLevel })}
           </div>
         </div>
       </div>
@@ -85,15 +87,15 @@ export function ProfileScreen() {
         ))}
       </div>
 
-      <h3 className="font-display font-extrabold text-[19px] mb-[14px] text-text">Yutuqlar va nishonlar</h3>
+      <h3 className="font-display font-extrabold text-[19px] mb-[14px] text-text">{t('profile.achievements')}</h3>
       {badgesError ? (
         <div className="bg-white border border-border-2 rounded-[18px] p-8 text-center">
-          <div className="text-[13.5px] font-bold text-text-softer mb-3">Yutuqlarni yuklab bo'lmadi</div>
+          <div className="text-[13.5px] font-bold text-text-softer mb-3">{t('profile.badgesLoadError')}</div>
           <button
             onClick={retryBadges}
             className="text-[12.5px] font-extrabold text-primary bg-primary-light border border-[#BBF7D0] rounded-[11px] py-2 px-4 cursor-pointer font-sans"
           >
-            ↻ Qayta urinish
+            {t('common.retry')}
           </button>
         </div>
       ) : badges == null ? (

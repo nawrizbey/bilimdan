@@ -1,7 +1,9 @@
 import { useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAppStore } from '../../store/useAppStore';
 
 export function WritePhase() {
+  const { t } = useTranslation();
   const writeIdx = useAppStore((s) => s.writeIdx);
   const writeInput = useAppStore((s) => s.writeInput);
   const writeResult = useAppStore((s) => s.writeResult);
@@ -34,15 +36,15 @@ export function WritePhase() {
   return (
     <div className="max-w-[520px] mx-auto text-center">
       <div className="inline-flex items-center gap-2 bg-[#EFF6FF] text-secondary-dark font-extrabold text-[12.5px] py-[6px] px-[14px] rounded-[20px] mb-[10px]">
-        ✍️ YOZISH MASHQI
+        {t('write.badge')}
       </div>
       <div className="text-[13.5px] font-bold text-text-softer mb-5">
-        So'z {writeIdx + 1} / {currentUnitWords.length} · to'g'ri: {writeCorrectCount}
+        {t('write.progress', { idx: writeIdx + 1, total: currentUnitWords.length, count: writeCorrectCount })}
       </div>
 
       <div className="bg-white border border-border-2 rounded-[26px] p-8" style={{ boxShadow: '0 10px 30px rgba(15,23,42,.06)' }}>
         <div className="text-[56px] mb-2">{word.emoji}</div>
-        <div className="text-[13px] font-extrabold text-text-softer tracking-[.06em] mb-1">TARJIMASI</div>
+        <div className="text-[13px] font-extrabold text-text-softer tracking-[.06em] mb-1">{t('write.translationLabel')}</div>
         <div className="font-display font-extrabold text-[36px] text-text mb-6">{word.uz}</div>
 
         <form onSubmit={handleSubmit}>
@@ -52,7 +54,7 @@ export function WritePhase() {
             value={writeInput}
             onChange={(e) => setWriteInput(e.target.value)}
             disabled={answered}
-            placeholder="Inglizcha so'zni yozing…"
+            placeholder={t('write.placeholder') ?? undefined}
             autoComplete="off"
             autoCapitalize="off"
             spellCheck={false}
@@ -67,11 +69,11 @@ export function WritePhase() {
           />
 
           {writeResult === 'correct' && (
-            <div className="text-[15px] font-extrabold text-[#15803D] mb-4">✓ To'g'ri!</div>
+            <div className="text-[15px] font-extrabold text-[#15803D] mb-4">{t('write.correct')}</div>
           )}
           {writeResult === 'incorrect' && (
             <div className="text-[15px] font-extrabold text-danger-dark mb-4">
-              ✗ To'g'ri javob: <span className="font-display">{word.en}</span>
+              {t('write.incorrect', { word: word.en })}
             </div>
           )}
 
@@ -82,7 +84,7 @@ export function WritePhase() {
                 onClick={nextWrite}
                 className="flex-1 bg-border-3 text-[#475569] border-none rounded-[15px] py-[14px] font-display font-bold text-[15px] cursor-pointer"
               >
-                O'tkazib yuborish
+                {t('write.skip')}
               </button>
             )}
             <button
@@ -91,7 +93,7 @@ export function WritePhase() {
               className="flex-1 bg-secondary text-white border-none rounded-[15px] py-[14px] font-display font-extrabold text-[15px] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               style={{ boxShadow: '0 5px 0 #2563EB' }}
             >
-              {answered ? 'Keyingi so\'z →' : 'Tekshirish'}
+              {answered ? t('write.next') : t('write.check')}
             </button>
           </div>
         </form>

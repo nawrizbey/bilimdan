@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Trans, useTranslation } from 'react-i18next';
 import { MascotIcon } from '../components/MascotIcon';
 import { useAppStore, pickTargetUnit } from '../store/useAppStore';
 
@@ -29,6 +30,7 @@ const rankBadgeStyle = (i: number) => {
 };
 
 export function DashboardScreen() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const studentName = useAppStore((s) => s.studentName);
   const streak = useAppStore((s) => s.streak);
@@ -78,18 +80,16 @@ export function DashboardScreen() {
         <div className="absolute right-[120px] -bottom-[70px] w-[170px] h-[170px] rounded-full bg-white/[.07]" />
         <div className="flex-1 relative z-10 text-center sm:text-left">
           <div className="inline-block bg-white/20 text-white font-extrabold text-[12px] py-[5px] px-3 rounded-[20px] mb-3">
-            👋 Xush kelibsiz
+            {t('dashboard.welcomeBadge')}
           </div>
-          <h1 className="font-display font-extrabold text-[28px] sm:text-[32px] text-white mb-[6px]">Salom, {studentName}!</h1>
+          <h1 className="font-display font-extrabold text-[28px] sm:text-[32px] text-white mb-[6px]">
+            {t('dashboard.greeting', { name: studentName })}
+          </h1>
           <p className="text-white/90 text-[15px] font-semibold mb-5 max-w-[440px]">
             {targetUnit ? (
-              <>
-                Bugun yana <b>{remaining} daqiqa</b> qoldi. Keling, <b>{targetUnit.title}</b> mavzusini davom ettiramiz!
-              </>
+              <Trans i18nKey="dashboard.minutesLeftWithUnit" values={{ remaining, unit: targetUnit.title }} components={{ b: <b /> }} />
             ) : (
-              <>
-                Bugun yana <b>{remaining} daqiqa</b> qoldi. Davom etamizmi?
-              </>
+              <Trans i18nKey="dashboard.minutesLeft" values={{ remaining }} components={{ b: <b /> }} />
             )}
           </p>
           <div className="flex flex-wrap justify-center sm:justify-start gap-3">
@@ -98,13 +98,13 @@ export function DashboardScreen() {
               className="bg-white text-[#16A34A] font-display font-extrabold text-[15px] border-none rounded-[14px] py-[13px] px-6 cursor-pointer"
               style={{ boxShadow: '0 6px 0 rgba(0,0,0,.12)' }}
             >
-              Davom ettirish →
+              {t('dashboard.continueBtn')}
             </button>
             <button
               onClick={() => navigate('/app/battle')}
               className="bg-white/[.16] text-white font-display font-bold text-[15px] border-2 border-white/40 rounded-[14px] py-[11px] px-[22px] cursor-pointer"
             >
-              ⚔️ Batlga kirish
+              {t('dashboard.battleBtn')}
             </button>
           </div>
         </div>
@@ -134,15 +134,15 @@ export function DashboardScreen() {
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
               <div className="font-display font-extrabold text-[22px] text-[#16A34A] leading-none">{goalPct}%</div>
-              <div className="text-[10px] font-bold text-text-softer">maqsad</div>
+              <div className="text-[10px] font-bold text-text-softer">{t('dashboard.goalRingLabel')}</div>
             </div>
           </div>
           <div>
-            <div className="text-[13px] font-bold text-text-softer">Bugungi mashg'ulot</div>
+            <div className="text-[13px] font-bold text-text-softer">{t('dashboard.todayLesson')}</div>
             <div className="font-display font-extrabold text-[26px] text-text">
-              {goalDone} <span className="text-[15px] text-text-softer">/ {goalMin} daq</span>
+              {goalDone} <span className="text-[15px] text-text-softer">/ {goalMin} {t('common.minutes')}</span>
             </div>
-            <div className="text-[12.5px] font-bold text-primary mt-[2px]">Ajoyib! Davom eting 💪</div>
+            <div className="text-[12.5px] font-bold text-primary mt-[2px]">{t('dashboard.great')}</div>
           </div>
         </div>
 
@@ -153,10 +153,10 @@ export function DashboardScreen() {
                 <path d="M12 2c1 4-2 5-2 8a4 4 0 008 0c0-1-1-3-1-3 2 1 3 3 3 6a8 8 0 11-16 0c0-5 5-7 8-11z" />
               </svg>
             </div>
-            <div className="text-[13px] font-bold text-text-softer">Ketma-ket kunlar</div>
+            <div className="text-[13px] font-bold text-text-softer">{t('dashboard.streakDays')}</div>
           </div>
           <div className="font-display font-extrabold text-[34px] text-text leading-none">
-            {streak} <span className="text-[16px] text-text-softer">kun</span>
+            {streak} <span className="text-[16px] text-text-softer">{t('dashboard.day')}</span>
           </div>
           <div className="flex gap-[5px] mt-3">
             {WEEK_DAYS.map((d, i) => (
@@ -177,12 +177,12 @@ export function DashboardScreen() {
                 <path d="M12 2l2.9 6.3 6.9.7-5.1 4.7 1.4 6.8L12 17.8 5.9 20.5l1.4-6.8L2.2 9l6.9-.7z" />
               </svg>
             </div>
-            <div className="text-[13px] font-bold text-text-softer">Jami so'zlar</div>
+            <div className="text-[13px] font-bold text-text-softer">{t('dashboard.totalWords')}</div>
           </div>
           <div className="font-display font-extrabold text-[34px] text-text leading-none">
-            {wordsKnownCount} <span className="text-[16px] text-text-softer">so'z</span>
+            {wordsKnownCount} <span className="text-[16px] text-text-softer">{t('common.words')}</span>
           </div>
-          <div className="text-[12.5px] font-bold text-secondary mt-[10px]">Davom eting!</div>
+          <div className="text-[12.5px] font-bold text-secondary mt-[10px]">{t('dashboard.keepGoing')}</div>
         </div>
       </div>
 
@@ -190,8 +190,8 @@ export function DashboardScreen() {
       <div className="grid grid-cols-1 lg:grid-cols-[1.6fr_1fr] gap-[18px] mt-[18px]">
         <div className="bg-white border border-border-2 rounded-[22px] p-6 shadow-[0_2px_10px_rgba(15,23,42,.04)]">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-display font-extrabold text-[19px] text-text m-0">Bugungi mashg'ulotlar</h3>
-            <span className="text-[12.5px] font-bold text-text-softer">~30 daqiqa</span>
+            <h3 className="font-display font-extrabold text-[19px] text-text m-0">{t('dashboard.todayLessons')}</h3>
+            <span className="text-[12.5px] font-bold text-text-softer">{t('dashboard.aboutMinutes')}</span>
           </div>
           <div className="flex flex-col gap-[11px]">
             <div
@@ -201,15 +201,15 @@ export function DashboardScreen() {
               <div className="w-12 h-12 flex-none rounded-[13px] bg-primary flex items-center justify-center text-[22px]">📖</div>
               <div className="flex-1 min-w-0">
                 <div className="font-extrabold text-[15px] text-text truncate">
-                  So'z o'rganish{targetUnit ? ` — ${targetUnit.title.replace(/^Unit \d+\s*—\s*/, '')}` : ''}
+                  {t('nav.learn')}{targetUnit ? ` — ${targetUnit.title.replace(/^\d+-tema\s*—\s*/, '')}` : ''}
                 </div>
                 <div className="text-[12.5px] font-bold text-[#16A34A]">
                   {targetUnit
-                    ? `${targetUnit.wordsCount} ta so'z · ~${Math.min(targetUnit.wordsCount, SESSION_MINUTES_CAP)} daqiqa`
-                    : "So'zlar tayyorlanmoqda"}
+                    ? t('dashboard.wordCountWithMinutes', { count: targetUnit.wordsCount, mins: Math.min(targetUnit.wordsCount, SESSION_MINUTES_CAP) })
+                    : t('dashboard.wordsPreparing')}
                 </div>
               </div>
-              <div className="font-extrabold text-[13px] text-primary bg-[#DCFCE7] flex-none whitespace-nowrap py-[6px] px-3 rounded-[20px]">Boshlash</div>
+              <div className="font-extrabold text-[13px] text-primary bg-[#DCFCE7] flex-none whitespace-nowrap py-[6px] px-3 rounded-[20px]">{t('dashboard.start')}</div>
             </div>
             <div
               onClick={() => navigate('/app/quiz')}
@@ -217,10 +217,10 @@ export function DashboardScreen() {
             >
               <div className="w-12 h-12 flex-none rounded-[13px] bg-quiz flex items-center justify-center text-[22px]">✅</div>
               <div className="flex-1 min-w-0">
-                <div className="font-extrabold text-[15px] text-text truncate">Kunlik test</div>
-                <div className="text-[12.5px] font-bold text-[#B45309]">10 ta savol · 7 daqiqa</div>
+                <div className="font-extrabold text-[15px] text-text truncate">{t('dashboard.dailyQuiz')}</div>
+                <div className="text-[12.5px] font-bold text-[#B45309]">{t('dashboard.quizMeta')}</div>
               </div>
-              <div className="font-extrabold text-[13px] text-quiz bg-[#FEF3C7] flex-none whitespace-nowrap py-[6px] px-3 rounded-[20px]">Boshlash</div>
+              <div className="font-extrabold text-[13px] text-quiz bg-[#FEF3C7] flex-none whitespace-nowrap py-[6px] px-3 rounded-[20px]">{t('dashboard.start')}</div>
             </div>
           </div>
         </div>
@@ -230,22 +230,22 @@ export function DashboardScreen() {
           style={{ background: 'linear-gradient(160deg,#1E293B,#0F172A)', boxShadow: '0 10px 26px rgba(15,23,42,.2)' }}
         >
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-display font-extrabold text-[18px] text-white m-0">Maktab reytingi</h3>
+            <h3 className="font-display font-extrabold text-[18px] text-white m-0">{t('dashboard.schoolLeaderboard')}</h3>
             <span className="text-[11px] font-extrabold text-[#FACC15] bg-[#FACC15]/[.15] py-1 px-[9px] rounded-[20px]">TOP 5</span>
           </div>
           <div className="flex flex-col gap-[9px]">
             {leaderboardError ? (
               <div className="text-center py-2">
-                <div className="text-[13px] font-bold text-white/60 mb-2">Yuklab bo'lmadi</div>
+                <div className="text-[13px] font-bold text-white/60 mb-2">{t('common.loadError')}</div>
                 <button
                   onClick={retryLeaderboardWidget}
                   className="text-[12px] font-extrabold text-white bg-white/10 border border-white/20 rounded-[10px] py-[6px] px-3 cursor-pointer font-sans"
                 >
-                  ↻ Qayta urinish
+                  {t('common.retry')}
                 </button>
               </div>
             ) : !leaderboard ? (
-              <div className="text-[13px] font-bold text-white/60 py-2">Yuklanmoqda…</div>
+              <div className="text-[13px] font-bold text-white/60 py-2">{t('common.loading')}</div>
             ) : (
               leaderboard.board.slice(0, 5).map((p) => (
                 <div
@@ -263,7 +263,7 @@ export function DashboardScreen() {
                     {p.rank}
                   </span>
                   <span className="flex-1 min-w-0 truncate font-bold text-[14px]" style={{ color: p.isMe ? '#86EFAC' : '#fff' }}>
-                    {p.name}
+                    {p.name}{p.isMe ? ` ${t('common.you')}` : ''}
                   </span>
                   <span className="font-extrabold text-[13px] text-[#FACC15] flex-none">{p.xp}</span>
                 </div>
@@ -274,7 +274,7 @@ export function DashboardScreen() {
             onClick={() => navigate('/app/leaders')}
             className="w-full mt-[14px] bg-white/10 text-white border border-white/[.18] rounded-[12px] py-[10px] font-bold text-[13px] cursor-pointer font-sans"
           >
-            To'liq reytingni ko'rish →
+            {t('dashboard.seeFullLeaderboard')}
           </button>
         </div>
       </div>

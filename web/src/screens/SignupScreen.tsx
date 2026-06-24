@@ -1,8 +1,10 @@
 import { type FormEvent, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { LogoMark } from '../components/LogoMark';
 import { useAppStore } from '../store/useAppStore';
 import { ApiError } from '../lib/api';
+import { getErrorMessage } from '../lib/errorMessage';
 
 type FieldErrors = Partial<Record<'fullName' | 'username' | 'password' | 'regionId' | 'districtId' | 'schoolId', string>>;
 
@@ -19,6 +21,7 @@ function selectClass(hasError: boolean) {
 }
 
 export function SignupScreen() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const form = useAppStore((s) => s.signupForm);
   const setSignupField = useAppStore((s) => s.setSignupField);
@@ -41,17 +44,17 @@ export function SignupScreen() {
   const validate = (): FieldErrors => {
     const next: FieldErrors = {};
     if (!form.fullName.trim() || form.fullName.trim().split(/\s+/).length < 2) {
-      next.fullName = "Ism va familiyangizni to'liq kiriting";
+      next.fullName = t('signup.fullNameError');
     }
     if (form.username.trim().length < 3) {
-      next.username = 'Kamida 3 ta belgi';
+      next.username = t('signup.usernameError');
     }
     if (form.password.length < 6) {
-      next.password = 'Kamida 6 ta belgi';
+      next.password = t('signup.passwordError');
     }
-    if (!form.regionId) next.regionId = 'Viloyatni tanlang';
-    if (!form.districtId) next.districtId = 'Tumanni tanlang';
-    if (!form.schoolId) next.schoolId = 'Maktabni tanlang';
+    if (!form.regionId) next.regionId = t('signup.regionError');
+    if (!form.districtId) next.districtId = t('signup.districtError');
+    if (!form.schoolId) next.schoolId = t('signup.schoolError');
     return next;
   };
 
@@ -67,7 +70,7 @@ export function SignupScreen() {
       await signup();
       navigate('/app/dashboard');
     } catch (err) {
-      setFormError(err instanceof ApiError ? err.message : "Tarmoqqa ulanishda xatolik. Qaytadan urinib ko'ring.");
+      setFormError(err instanceof ApiError ? getErrorMessage(t, err) : t('common.networkError'));
     } finally {
       setSubmitting(false);
     }
@@ -90,16 +93,16 @@ export function SignupScreen() {
         <div className="flex items-center gap-[11px] mb-[22px]">
           <LogoMark size={46} />
           <div>
-            <div className="font-display font-extrabold text-[22px] text-text leading-none">Bilimdon</div>
-            <div className="text-[12px] font-extrabold text-primary">Yangi hisob yaratish</div>
+            <div className="font-display font-extrabold text-[22px] text-text leading-none">{t('login.heroTitle')}</div>
+            <div className="text-[12px] font-extrabold text-primary">{t('signup.title')}</div>
           </div>
         </div>
 
         <div className="mb-[14px]">
-          <label className="text-[13px] font-extrabold text-[#475569] mb-[6px] block">Ism familiya</label>
+          <label className="text-[13px] font-extrabold text-[#475569] mb-[6px] block">{t('signup.fullName')}</label>
           <input
             type="text"
-            placeholder="Aziz Karimov"
+            placeholder={t('signup.fullNamePlaceholder') ?? undefined}
             value={form.fullName}
             onChange={(e) => setSignupField('fullName', e.target.value)}
             className={inputClass(!!errors.fullName)}
@@ -109,10 +112,10 @@ export function SignupScreen() {
 
         <div className="flex gap-3 mb-[14px]">
           <div className="flex-1">
-            <label className="text-[13px] font-extrabold text-[#475569] mb-[6px] block">Foydalanuvchi nomi</label>
+            <label className="text-[13px] font-extrabold text-[#475569] mb-[6px] block">{t('signup.username')}</label>
             <input
               type="text"
-              placeholder="aziz_06a"
+              placeholder={t('signup.usernamePlaceholder') ?? undefined}
               value={form.username}
               onChange={(e) => setSignupField('username', e.target.value)}
               className={inputClass(!!errors.username)}
@@ -120,7 +123,7 @@ export function SignupScreen() {
             {errors.username && <div className="text-[12px] font-bold text-danger-dark mt-1">{errors.username}</div>}
           </div>
           <div className="flex-1">
-            <label className="text-[13px] font-extrabold text-[#475569] mb-[6px] block">Parol</label>
+            <label className="text-[13px] font-extrabold text-[#475569] mb-[6px] block">{t('signup.password')}</label>
             <input
               type="password"
               placeholder="••••••"
@@ -132,14 +135,14 @@ export function SignupScreen() {
           </div>
         </div>
 
-        <label className="text-[13px] font-extrabold text-[#475569] mb-[6px] block">Hududingiz va maktabingiz</label>
+        <label className="text-[13px] font-extrabold text-[#475569] mb-[6px] block">{t('signup.locationLabel')}</label>
         <div className="relative mb-1">
           <select
             value={form.regionId ?? ''}
             onChange={(e) => setSignupField('regionId', e.target.value ? Number(e.target.value) : null)}
             className={selectClass(!!errors.regionId)}
           >
-            <option value="">Viloyat / Respublikani tanlang</option>
+            <option value="">{t('signup.regionPlaceholder')}</option>
             {locations?.regions.map((r) => (
               <option key={r.id} value={r.id}>
                 {r.name}
@@ -158,7 +161,7 @@ export function SignupScreen() {
               disabled={districtDisabled}
               className={selectClass(!!errors.districtId)}
             >
-              <option value="">Shahar / Tuman</option>
+              <option value="">{t('signup.districtPlaceholder')}</option>
               {districtOpts.map((d) => (
                 <option key={d.id} value={d.id}>
                   {d.name}
@@ -175,7 +178,7 @@ export function SignupScreen() {
               disabled={schoolDisabled}
               className={selectClass(!!errors.schoolId)}
             >
-              <option value="">Maktab</option>
+              <option value="">{t('signup.schoolPlaceholder')}</option>
               {schoolOpts.map((sch) => (
                 <option key={sch.id} value={sch.id}>
                   {sch.name}
@@ -187,7 +190,7 @@ export function SignupScreen() {
           </div>
         </div>
 
-        <label className="text-[13px] font-extrabold text-[#475569] mb-2 mt-5 block">Sinfingizni tanlang</label>
+        <label className="text-[13px] font-extrabold text-[#475569] mb-2 mt-5 block">{t('signup.gradeLabel')}</label>
         <div className="flex gap-3 mb-6">
           {(['5', '6'] as const).map((g) => {
             const active = form.grade === g;
@@ -203,7 +206,7 @@ export function SignupScreen() {
                   color: active ? '#16A34A' : '#64748B',
                 }}
               >
-                {g}-sinf
+                {t('signup.grade', { grade: g })}
               </button>
             );
           })}
@@ -221,12 +224,12 @@ export function SignupScreen() {
           className="w-full bg-primary text-white border-none rounded-[15px] py-[15px] font-display font-extrabold text-[17px] cursor-pointer mb-[18px] disabled:opacity-60 disabled:cursor-not-allowed"
           style={{ boxShadow: '0 5px 0 #15803D' }}
         >
-          {submitting ? 'Kuting…' : "Ro'yxatdan o'tish ✨"}
+          {submitting ? t('common.submitting') : t('signup.submit')}
         </button>
         <div className="text-center text-[14px] font-bold text-text-softer">
-          Hisobingiz bormi?{' '}
+          {t('signup.haveAccount')}{' '}
           <Link to="/login" className="text-primary font-extrabold">
-            Kirish
+            {t('signup.loginLink')}
           </Link>
         </div>
       </form>
