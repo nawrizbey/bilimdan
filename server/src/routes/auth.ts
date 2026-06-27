@@ -11,7 +11,7 @@ const userInclude = { region: true, district: true, school: true } as const;
 
 authRouter.post('/signup', async (req, res, next) => {
   try {
-    const { fullName, username, password, grade, regionId, districtId, schoolId } = req.body ?? {};
+    const { fullName, username, password, regionId, districtId, schoolId } = req.body ?? {};
 
     if (typeof fullName !== 'string' || fullName.trim().split(/\s+/).length < 2) {
       throw badRequest("Ism va familiyangizni to'liq kiriting", 'INVALID_FULL_NAME');
@@ -21,9 +21,6 @@ authRouter.post('/signup', async (req, res, next) => {
     }
     if (typeof password !== 'string' || password.length < 6) {
       throw badRequest("Parol kamida 6 ta belgidan iborat bo'lsin", 'INVALID_PASSWORD');
-    }
-    if (grade !== '5' && grade !== '6') {
-      throw badRequest('Sinfni tanlang', 'INVALID_GRADE');
     }
     const regionIdNum = Number(regionId);
     const districtIdNum = Number(districtId);
@@ -58,7 +55,7 @@ authRouter.post('/signup', async (req, res, next) => {
         username: username.trim(),
         passwordHash,
         fullName: fullName.trim(),
-        grade,
+        grade: '5',
         regionId: regionIdNum,
         districtId: districtIdNum,
         schoolId: schoolIdNum,

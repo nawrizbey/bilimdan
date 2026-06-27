@@ -190,28 +190,6 @@ export function SignupScreen() {
           </div>
         </div>
 
-        <label className="text-[13px] font-extrabold text-[#475569] mb-2 mt-5 block">{t('signup.gradeLabel')}</label>
-        <div className="flex gap-3 mb-6">
-          {(['5', '6'] as const).map((g) => {
-            const active = form.grade === g;
-            return (
-              <button
-                key={g}
-                type="button"
-                onClick={() => setSignupField('grade', g)}
-                className="flex-1 py-3 rounded-[14px] font-display font-extrabold text-[16px] cursor-pointer border-2"
-                style={{
-                  borderColor: active ? '#22C55E' : '#E8EDF3',
-                  background: active ? '#F0FDF4' : '#fff',
-                  color: active ? '#16A34A' : '#64748B',
-                }}
-              >
-                {t('signup.grade', { grade: g })}
-              </button>
-            );
-          })}
-        </div>
-
         {formError && (
           <div className="bg-danger-light border border-[#FECACA] text-danger-dark text-[13px] font-bold rounded-[12px] p-3 mb-[18px]" role="alert">
             {formError}

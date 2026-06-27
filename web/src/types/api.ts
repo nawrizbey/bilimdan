@@ -2,7 +2,6 @@ export interface ApiUser {
   id: number;
   username: string;
   fullName: string;
-  grade: string;
   region: string;
   district: string;
   school: string;

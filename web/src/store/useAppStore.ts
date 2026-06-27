@@ -26,7 +26,6 @@ interface SignupForm {
   regionId: number | null;
   districtId: number | null;
   schoolId: number | null;
-  grade: '5' | '6';
 }
 
 interface SettingsToggles {
@@ -99,7 +98,6 @@ interface AppState {
   region: string;
   district: string;
   school: string;
-  grade: '5' | '6';
   goalMin: number;
   goalDone: number;
   streak: number;
@@ -221,7 +219,6 @@ const emptySignupForm: SignupForm = {
   regionId: null,
   districtId: null,
   schoolId: null,
-  grade: '5',
 };
 
 let quizAdvanceTimeout: ReturnType<typeof setTimeout> | undefined;
@@ -233,7 +230,6 @@ function userToFields(user: ApiUser) {
     region: user.region,
     district: user.district,
     school: user.school,
-    grade: (user.grade === '6' ? '6' : '5') as '5' | '6',
     goalMin: user.goalMin,
     goalDone: user.goalDoneToday,
     streak: user.streak,
@@ -346,7 +342,6 @@ export const useAppStore = create<AppState>((set, get) => {
       fullName: f.fullName,
       username: f.username,
       password: f.password,
-      grade: f.grade,
       regionId: f.regionId,
       districtId: f.districtId,
       schoolId: f.schoolId,

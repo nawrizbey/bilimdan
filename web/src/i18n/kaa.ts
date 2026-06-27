@@ -96,6 +96,7 @@ export const kaa = {
 
   profile: {
     gradeLevel: '{{grade}}-klass · Dárezhe {{level}}',
+    level: 'Dárezhe {{level}}',
     xpToNextLevel: '{{xpInLevel}} / {{xpForNextLevel}} XP · {{nextLevel}}-dárezhege shekem {{remaining}} XP',
     statWords: "Úyrenilgen sóz",
     statStreak: 'Ketpe-ket kún',

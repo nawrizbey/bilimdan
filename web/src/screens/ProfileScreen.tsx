@@ -10,7 +10,6 @@ export function ProfileScreen() {
   const region = useAppStore((s) => s.region);
   const district = useAppStore((s) => s.district);
   const school = useAppStore((s) => s.school);
-  const grade = useAppStore((s) => s.grade);
   const xp = useAppStore((s) => s.xp);
   const streak = useAppStore((s) => s.streak);
   const wordsKnownCount = useAppStore((s) => s.wordsKnownCount);
@@ -58,7 +57,7 @@ export function ProfileScreen() {
         </div>
         <div className="flex-1 relative z-10 w-full">
           <h2 className="font-display font-extrabold text-[28px] text-white m-0">{studentName}</h2>
-          <div className="text-white/90 font-bold text-[14px] my-[2px] mb-2">{t('profile.gradeLevel', { grade, level })}</div>
+          <div className="text-white/90 font-bold text-[14px] my-[2px] mb-2">{t('profile.level', { level })}</div>
           <div className="flex flex-wrap justify-center sm:justify-start gap-[7px] mb-3">
             <span className="inline-flex items-center gap-[5px] bg-white/[.18] text-white font-bold text-[12px] py-1 px-[11px] rounded-[20px]">
               📍 {region || 'Toshkent shahri'}
