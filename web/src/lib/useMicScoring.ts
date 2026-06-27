@@ -81,10 +81,11 @@ export function useMicScoring({ word, micEnabled, onStart, onResult, resetKey }:
     }
 
     let started = false;
+    let gotResult = false;
     const recognition = new SpeechRecognitionCtor();
     recognition.lang = 'en-US';
     recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
+    recognition.maxAlternatives = 3;
     recognition.onstart = () => {
       started = true;
       setRecordingState(true);
@@ -92,6 +93,7 @@ export function useMicScoring({ word, micEnabled, onStart, onResult, resetKey }:
     };
     recognition.onresult = (event) => {
       clearWatchdog();
+      gotResult = true;
       const text = event.results[0]?.[0]?.transcript ?? '';
       const score = scorePronunciation(text, word);
       setRecordingState(false);
@@ -99,13 +101,20 @@ export function useMicScoring({ word, micEnabled, onStart, onResult, resetKey }:
     };
     recognition.onerror = (event) => {
       clearWatchdog();
-      const message = ERROR_MESSAGES[event.error] ?? "Xatolik yuz berdi. Qaytadan urinib ko'ring.";
+      gotResult = true;
+      const message = ERROR_MESSAGES[event.error] ?? "Qátelik júz berdi. Qaytadan urınıp kóriń.";
       if (message) setError(message);
       setRecordingState(false);
     };
     recognition.onend = () => {
       clearWatchdog();
-      if (recordingRef.current) setRecordingState(false);
+      if (recordingRef.current) {
+        setRecordingState(false);
+        // onend fired without onresult or onerror — mic was open but no speech detected
+        if (!gotResult) {
+          setError('Dawıs eshitilmedi. Mikrofonga jaqınıraq turıp, inglizsha sózdi aytıp kóriń.');
+        }
+      }
     };
     recognitionRef.current = recognition;
     try {
