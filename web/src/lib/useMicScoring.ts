@@ -2,11 +2,11 @@ import { useEffect, useRef, useState } from 'react';
 import { scorePronunciation } from './pronunciation';
 
 const ERROR_MESSAGES: Record<string, string> = {
-  'no-speech': "Ovoz eshitilmadi. Mikrofonga yaqinroq turib, yana urinib ko'ring.",
-  'not-allowed': 'Mikrofonga ruxsat berilmadi. Brauzer sozlamalaridan ruxsat bering.',
-  'service-not-allowed': 'Mikrofonga ruxsat berilmadi. Brauzer sozlamalaridan ruxsat bering.',
-  'audio-capture': 'Mikrofon topilmadi. Qurilmangizni tekshiring.',
-  network: "Internet aloqasi yo'q yoki sust. Ovoz tanish xizmatiga ulanib bo'lmadi.",
+  'no-speech': 'Dawıs eshitilmedi. Mikrofonga jaqınıraq turıp, qaytadan urınıp kóriń.',
+  'not-allowed': 'Mikrofonga ruxsat berilmedi. Brauzer sazlamalarınan ruxsat beriń.',
+  'service-not-allowed': 'Mikrofonga ruxsat berilmedi. Brauzer sazlamalarınan ruxsat beriń.',
+  'audio-capture': 'Mikrofon tabılmadı. Qurilmanı tekserińiz.',
+  network: 'Internet baylanısı joq yamasa áste. Dawıs tanıw xizmetine ulanıp bolmadı.',
   aborted: '',
 };
 
@@ -71,12 +71,12 @@ export function useMicScoring({ word, micEnabled, onStart, onResult, resetKey }:
     }
     setError(null);
     if (!micEnabled) {
-      setError("Mikrofon sozlamalarda o'chirilgan. Sozlamalar bo'limidan yoqing.");
+      setError("Mikrofon sazlamalarda óshirilgen. Sazlamalar bóliminen yaqıń.");
       return;
     }
     const SpeechRecognitionCtor = getSpeechRecognitionCtor();
     if (!SpeechRecognitionCtor) {
-      setError("Brauzeringiz ovozni tanib olishni qo'llab-quvvatlamaydi. Google Chrome'da urinib ko'ring.");
+      setError("Brauzerińiz dawıs tanıwdı qollap-quwatlamaydı. Google Chrome'da urınıp kóriń.");
       return;
     }
 
@@ -111,7 +111,7 @@ export function useMicScoring({ word, micEnabled, onStart, onResult, resetKey }:
     try {
       recognition.start();
     } catch {
-      setError("Mikrofonni ishga tushirib bo'lmadi. Qaytadan urinib ko'ring.");
+      setError("Mikrofondı ishke tushirip bolmadı. Qaytadan urınıp kóriń.");
       return;
     }
 
@@ -121,8 +121,8 @@ export function useMicScoring({ word, micEnabled, onStart, onResult, resetKey }:
         setRecordingState(false);
         setError(
           !started
-            ? 'Ovoz tanish xizmati javob bermadi. Internet aloqangizni tekshirib, qaytadan urining.'
-            : "Vaqt tugadi. Yana urinib ko'ring.",
+            ? 'Dawıs tanıw xizmeti juwap bermedi. Internet baylanısıńızdı tekserip, qaytadan urınıń.'
+            : "Waqıt tamamlandı. Qaytadan urınıp kóriń.",
         );
       }
     }, WATCHDOG_MS);
