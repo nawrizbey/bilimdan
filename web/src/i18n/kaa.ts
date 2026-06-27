@@ -24,6 +24,7 @@ export const kaa = {
     battle: 'Atıspa oyını',
     liveBadge: 'JANLI',
     quiz: 'Test / Viktorina',
+    listen: 'Tıńlap úyren',
     leaders: 'Reyting',
     profile: 'Profil',
     settings: 'Sazlawlar',
@@ -127,6 +128,15 @@ export const kaa = {
     scoreLine: 'Siz <b>{{score}}/{{total}}</b> durıs juwap berdińiz',
     xpEarned: '+{{xp}} XP utıp aldıńız',
     retry: '↻ Qaytadan',
+  },
+
+  listen: {
+    title: 'Tıńlap úyren',
+    subtitle: 'Sóylemdi oqıp, dúrıs sózdi tabıń',
+    finished: 'Tamamlandı!',
+    scoreLine: '<b>{{score}}</b> / {{total}} dúrıs jawap',
+    xpEarned: '+{{xp}} XP qazandıńız',
+    retry: 'Qaytadan',
   },
 
   learn: {

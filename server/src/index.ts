@@ -13,6 +13,7 @@ import { speakRouter } from './routes/speak';
 import { profileRouter } from './routes/profile';
 import { leaderboardRouter } from './routes/leaderboard';
 import { badgesRouter } from './routes/badges';
+import { adminRouter } from './routes/admin';
 import { setupBattleWebSocket } from './ws/battle';
 import { AppError } from './lib/errors';
 
@@ -38,6 +39,7 @@ app.use('/api/speak', speakRouter);
 app.use('/api', profileRouter);
 app.use('/api/leaderboard', leaderboardRouter);
 app.use('/api/badges', badgesRouter);
+app.use('/api/admin', adminRouter);
 
 const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
   if (err instanceof AppError) {

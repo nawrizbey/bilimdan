@@ -85,6 +85,14 @@ export interface ApiQuizQuestion {
   order: number;
 }
 
+export interface ListenQuestion {
+  id: number;
+  sentence: string;
+  options: string[];
+  correctIndex: number;
+  order: number;
+}
+
 export interface ApiBadge {
   id: number;
   key: string;

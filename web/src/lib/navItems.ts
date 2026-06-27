@@ -4,6 +4,7 @@ export const NAV_ITEMS = [
   { to: '/app/lessons', labelKey: 'nav.lessons', color: '#14B8A6' },
   { to: '/app/battle', labelKey: 'nav.battle', color: '#EC4899', badgeKey: 'nav.liveBadge' },
   { to: '/app/quiz', labelKey: 'nav.quiz', color: '#F59E0B' },
+  { to: '/app/listen', labelKey: 'nav.listen', color: '#10B981' },
   { to: '/app/leaders', labelKey: 'nav.leaders', color: '#EAB308' },
   { to: '/app/profile', labelKey: 'nav.profile', color: '#64748B' },
   { to: '/app/settings', labelKey: 'nav.settings', color: '#94A3B8' },

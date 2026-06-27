@@ -15,6 +15,7 @@ import type {
   BattleServerMessage,
   LeaderboardResponse,
   LeaderboardScope,
+  ListenQuestion,
   LocationsResponse,
   UnitWordsResponse,
 } from '../types/api';
@@ -196,6 +197,15 @@ interface AppState {
   pickQuiz: (i: number) => Promise<void>;
   retryQuiz: () => void;
 
+  // Listen
+  listenQuestions: ListenQuestion[];
+  listenIdx: number;
+  listenSel: number | null;
+  listenScore: number;
+  loadListen: () => Promise<void>;
+  pickListen: (i: number) => void;
+  retryListen: () => void;
+
   // Leaders
   leaderScope: LeaderboardScope;
   leaderboard: LeaderboardResponse | null;
@@ -222,6 +232,7 @@ const emptySignupForm: SignupForm = {
 };
 
 let quizAdvanceTimeout: ReturnType<typeof setTimeout> | undefined;
+let listenAdvanceTimeout: ReturnType<typeof setTimeout> | undefined;
 
 function userToFields(user: ApiUser) {
   return {
@@ -352,6 +363,7 @@ export const useAppStore = create<AppState>((set, get) => {
 
   logout: () => {
     clearTimeout(quizAdvanceTimeout);
+    clearTimeout(listenAdvanceTimeout);
     setToken(null);
     clearLearnSession();
     set({
@@ -368,6 +380,10 @@ export const useAppStore = create<AppState>((set, get) => {
       learnPhase: 'familiarize',
       ...emptyLearnSessionFields,
       quizQuestions: [],
+      listenQuestions: [],
+      listenIdx: 0,
+      listenSel: null,
+      listenScore: 0,
       leaderboard: null,
       badges: null,
       battleStatus: 'idle',
@@ -685,6 +701,34 @@ export const useAppStore = create<AppState>((set, get) => {
     clearTimeout(quizAdvanceTimeout);
     set({ qq: 0, qSel: null, qScore: 0, quizQuestions: [] });
     void get().loadQuiz();
+  },
+
+  // Listen
+  listenQuestions: [],
+  listenIdx: 0,
+  listenSel: null,
+  listenScore: 0,
+  loadListen: async () => {
+    if (get().listenQuestions.length > 0) return;
+    const { questions } = await api.get<{ questions: ListenQuestion[] }>('/api/listen');
+    set({ listenQuestions: shuffled(questions) });
+  },
+  pickListen: (i) => {
+    if (get().listenSel != null) return;
+    const question = get().listenQuestions[get().listenIdx];
+    if (!question) return;
+    const isCorrect = i === question.correctIndex;
+    set((s) => ({ listenSel: i, listenScore: s.listenScore + (isCorrect ? 1 : 0) }));
+    void api.post<{ correct: boolean; user: ApiUser }>('/api/listen/answer', { questionId: question.id, picked: i });
+    clearTimeout(listenAdvanceTimeout);
+    listenAdvanceTimeout = setTimeout(() => {
+      set((s) => ({ listenIdx: s.listenIdx + 1, listenSel: null }));
+    }, 1200);
+  },
+  retryListen: () => {
+    clearTimeout(listenAdvanceTimeout);
+    set({ listenIdx: 0, listenSel: null, listenScore: 0, listenQuestions: [] });
+    void get().loadListen();
   },
 
   // Leaders
