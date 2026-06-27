@@ -6,19 +6,38 @@ import { useAppStore, pickTargetUnit } from '../store/useAppStore';
 
 const SESSION_MINUTES_CAP = 20;
 
-const WEEK_DAYS = [
-  { label: 'D', state: 'done' },
-  { label: 'S', state: 'done' },
-  { label: 'C', state: 'done' },
-  { label: 'P', state: 'done' },
-  { label: 'J', state: 'done' },
-  { label: 'S', state: 'today' },
-  { label: 'Y', state: 'upcoming' },
-] as const;
+// Mon–Sun labels (Dúysenbi…Yekshenbi first letters, same across uz/kaa)
+const DAY_LABELS = ['D', 'S', 'C', 'P', 'J', 'S', 'Y'] as const;
 
-const dayStyle: Record<(typeof WEEK_DAYS)[number]['state'], string> = {
+type DayState = 'done' | 'today' | 'upcoming' | 'missed';
+
+/** Builds a 7-element Mon→Sun week row from the user's live streak data.
+ * - today   → dashed yellow ring
+ * - done    → solid green (within streak window)
+ * - missed  → muted red (past day, outside streak)
+ * - upcoming → grey (future day this week)
+ */
+function buildWeekDays(streak: number, goalDoneToday: number): { label: string; state: DayState }[] {
+  const jsDay = new Date().getDay(); // 0=Sun..6=Sat
+  // Convert to Mon-based index (0=Mon..6=Sun)
+  const todayIdx = jsDay === 0 ? 6 : jsDay - 1;
+  // If the user has been active today, streak includes today; otherwise streak covers days-before-today.
+  const activeToday = goalDoneToday > 0;
+  const doneBack = activeToday ? streak - 1 : streak; // how many days back (from today) are "done"
+
+  return DAY_LABELS.map((label, i) => {
+    const diff = i - todayIdx; // negative=past, 0=today, positive=future
+    if (diff === 0) return { label, state: 'today' };
+    if (diff > 0) return { label, state: 'upcoming' };
+    const daysAgo = -diff;
+    return { label, state: daysAgo <= doneBack ? 'done' : 'missed' };
+  });
+}
+
+const dayStyle: Record<DayState, string> = {
   done: 'bg-primary text-white',
   today: 'bg-[#FEF3C7] text-[#B45309] border-2 border-dashed border-[#F59E0B]',
+  missed: 'bg-[#FEE2E2] text-[#FCA5A5]',
   upcoming: 'bg-border-3 text-[#CBD5E1]',
 };
 
@@ -44,6 +63,7 @@ export function DashboardScreen() {
   const goalPct = Math.min(100, Math.round((goalDone / goalMin) * 100));
   const remaining = Math.max(0, goalMin - goalDone);
   const targetUnit = pickTargetUnit(units ?? []);
+  const weekDays = buildWeekDays(streak, goalDone);
 
   const [leaderboardError, setLeaderboardError] = useState(false);
   const loadLeaderboardWidget = () => {
@@ -159,7 +179,7 @@ export function DashboardScreen() {
             {streak} <span className="text-[16px] text-text-softer">{t('dashboard.day')}</span>
           </div>
           <div className="flex gap-[5px] mt-3">
-            {WEEK_DAYS.map((d, i) => (
+            {weekDays.map((d, i) => (
               <div
                 key={i}
                 className={`w-[30px] h-[30px] rounded-[9px] flex items-center justify-center text-[12px] font-extrabold ${dayStyle[d.state]}`}

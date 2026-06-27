@@ -5,24 +5,75 @@ import { hashPassword } from './lib/auth';
 // Region/district/school names are official place/institution names — left
 // unchanged rather than guessed at in Karakalpak, per the same reasoning as the
 // frontend's "don't translate proper nouns" rule.
-const REGIONS: Record<string, string[]> = {
-  "Qoraqalpog'iston Respublikasi": ['Nukus shahri', "Xo'jayli tumani", 'Chimboy tumani', "Qo'ng'irot tumani"],
-  'Andijon viloyati': ['Andijon shahri', 'Asaka tumani', 'Xonobod shahri', 'Shahrixon tumani'],
-  'Buxoro viloyati': ['Buxoro shahri', 'Kogon shahri', "G'ijduvon tumani", 'Vobkent tumani'],
-  "Farg'ona viloyati": ["Farg'ona shahri", "Qo'qon shahri", "Marg'ilon shahri", 'Quvasoy shahri'],
-  'Jizzax viloyati': ['Jizzax shahri', 'Zomin tumani', "G'allaorol tumani", "Do'stlik tumani"],
-  'Xorazm viloyati': ['Urganch shahri', 'Xiva shahri', 'Shovot tumani', 'Hazorasp tumani'],
-  'Namangan viloyati': ['Namangan shahri', 'Chust tumani', 'Pop tumani', "To'raqo'rg'on tumani"],
-  'Navoiy viloyati': ['Navoiy shahri', 'Zarafshon shahri', 'Karmana tumani', 'Nurota tumani'],
-  'Qashqadaryo viloyati': ['Qarshi shahri', 'Shahrisabz shahri', 'Kitob tumani', "G'uzor tumani"],
-  'Samarqand viloyati': ['Samarqand shahri', "Kattaqo'rg'on shahri", 'Urgut tumani', "Bulung'ur tumani"],
-  'Sirdaryo viloyati': ['Guliston shahri', 'Shirin shahri', 'Sayxunobod tumani', 'Boyovut tumani'],
-  'Surxondaryo viloyati': ['Termiz shahri', 'Denov tumani', 'Sherobod tumani', 'Boysun tumani'],
-  'Toshkent viloyati': ['Nurafshon shahri', 'Chirchiq shahri', 'Olmaliq shahri', 'Bekobod shahri'],
-  'Toshkent shahri': ['Chilonzor tumani', 'Yunusobod tumani', "Mirzo Ulug'bek tumani", 'Yakkasaroy tumani'],
-};
 
-const SCHOOL_NAME_TEMPLATES = ['1-son maktab', '12-son maktab', '24-son maktab'];
+// Generates sequential school names: ['1-son maktab', '2-son maktab', ..., 'n-son maktab']
+const s = (n: number) => Array.from({ length: n }, (_, i) => `${i + 1}-son maktab`);
+
+// Placeholder list for regions outside Karakalpakstan where exact counts are not available.
+const T = ['1-son maktab', '12-son maktab', '24-son maktab'];
+
+// Structure: region → { district → school names[] }
+// Karakalpakstan school counts sourced from qrstat.uz (as of 01.01.2023).
+const REGIONS: Record<string, Record<string, string[]>> = {
+  "Qoraqalpog'iston Respublikasi": {
+    'Nukus shahri':       s(60),
+    'Amudaryo tumani':    s(86),
+    'Beruniy tumani':     s(72),
+    "Qonliko'l tumani":   s(24),
+    "Qorao'zak tumani":   s(33),
+    'Kegeyli tumani':     s(39),
+    "Qo'ng'irot tumani":  s(50),
+    "Mo'ynoq tumani":     s(18),
+    'Nukus tumani':       s(33),
+    "Taxtako'pir tumani": s(24),
+    "To'rtko'l tumani":   s(69),
+    "Xo'jayli tumani":    s(44),
+    'Chimboy tumani':     s(49),
+    'Shumanay tumani':    s(34),
+    'Ellikqala tumani':   s(73),
+    'Taxiatosh tumani':   s(23),
+    "Bo'zatov tumani":    s(15),
+  },
+  'Andijon viloyati': {
+    'Andijon shahri': T, 'Asaka tumani': T, 'Xonobod shahri': T, 'Shahrixon tumani': T,
+  },
+  'Buxoro viloyati': {
+    'Buxoro shahri': T, 'Kogon shahri': T, "G'ijduvon tumani": T, 'Vobkent tumani': T,
+  },
+  "Farg'ona viloyati": {
+    "Farg'ona shahri": T, "Qo'qon shahri": T, "Marg'ilon shahri": T, 'Quvasoy shahri': T,
+  },
+  'Jizzax viloyati': {
+    'Jizzax shahri': T, 'Zomin tumani': T, "G'allaorol tumani": T, "Do'stlik tumani": T,
+  },
+  'Xorazm viloyati': {
+    'Urganch shahri': T, 'Xiva shahri': T, 'Shovot tumani': T, 'Hazorasp tumani': T,
+  },
+  'Namangan viloyati': {
+    'Namangan shahri': T, 'Chust tumani': T, 'Pop tumani': T, "To'raqo'rg'on tumani": T,
+  },
+  'Navoiy viloyati': {
+    'Navoiy shahri': T, 'Zarafshon shahri': T, 'Karmana tumani': T, 'Nurota tumani': T,
+  },
+  'Qashqadaryo viloyati': {
+    'Qarshi shahri': T, 'Shahrisabz shahri': T, 'Kitob tumani': T, "G'uzor tumani": T,
+  },
+  'Samarqand viloyati': {
+    'Samarqand shahri': T, "Kattaqo'rg'on shahri": T, 'Urgut tumani': T, "Bulung'ur tumani": T,
+  },
+  'Sirdaryo viloyati': {
+    'Guliston shahri': T, 'Shirin shahri': T, 'Sayxunobod tumani': T, 'Boyovut tumani': T,
+  },
+  'Surxondaryo viloyati': {
+    'Termiz shahri': T, 'Denov tumani': T, 'Sherobod tumani': T, 'Boysun tumani': T,
+  },
+  'Toshkent viloyati': {
+    'Nurafshon shahri': T, 'Chirchiq shahri': T, 'Olmaliq shahri': T, 'Bekobod shahri': T,
+  },
+  'Toshkent shahri': {
+    'Chilonzor tumani': T, 'Yunusobod tumani': T, "Mirzo Ulug'bek tumani": T, 'Yakkasaroy tumani': T,
+  },
+};
 
 const UNITS: { title: string; order: number; emoji: string; words?: { en: string; ipa: string; uz: string; example: string; emoji: string }[] }[] = [
   {
@@ -135,19 +186,19 @@ const DEMO_FULL_NAME = 'Ájiniyaz Dáwletov';
 
 async function main() {
   console.log('Seeding regions/districts/schools...');
-  for (const [regionName, districts] of Object.entries(REGIONS)) {
+  for (const [regionName, districtMap] of Object.entries(REGIONS)) {
     const region = await prisma.region.upsert({
       where: { name: regionName },
       update: {},
       create: { name: regionName },
     });
-    for (const districtName of districts) {
+    for (const [districtName, schoolNames] of Object.entries(districtMap)) {
       const district = await prisma.district.upsert({
         where: { regionId_name: { regionId: region.id, name: districtName } },
         update: {},
         create: { name: districtName, regionId: region.id },
       });
-      for (const schoolName of SCHOOL_NAME_TEMPLATES) {
+      for (const schoolName of schoolNames) {
         await prisma.school.upsert({
           where: { districtId_name: { districtId: district.id, name: schoolName } },
           update: {},

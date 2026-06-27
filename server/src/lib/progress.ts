@@ -2,14 +2,24 @@ import { prisma } from '../db';
 import { serializeUser } from './serialize';
 import { checkAndAwardBadges } from './badges';
 
+// Uzbekistan is UTC+5 with no DST — shift into that timezone before any
+// calendar-day comparison so that midnight boundaries match what the student
+// experiences, not what the UTC clock shows on the server.
+const UZ_OFFSET_MS = 5 * 60 * 60 * 1000;
+
+function uzDay(date: Date) {
+  const shifted = new Date(date.getTime() + UZ_OFFSET_MS);
+  return { y: shifted.getUTCFullYear(), m: shifted.getUTCMonth(), d: shifted.getUTCDate() };
+}
+
 function isSameDay(a: Date, b: Date): boolean {
-  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+  const da = uzDay(a);
+  const db = uzDay(b);
+  return da.y === db.y && da.m === db.m && da.d === db.d;
 }
 
 function isYesterday(a: Date, b: Date): boolean {
-  const d = new Date(b);
-  d.setDate(d.getDate() - 1);
-  return isSameDay(a, d);
+  return isSameDay(a, new Date(b.getTime() - 24 * 60 * 60 * 1000));
 }
 
 /** Computes the streak/goalDoneToday baseline for "now", rolling over if the last

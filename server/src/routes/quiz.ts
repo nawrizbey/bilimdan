@@ -10,9 +10,13 @@ export const quizRouter = Router();
 const QUESTION_MINUTES = 1;
 const QUIZ_CORRECT_XP = 15;
 
+const QUIZ_COUNT = 10;
+
 quizRouter.get('/', requireAuth, async (_req, res, next) => {
   try {
-    const questions = await prisma.quizQuestion.findMany({ orderBy: { order: 'asc' } });
+    const all = await prisma.quizQuestion.findMany();
+    // Shuffle on every request so each quiz session has a different order.
+    const questions = all.sort(() => Math.random() - 0.5).slice(0, QUIZ_COUNT);
     res.json({ questions });
   } catch (err) {
     next(err);

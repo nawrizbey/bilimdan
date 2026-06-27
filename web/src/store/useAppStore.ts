@@ -688,7 +688,8 @@ export const useAppStore = create<AppState>((set, get) => {
   },
   retryQuiz: () => {
     clearTimeout(quizAdvanceTimeout);
-    set({ qq: 0, qSel: null, qScore: 0 });
+    set({ qq: 0, qSel: null, qScore: 0, quizQuestions: [] });
+    void get().loadQuiz();
   },
 
   // Leaders
