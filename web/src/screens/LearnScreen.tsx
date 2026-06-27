@@ -12,22 +12,69 @@ import { TestPhase } from './learn/TestPhase';
 import { SummaryPhase } from './learn/SummaryPhase';
 import { LetterTilesPhase } from './learn/LetterTilesPhase';
 import { MatchPairsPhase } from './learn/MatchPairsPhase';
+import { ListenPickPhase } from './learn/ListenPickPhase';
+import { TrueFalsePhase } from './learn/TrueFalsePhase';
+import { MemoryFlipPhase } from './learn/MemoryFlipPhase';
+import { FillBlankPhase } from './learn/FillBlankPhase';
+import { MissingLetterPhase } from './learn/MissingLetterPhase';
+import { DictationPhase } from './learn/DictationPhase';
+import { FlashcardSprintPhase } from './learn/FlashcardSprintPhase';
+import { SentenceScramblePhase } from './learn/SentenceScramblePhase';
+import { CategorySortPhase } from './learn/CategorySortPhase';
 import type { ApiWord } from '../types/api';
 
 // ── Exercise queue ────────────────────────────────────────────────────────────
 
 type NewExercise =
-  | { type: 'letterTiles'; wordIdx: number }
-  | { type: 'matchPairs'; wordIdxs: number[] };
+  | { type: 'letterTiles';      wordIdx: number }
+  | { type: 'missingLetter';    wordIdx: number }
+  | { type: 'dictation';        wordIdx: number }
+  | { type: 'flashcardSprint';  wordIdx: number }
+  | { type: 'fillBlank';        wordIdx: number }
+  | { type: 'listenPick';       wordIdx: number }
+  | { type: 'sentenceScramble'; wordIdx: number }
+  | { type: 'matchPairs';       wordIdxs: number[] }
+  | { type: 'memoryFlip';       wordIdxs: number[] }
+  | { type: 'trueFalse';        wordIdxs: number[] }
+  | { type: 'categorySort';     wordIdxs: number[] };
+
+function shuffle<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
 
 function buildExercises(words: ApiWord[]): NewExercise[] {
   const N = words.length;
   if (N === 0) return [];
-  const exs: NewExercise[] = words.map((_, i) => ({ type: 'letterTiles', wordIdx: i }));
-  if (N >= 2) {
-    exs.push({ type: 'matchPairs', wordIdxs: Array.from({ length: Math.min(6, N) }, (_, i) => i) });
-  }
-  return exs;
+
+  // Per-word exercises — cycle through single-word types for variety
+  const singleWordTypes: NewExercise['type'][] = [
+    'letterTiles', 'missingLetter', 'dictation', 'flashcardSprint',
+    'fillBlank', 'listenPick', 'sentenceScramble',
+  ];
+
+  const perWord: NewExercise[] = words.map((_, i) => ({
+    type: singleWordTypes[i % singleWordTypes.length],
+    wordIdx: i,
+  } as NewExercise));
+
+  // Multi-word exercises (use first min(6,N) words)
+  const groupSize = Math.min(6, N);
+  const groupIdxs = Array.from({ length: groupSize }, (_, i) => i);
+
+  const multiWord: NewExercise[] = N >= 2 ? [
+    { type: 'matchPairs',    wordIdxs: groupIdxs },
+    { type: 'memoryFlip',   wordIdxs: groupIdxs.slice(0, Math.min(4, N)) },
+    { type: 'trueFalse',    wordIdxs: groupIdxs },
+    { type: 'categorySort', wordIdxs: groupIdxs },
+  ] : [];
+
+  // Interleave: per-word first, then multi-word games at the end
+  return [...perWord, ...shuffle(multiWord)];
 }
 
 // ── Extended 5-step stepper ───────────────────────────────────────────────────
@@ -46,7 +93,7 @@ function getActiveStepIdx(phase: LearnPhase, newExDone: boolean): number {
   if (phase === 'write') return 2;
   if (phase === 'speak') return 3;
   if (phase === 'test') return 4;
-  return -1; // summary — all done
+  return -1;
 }
 
 function ExtStepper({ phase, newExDone }: { phase: LearnPhase; newExDone: boolean }) {
@@ -95,8 +142,7 @@ function ExtStepper({ phase, newExDone }: { phase: LearnPhase; newExDone: boolea
 export function LearnScreen() {
   const navigate = useNavigate();
 
-  // Store state
-  const learnPhase    = useAppStore((s) => s.learnPhase);
+  const learnPhase      = useAppStore((s) => s.learnPhase);
   const currentUnitTitle = useAppStore((s) => s.currentUnitTitle);
   const currentUnitWords = useAppStore((s) => s.currentUnitWords);
   const loadingUnitWords = useAppStore((s) => s.loadingUnitWords);
@@ -111,7 +157,6 @@ export function LearnScreen() {
   const testIdx           = useAppStore((s) => s.testIdx);
   const testQuestions     = useAppStore((s) => s.testQuestions);
 
-  // New exercise local state
   const [exercises, setExercises] = useState<NewExercise[]>([]);
   const [newExIdx,  setNewExIdx]  = useState(0);
   const [newExDone, setNewExDone] = useState(false);
@@ -120,7 +165,6 @@ export function LearnScreen() {
 
   useEffect(() => { ensureCurrentUnit(); }, [ensureCurrentUnit]);
 
-  // Rebuild exercise queue whenever the word list changes (e.g. new unit)
   useEffect(() => {
     if (currentUnitWords.length === 0) return;
     const built = buildExercises(currentUnitWords);
@@ -131,7 +175,6 @@ export function LearnScreen() {
     setCombo(0);
   }, [currentUnitWords]);
 
-  // Keyboard shortcuts (familiarize only)
   useEffect(() => {
     if (learnPhase !== 'familiarize') return;
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -146,7 +189,7 @@ export function LearnScreen() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [learnPhase, card, currentUnitWords, nextCardLocal, prevCard, flipCard]);
 
-  // ── Exercise callbacks ──────────────────────────────────────────────────────
+  // ── Callbacks ───────────────────────────────────────────────────────────────
 
   const advance = useCallback((exLength: number) => {
     setNewExIdx((i) => {
@@ -171,11 +214,23 @@ export function LearnScreen() {
     advance(exercises.length);
   }, [exercises.length, advance]);
 
-  const handleMatchComplete = useCallback((correctCount: number, totalCount: number) => {
-    if (correctCount < totalCount) { setHearts((h) => Math.max(0, h - 1)); setCombo(0); }
+  const handleMultiComplete = useCallback((correct: number, total: number) => {
+    if (correct < total) { setHearts((h) => Math.max(0, h - 1)); setCombo(0); }
     else setCombo((c) => c + 1);
     advance(exercises.length);
   }, [exercises.length, advance]);
+
+  // ── Distractors helper ───────────────────────────────────────────────────────
+
+  const getDistractors = useCallback((wordId: number, count = 3): string[] => {
+    const others = currentUnitWords.filter((w) => w.id !== wordId).map((w) => w.uz);
+    return shuffle(others).slice(0, count);
+  }, [currentUnitWords]);
+
+  const getEnDistractors = useCallback((wordId: number, count = 3): string[] => {
+    const others = currentUnitWords.filter((w) => w.id !== wordId).map((w) => w.en);
+    return shuffle(others).slice(0, count);
+  }, [currentUnitWords]);
 
   // ── Guards ──────────────────────────────────────────────────────────────────
 
@@ -191,7 +246,7 @@ export function LearnScreen() {
     );
   }
 
-  // ── Progress calculation ────────────────────────────────────────────────────
+  // ── Progress ────────────────────────────────────────────────────────────────
 
   const total = currentUnitWords.length;
   const isNewExPhase = learnPhase === 'write' && !newExDone;
@@ -211,36 +266,64 @@ export function LearnScreen() {
     overallPct = 100;
   }
 
-  // ── Render new exercise ─────────────────────────────────────────────────────
+  // ── Render exercise ──────────────────────────────────────────────────────────
 
   const renderNewExercise = () => {
     const ex = exercises[newExIdx];
     if (!ex) return null;
 
+    // Single-word exercises
     if (ex.type === 'letterTiles') {
       const word = currentUnitWords[ex.wordIdx];
       if (!word) return null;
-      return (
-        <LetterTilesPhase
-          word={word}
-          onCorrect={handleCorrect}
-          onWrong={handleWrong}
-          onSkip={handleSkip}
-          wordIndex={newExIdx}
-          totalWords={exercises.length}
-        />
-      );
+      return <LetterTilesPhase word={word} onCorrect={handleCorrect} onWrong={handleWrong} onSkip={handleSkip} wordIndex={newExIdx} totalWords={exercises.length} />;
+    }
+    if (ex.type === 'missingLetter') {
+      const word = currentUnitWords[ex.wordIdx];
+      if (!word) return null;
+      return <MissingLetterPhase word={word} onCorrect={handleCorrect} onWrong={handleWrong} onSkip={handleSkip} wordIndex={newExIdx} totalWords={exercises.length} />;
+    }
+    if (ex.type === 'dictation') {
+      const word = currentUnitWords[ex.wordIdx];
+      if (!word) return null;
+      return <DictationPhase word={word} onCorrect={handleCorrect} onWrong={handleWrong} onSkip={handleSkip} wordIndex={newExIdx} totalWords={exercises.length} />;
+    }
+    if (ex.type === 'flashcardSprint') {
+      const word = currentUnitWords[ex.wordIdx];
+      if (!word) return null;
+      return <FlashcardSprintPhase word={word} onCorrect={handleCorrect} onWrong={handleWrong} onSkip={handleSkip} wordIndex={newExIdx} totalWords={exercises.length} />;
+    }
+    if (ex.type === 'fillBlank') {
+      const word = currentUnitWords[ex.wordIdx];
+      if (!word) return null;
+      return <FillBlankPhase word={word} distractors={getEnDistractors(word.id)} onCorrect={handleCorrect} onWrong={handleWrong} onSkip={handleSkip} wordIndex={newExIdx} totalWords={exercises.length} />;
+    }
+    if (ex.type === 'listenPick') {
+      const word = currentUnitWords[ex.wordIdx];
+      if (!word) return null;
+      return <ListenPickPhase word={word} distractors={getDistractors(word.id)} onCorrect={handleCorrect} onWrong={handleWrong} onSkip={handleSkip} wordIndex={newExIdx} />;
+    }
+    if (ex.type === 'sentenceScramble') {
+      const word = currentUnitWords[ex.wordIdx];
+      if (!word) return null;
+      return <SentenceScramblePhase word={word} onCorrect={handleCorrect} onWrong={handleWrong} onSkip={handleSkip} wordIndex={newExIdx} totalWords={exercises.length} />;
     }
 
+    // Multi-word exercises
     if (ex.type === 'matchPairs') {
       const words = ex.wordIdxs.map((i) => currentUnitWords[i]).filter(Boolean);
-      return (
-        <MatchPairsPhase
-          words={words}
-          onComplete={handleMatchComplete}
-          onSkip={handleSkip}
-        />
-      );
+      return <MatchPairsPhase words={words} onComplete={handleMultiComplete} onSkip={handleSkip} />;
+    }
+    if (ex.type === 'memoryFlip') {
+      const words = ex.wordIdxs.map((i) => currentUnitWords[i]).filter(Boolean);
+      return <MemoryFlipPhase words={words} onComplete={handleMultiComplete} onSkip={handleSkip} />;
+    }
+    if (ex.type === 'trueFalse') {
+      return <TrueFalsePhase words={currentUnitWords} onComplete={handleMultiComplete} onSkip={handleSkip} />;
+    }
+    if (ex.type === 'categorySort') {
+      const words = ex.wordIdxs.map((i) => currentUnitWords[i]).filter(Boolean);
+      return <CategorySortPhase words={words} onComplete={handleMultiComplete} onSkip={handleSkip} />;
     }
 
     return null;
@@ -255,7 +338,6 @@ export function LearnScreen() {
     <div className="max-w-[820px] mx-auto">
       <Confetti active={learnPhase === 'summary'} />
 
-      {/* Header */}
       <div className="flex items-center justify-between mb-2">
         <h2 className="font-display font-extrabold text-[22px] sm:text-[24px] m-0 text-text">
           {currentUnitTitle}
@@ -270,32 +352,26 @@ export function LearnScreen() {
 
       <ExtStepper phase={learnPhase} newExDone={newExDone} />
 
-      {/* Hearts + combo bar */}
       {showHeartsBar && (
         <div className="mb-4">
           <HeartsBar hearts={hearts} maxHearts={3} combo={combo} />
         </div>
       )}
 
-      {/* Progress bar */}
       <div className="h-[5px] bg-border rounded-[20px] overflow-hidden mb-7 max-w-[360px] mx-auto">
         <div
           className="h-full rounded-[20px] transition-[width] duration-500 ease-out"
-          style={{
-            width: `${overallPct}%`,
-            background: 'linear-gradient(90deg,#22C55E,#8B5CF6,#F59E0B)',
-          }}
+          style={{ width: `${overallPct}%`, background: 'linear-gradient(90deg,#22C55E,#8B5CF6,#F59E0B)' }}
         />
       </div>
 
-      {/* Phase content */}
       <div key={animKey} className="animate-pop">
-        {learnPhase === 'familiarize' && <FamiliarizePhase />}
-        {isNewExPhase             && renderNewExercise()}
-        {learnPhase === 'write' && newExDone && <WritePhase />}
-        {learnPhase === 'speak'   && <SpeakPhase />}
-        {learnPhase === 'test'    && <TestPhase />}
-        {learnPhase === 'summary' && <SummaryPhase />}
+        {learnPhase === 'familiarize'           && <FamiliarizePhase />}
+        {isNewExPhase                            && renderNewExercise()}
+        {learnPhase === 'write' && newExDone    && <WritePhase />}
+        {learnPhase === 'speak'                  && <SpeakPhase />}
+        {learnPhase === 'test'                   && <TestPhase />}
+        {learnPhase === 'summary'                && <SummaryPhase />}
       </div>
     </div>
   );
