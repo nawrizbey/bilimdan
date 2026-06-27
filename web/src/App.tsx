@@ -10,6 +10,8 @@ const SignupScreen = lazy(() => import('./screens/SignupScreen').then((m) => ({ 
 const DashboardScreen = lazy(() => import('./screens/DashboardScreen').then((m) => ({ default: m.DashboardScreen })));
 const LearnScreen = lazy(() => import('./screens/LearnScreen').then((m) => ({ default: m.LearnScreen })));
 const BattleScreen = lazy(() => import('./screens/BattleScreen').then((m) => ({ default: m.BattleScreen })));
+const GamesHubScreen = lazy(() => import('./screens/GamesHubScreen').then((m) => ({ default: m.GamesHubScreen })));
+const GameSessionScreen = lazy(() => import('./screens/GameSessionScreen').then((m) => ({ default: m.GameSessionScreen })));
 const QuizScreen = lazy(() => import('./screens/QuizScreen').then((m) => ({ default: m.QuizScreen })));
 const ListenScreen = lazy(() => import('./screens/ListenScreen').then((m) => ({ default: m.ListenScreen })));
 const LessonsScreen = lazy(() => import('./screens/LessonsScreen').then((m) => ({ default: m.LessonsScreen })));
@@ -42,7 +44,9 @@ function App() {
           <Route path="dashboard" element={<DashboardScreen />} />
           <Route path="learn" element={<LearnScreen />} />
           <Route path="lessons" element={<LessonsScreen />} />
-          <Route path="battle" element={<BattleScreen />} />
+          <Route path="battle" element={<GamesHubScreen />} />
+          <Route path="battle/live" element={<BattleScreen />} />
+          <Route path="battle/:type" element={<GameSessionScreen />} />
           <Route path="quiz" element={<QuizScreen />} />
           <Route path="listen" element={<ListenScreen />} />
           <Route path="leaders" element={<LeadersScreen />} />
