@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Trans, useTranslation } from 'react-i18next';
 import { MascotIcon } from '../components/MascotIcon';
-import { useAppStore, pickTargetUnit } from '../store/useAppStore';
+import { useAppStore } from '../store/useAppStore';
+import { findActiveLesson } from '../lib/learnPath';
 
 const SESSION_MINUTES_CAP = 20;
 
@@ -58,11 +59,14 @@ export function DashboardScreen() {
   const wordsKnownCount = useAppStore((s) => s.wordsKnownCount);
   const leaderboard = useAppStore((s) => s.leaderboard);
   const loadLeaderboard = useAppStore((s) => s.loadLeaderboard);
-  const units = useAppStore((s) => s.units);
-  const loadUnits = useAppStore((s) => s.loadUnits);
+  const learnPath = useAppStore((s) => s.learnPath);
+  const loadLearnPath = useAppStore((s) => s.loadLearnPath);
   const goalPct = Math.min(100, Math.round((goalDone / goalMin) * 100));
   const remaining = Math.max(0, goalMin - goalDone);
-  const targetUnit = pickTargetUnit(units ?? []);
+  const activeLesson = learnPath ? findActiveLesson(learnPath) : null;
+  const activeUnit = activeLesson ? learnPath!.units.find((u) => u.id === activeLesson.unitId) : undefined;
+  const activeLessonWordsCount = activeUnit?.lessons[activeLesson!.lessonIndex]?.wordsCount ?? 0;
+  const dueCount = learnPath?.dueCount ?? 0;
   const weekDays = buildWeekDays(streak, goalDone);
 
   const [leaderboardError, setLeaderboardError] = useState(false);
@@ -79,7 +83,7 @@ export function DashboardScreen() {
 
   useEffect(() => {
     loadLeaderboardWidget();
-    loadUnits().catch((err) => console.error('Dashboard units load failed:', err));
+    loadLearnPath().catch((err) => console.error('Dashboard learn path load failed:', err));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -106,8 +110,10 @@ export function DashboardScreen() {
             {t('dashboard.greeting', { name: studentName })}
           </h1>
           <p className="text-white/90 text-[15px] font-semibold mb-5 max-w-[440px]">
-            {targetUnit ? (
-              <Trans i18nKey="dashboard.minutesLeftWithUnit" values={{ remaining, unit: targetUnit.title }} components={{ b: <b /> }} />
+            {dueCount > 0 ? (
+              <Trans i18nKey="dashboard.minutesLeftWithReview" values={{ remaining, count: dueCount }} components={{ b: <b /> }} />
+            ) : activeUnit ? (
+              <Trans i18nKey="dashboard.minutesLeftWithUnit" values={{ remaining, unit: activeUnit.title }} components={{ b: <b /> }} />
             ) : (
               <Trans i18nKey="dashboard.minutesLeft" values={{ remaining }} components={{ b: <b /> }} />
             )}
@@ -221,11 +227,11 @@ export function DashboardScreen() {
               <div className="w-12 h-12 flex-none rounded-[13px] bg-primary flex items-center justify-center text-[22px]">📖</div>
               <div className="flex-1 min-w-0">
                 <div className="font-extrabold text-[15px] text-text truncate">
-                  {t('nav.learn')}{targetUnit ? ` — ${targetUnit.title.replace(/^\d+-tema\s*—\s*/, '')}` : ''}
+                  {t('nav.learn')}{activeUnit ? ` — ${activeUnit.title.replace(/^\d+-tema\s*—\s*/, '')}` : ''}
                 </div>
                 <div className="text-[12.5px] font-bold text-[#16A34A]">
-                  {targetUnit
-                    ? t('dashboard.wordCountWithMinutes', { count: targetUnit.wordsCount, mins: Math.min(targetUnit.wordsCount, SESSION_MINUTES_CAP) })
+                  {activeLesson
+                    ? t('dashboard.wordCountWithMinutes', { count: activeLessonWordsCount, mins: Math.min(activeLessonWordsCount, SESSION_MINUTES_CAP) })
                     : t('dashboard.wordsPreparing')}
                 </div>
               </div>

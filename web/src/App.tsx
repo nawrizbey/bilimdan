@@ -9,12 +9,12 @@ const LoginScreen = lazy(() => import('./screens/LoginScreen').then((m) => ({ de
 const SignupScreen = lazy(() => import('./screens/SignupScreen').then((m) => ({ default: m.SignupScreen })));
 const DashboardScreen = lazy(() => import('./screens/DashboardScreen').then((m) => ({ default: m.DashboardScreen })));
 const LearnScreen = lazy(() => import('./screens/LearnScreen').then((m) => ({ default: m.LearnScreen })));
+const LearnSessionScreen = lazy(() => import('./screens/LearnSessionScreen').then((m) => ({ default: m.LearnSessionScreen })));
 const BattleScreen = lazy(() => import('./screens/BattleScreen').then((m) => ({ default: m.BattleScreen })));
 const GamesHubScreen = lazy(() => import('./screens/GamesHubScreen').then((m) => ({ default: m.GamesHubScreen })));
 const GameSessionScreen = lazy(() => import('./screens/GameSessionScreen').then((m) => ({ default: m.GameSessionScreen })));
 const QuizScreen = lazy(() => import('./screens/QuizScreen').then((m) => ({ default: m.QuizScreen })));
 const ListenScreen = lazy(() => import('./screens/ListenScreen').then((m) => ({ default: m.ListenScreen })));
-const LessonsScreen = lazy(() => import('./screens/LessonsScreen').then((m) => ({ default: m.LessonsScreen })));
 const LeadersScreen = lazy(() => import('./screens/LeadersScreen').then((m) => ({ default: m.LeadersScreen })));
 const ProfileScreen = lazy(() => import('./screens/ProfileScreen').then((m) => ({ default: m.ProfileScreen })));
 const SettingsScreen = lazy(() => import('./screens/SettingsScreen').then((m) => ({ default: m.SettingsScreen })));
@@ -43,7 +43,8 @@ function App() {
           <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<DashboardScreen />} />
           <Route path="learn" element={<LearnScreen />} />
-          <Route path="lessons" element={<LessonsScreen />} />
+          <Route path="learn/session" element={<LearnSessionScreen />} />
+          <Route path="lessons" element={<Navigate to="/app/learn" replace />} />
           <Route path="battle" element={<GamesHubScreen />} />
           <Route path="battle/live" element={<BattleScreen />} />
           <Route path="battle/:type" element={<GameSessionScreen />} />

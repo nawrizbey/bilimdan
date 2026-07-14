@@ -1,8 +1,13 @@
 import { create } from 'zustand';
 import { api, ApiError, getToken, setToken } from '../lib/api';
-import { saveLearnSession, loadLearnSession, clearLearnSession } from '../lib/learnSessionStorage';
-import { getErrorMessage } from '../lib/errorMessage';
-import i18n from '../i18n';
+import {
+  completeLearnSession as apiCompleteLearnSession,
+  getActiveLearnSession,
+  getLearnPath,
+  postLearnAnswer,
+  startLessonSession,
+  startReviewSession,
+} from '../lib/learnApi';
 import type {
   ApiBadge,
   ApiQuizQuestion,
@@ -15,6 +20,10 @@ import type {
   BattleServerMessage,
   LeaderboardResponse,
   LeaderboardScope,
+  LearnPathResponse,
+  LearnQueueItem,
+  LearnSessionUnit,
+  LearnSummaryResponse,
   ListenQuestion,
   LocationsResponse,
   UnitWordsResponse,
@@ -38,16 +47,6 @@ interface SettingsToggles {
 
 type AuthStatus = 'idle' | 'loading' | 'authenticated' | 'unauthenticated';
 
-export type LearnPhase = 'familiarize' | 'write' | 'speak' | 'test' | 'summary';
-
-export interface TestQuestion {
-  wordId: number;
-  word: string;
-  uz: string;
-  options: string[];
-  correctIndex: number;
-}
-
 function shuffled<T>(arr: T[]): T[] {
   return [...arr].sort(() => Math.random() - 0.5);
 }
@@ -61,37 +60,22 @@ export function pickTargetUnit(units: ApiUnit[]): ApiUnit | undefined {
   return playable.find((u) => u.pct < 100) ?? playable[0];
 }
 
-/** Builds one 4-option (or fewer, for tiny units) MCQ per word: "so'zning tarjimasi
- * qaysi?" with distractors drawn from the other words in the same unit. */
-function buildTestQuestions(words: ApiWord[]): TestQuestion[] {
-  return words.map((w) => {
-    const distractorPool = words.filter((o) => o.id !== w.id).map((o) => o.uz);
-    const distractors = shuffled(distractorPool).slice(0, Math.min(3, distractorPool.length));
-    const options = shuffled([...distractors, w.uz]);
-    return { wordId: w.id, word: w.en, uz: w.uz, options, correctIndex: options.indexOf(w.uz) };
-  });
+export interface LearnSessionState {
+  sessionId: number;
+  type: 'lesson' | 'review';
+  unit: LearnSessionUnit | null;
+  queue: (LearnQueueItem & { isRepeat?: boolean })[];
+  cursor: number;
+  hearts: number;
+  maxHearts: number;
+  combo: number;
+  correctCount: number;
+  /** Bumped every time hearts would drop to 0 (and get refilled to 1) — the
+   * session screen watches this to fire the "Itibarlıraq bolıń!" toast once. */
+  heartsEmptyTick: number;
+  status: 'active' | 'summary';
+  summary: LearnSummaryResponse | null;
 }
-
-const emptyLearnSessionFields = {
-  card: 0,
-  flipped: false,
-  familiarizeViewed: [0] as number[],
-  writeIdx: 0,
-  writeInput: '',
-  writeResult: null as 'correct' | 'incorrect' | null,
-  writeCorrectCount: 0,
-  writeMissedWords: [] as string[],
-  learnSpeakIdx: 0,
-  learnSpeakScore: null as number | null,
-  learnSpeakTranscript: null as string | null,
-  testQuestions: [] as TestQuestion[],
-  testIdx: 0,
-  testSel: null as number | null,
-  testCorrectCount: 0,
-  sessionXpGained: 0,
-  allUnitsCompleted: false,
-  sessionSaveError: null as string | null,
-};
 
 interface AppState {
   authStatus: AuthStatus;
@@ -122,7 +106,7 @@ interface AppState {
   units: ApiUnit[] | null;
   loadUnits: () => Promise<void>;
 
-  // Learn — which unit is active
+  // Active unit (used by Lessons, Games, and the search in Topbar)
   currentUnitId: number | null;
   currentUnitTitle: string;
   currentUnitWords: ApiWord[];
@@ -130,47 +114,15 @@ interface AppState {
   loadUnitWords: (unitId: number) => Promise<void>;
   ensureCurrentUnit: () => Promise<void>;
 
-  // Learn — 4-phase session: familiarize -> write -> speak -> test -> summary
-  learnPhase: LearnPhase;
-  // Familiarize
-  card: number;
-  flipped: boolean;
-  familiarizeViewed: number[];
-  flipCard: () => void;
-  nextCardLocal: () => void;
-  prevCard: () => void;
-  finishFamiliarize: () => void;
-  // Write
-  writeIdx: number;
-  writeInput: string;
-  writeResult: 'correct' | 'incorrect' | null;
-  writeCorrectCount: number;
-  writeMissedWords: string[];
-  setWriteInput: (text: string) => void;
-  submitWrite: () => void;
-  nextWrite: () => void;
-  // Speak (scoped to the current unit, distinct from the standalone Speak screen)
-  learnSpeakIdx: number;
-  learnSpeakScore: number | null;
-  learnSpeakTranscript: string | null;
-  learnSpeakStart: () => void;
-  learnSpeakFinish: (score: number, transcript: string) => Promise<void>;
-  learnSpeakNext: () => void;
-  // Test
-  testQuestions: TestQuestion[];
-  testIdx: number;
-  testSel: number | null;
-  testCorrectCount: number;
-  pickTest: (i: number) => void;
-  nextTest: () => void;
-  // Session completion
-  sessionXpGained: number;
-  allUnitsCompleted: boolean;
-  sessionSaveError: string | null;
-  completeLearnSession: () => Promise<void>;
-  /** Loads the next not-yet-completed unit. Returns false if every unit is already
-   * complete (i.e. it looped back to the same unit), so the UI can show a banner. */
-  advanceToNextUnit: () => Promise<boolean>;
+  // Learn (FSRS-based path + session)
+  learnPath: LearnPathResponse | null;
+  loadLearnPath: () => Promise<void>;
+  learnSession: LearnSessionState | null;
+  startLearnSession: (args: { type: 'lesson'; unitId: number; lessonIndex: number } | { type: 'review' }) => Promise<void>;
+  resumeLearnSession: () => Promise<boolean>;
+  answerCurrent: (correct: boolean, responseMs: number) => Promise<void>;
+  completeLearnSession: () => Promise<LearnSummaryResponse>;
+  abandonLearnSession: () => void;
 
   // Battle (WebSocket-driven)
   battleStatus: 'idle' | 'queueing' | 'matched' | 'playing' | 'revealed' | 'ended';
@@ -253,27 +205,6 @@ function userToFields(user: ApiUser) {
 }
 
 export const useAppStore = create<AppState>((set, get) => {
-  /** Snapshots the in-progress learn session to sessionStorage after every
-   * meaningful step, so an accidental page refresh resumes instead of losing
-   * the student's progress. No-ops once the session reaches 'summary'. */
-  function persistLearnSession() {
-    const s = get();
-    if (s.currentUnitId == null || s.learnPhase === 'summary') return;
-    saveLearnSession({
-      currentUnitId: s.currentUnitId,
-      learnPhase: s.learnPhase,
-      card: s.card,
-      familiarizeViewed: s.familiarizeViewed,
-      writeIdx: s.writeIdx,
-      writeCorrectCount: s.writeCorrectCount,
-      writeMissedWords: s.writeMissedWords,
-      learnSpeakIdx: s.learnSpeakIdx,
-      testQuestions: s.testQuestions,
-      testIdx: s.testIdx,
-      testCorrectCount: s.testCorrectCount,
-    });
-  }
-
   /** Applies a background progress-sync response, or degrades gracefully:
    * logs out on an expired session, otherwise leaves the optimistic local
    * state in place and logs the failure (the next successful sync reconciles it). */
@@ -366,7 +297,6 @@ export const useAppStore = create<AppState>((set, get) => {
     clearTimeout(quizAdvanceTimeout);
     clearTimeout(listenAdvanceTimeout);
     setToken(null);
-    clearLearnSession();
     set({
       authStatus: 'unauthenticated',
       userId: null,
@@ -378,8 +308,8 @@ export const useAppStore = create<AppState>((set, get) => {
       units: null,
       currentUnitId: null,
       currentUnitWords: [],
-      learnPhase: 'familiarize',
-      ...emptyLearnSessionFields,
+      learnPath: null,
+      learnSession: null,
       quizQuestions: [],
       listenQuestions: [],
       listenIdx: 0,
@@ -401,22 +331,19 @@ export const useAppStore = create<AppState>((set, get) => {
     set({ units });
   },
 
-  // Learn — unit loading
+  // Active unit
   currentUnitId: null,
   currentUnitTitle: '',
   currentUnitWords: [],
   loadingUnitWords: false,
   loadUnitWords: async (unitId) => {
     set({ loadingUnitWords: true });
-    clearLearnSession();
     try {
       const { unit, words } = await api.get<UnitWordsResponse>(`/api/units/${unitId}/words`);
       set({
         currentUnitId: unit.id,
         currentUnitTitle: unit.title,
         currentUnitWords: words,
-        learnPhase: 'familiarize',
-        ...emptyLearnSessionFields,
       });
     } finally {
       set({ loadingUnitWords: false });
@@ -424,173 +351,137 @@ export const useAppStore = create<AppState>((set, get) => {
   },
   ensureCurrentUnit: async () => {
     if (get().currentUnitId != null) return;
-
-    const saved = loadLearnSession();
-    if (saved && saved.learnPhase !== 'summary') {
-      if (!get().units) await get().loadUnits();
-      const stillValid = (get().units ?? []).some((u) => u.id === saved.currentUnitId);
-      if (stillValid) {
-        try {
-          const { unit, words } = await api.get<UnitWordsResponse>(`/api/units/${saved.currentUnitId}/words`);
-          set({
-            currentUnitId: unit.id,
-            currentUnitTitle: unit.title,
-            currentUnitWords: words,
-            learnPhase: saved.learnPhase,
-            card: saved.card,
-            flipped: false,
-            familiarizeViewed: saved.familiarizeViewed,
-            writeIdx: saved.writeIdx,
-            writeInput: '',
-            writeResult: null,
-            writeCorrectCount: saved.writeCorrectCount,
-            writeMissedWords: saved.writeMissedWords,
-            learnSpeakIdx: saved.learnSpeakIdx,
-            learnSpeakScore: null,
-            learnSpeakTranscript: null,
-            testQuestions: saved.testQuestions,
-            testIdx: saved.testIdx,
-            testSel: null,
-            testCorrectCount: saved.testCorrectCount,
-            sessionSaveError: null,
-          });
-          return;
-        } catch {
-          clearLearnSession();
-        }
-      } else {
-        clearLearnSession();
-      }
-    }
-
     if (!get().units) await get().loadUnits();
     const target = pickTargetUnit(get().units ?? []);
     if (target) await get().loadUnitWords(target.id);
   },
 
-  // Learn — session phase machine
-  learnPhase: 'familiarize',
-  ...emptyLearnSessionFields,
-  flipCard: () =>
-    set((s) => {
-      const familiarizeViewed = s.familiarizeViewed.includes(s.card) ? s.familiarizeViewed : [...s.familiarizeViewed, s.card];
-      return { flipped: !s.flipped, familiarizeViewed };
-    }),
-  nextCardLocal: () => {
-    set((s) => {
-      const total = s.currentUnitWords.length;
-      if (total === 0) return s;
-      const card = (s.card + 1) % total;
-      const familiarizeViewed = s.familiarizeViewed.includes(card) ? s.familiarizeViewed : [...s.familiarizeViewed, card];
-      return { card, flipped: false, familiarizeViewed };
-    });
-    persistLearnSession();
+  // Learn (FSRS-based path + session)
+  learnPath: null,
+  loadLearnPath: async () => {
+    const path = await getLearnPath();
+    set({ learnPath: path });
   },
-  prevCard: () => {
-    set((s) => {
-      const total = s.currentUnitWords.length;
-      if (total === 0) return s;
-      const card = (s.card - 1 + total) % total;
-      const familiarizeViewed = s.familiarizeViewed.includes(card) ? s.familiarizeViewed : [...s.familiarizeViewed, card];
-      return { card, flipped: false, familiarizeViewed };
-    });
-    persistLearnSession();
-  },
-  finishFamiliarize: () => {
-    set({ learnPhase: 'write', writeIdx: 0, writeInput: '', writeResult: null, writeCorrectCount: 0, writeMissedWords: [] });
-    persistLearnSession();
-  },
-
-  setWriteInput: (text) => set({ writeInput: text }),
-  submitWrite: () => {
-    const { writeInput, writeIdx, currentUnitWords, writeResult, writeCorrectCount, writeMissedWords } = get();
-    if (writeResult != null) return;
-    const word = currentUnitWords[writeIdx];
-    if (!word) return;
-    const correct = writeInput.trim().toLowerCase() === word.en.trim().toLowerCase();
+  learnSession: null,
+  startLearnSession: async (args) => {
+    const res =
+      args.type === 'lesson' ? await startLessonSession(args.unitId, args.lessonIndex) : await startReviewSession();
     set({
-      writeResult: correct ? 'correct' : 'incorrect',
-      writeCorrectCount: correct ? writeCorrectCount + 1 : writeCorrectCount,
-      writeMissedWords: correct ? writeMissedWords : [...writeMissedWords, word.en],
+      learnSession: {
+        sessionId: res.sessionId,
+        type: res.type,
+        unit: res.unit,
+        queue: res.items,
+        cursor: 0,
+        hearts: 3,
+        maxHearts: 3,
+        combo: 0,
+        correctCount: 0,
+        heartsEmptyTick: 0,
+        status: 'active',
+        summary: null,
+      },
     });
-    persistLearnSession();
   },
-  nextWrite: () => {
-    const { writeIdx, currentUnitWords } = get();
-    if (writeIdx + 1 >= currentUnitWords.length) {
-      set({ learnPhase: 'speak', learnSpeakIdx: 0, learnSpeakScore: null, learnSpeakTranscript: null });
-    } else {
-      set({ writeIdx: writeIdx + 1, writeInput: '', writeResult: null });
-    }
-    persistLearnSession();
-  },
+  resumeLearnSession: async () => {
+    const res = await getActiveLearnSession();
+    if (!('sessionId' in res)) return false;
 
-  learnSpeakStart: () => set({ learnSpeakScore: null, learnSpeakTranscript: null }),
-  learnSpeakFinish: async (score, transcript) => {
-    set({ learnSpeakScore: score, learnSpeakTranscript: transcript });
-    await syncUser(api.post<{ user: ApiUser }>('/api/speak/result', { score }));
-  },
-  learnSpeakNext: () => {
-    const { learnSpeakIdx, currentUnitWords } = get();
-    if (learnSpeakIdx + 1 >= currentUnitWords.length) {
-      const words = currentUnitWords;
-      set({ testQuestions: buildTestQuestions(words), testIdx: 0, testSel: null, testCorrectCount: 0, learnPhase: 'test' });
-    } else {
-      set({ learnSpeakIdx: learnSpeakIdx + 1, learnSpeakScore: null, learnSpeakTranscript: null });
+    const answeredKeys = new Set(res.answered.map((a) => `${a.wordId}:${a.exercise}`));
+    let cursor = 0;
+    while (cursor < res.items.length && answeredKeys.has(`${res.items[cursor].wordId}:${res.items[cursor].exercise}`)) {
+      cursor += 1;
     }
-    persistLearnSession();
-  },
+    const finished = cursor >= res.items.length;
 
-  pickTest: (i) => {
-    const { testSel, testQuestions, testIdx, testCorrectCount } = get();
-    if (testSel != null) return;
-    const q = testQuestions[testIdx];
-    if (!q) return;
-    const correct = i === q.correctIndex;
-    set({ testSel: i, testCorrectCount: correct ? testCorrectCount + 1 : testCorrectCount });
-    persistLearnSession();
+    set({
+      learnSession: {
+        sessionId: res.sessionId,
+        type: res.type,
+        unit: res.unit,
+        queue: res.items,
+        cursor,
+        hearts: 3,
+        maxHearts: 3,
+        combo: 0,
+        correctCount: res.answered.filter((a) => a.exercise !== 'intro' && a.correct).length,
+        heartsEmptyTick: 0,
+        status: finished ? 'summary' : 'active',
+        summary: null,
+      },
+    });
+
+    if (finished) await get().completeLearnSession();
+    return true;
   },
-  nextTest: () => {
-    const { testIdx, testQuestions } = get();
-    if (testIdx + 1 >= testQuestions.length) {
-      void get().completeLearnSession();
+  answerCurrent: async (correct, responseMs) => {
+    const session = get().learnSession;
+    if (!session || session.status !== 'active') return;
+    const item = session.queue[session.cursor];
+    if (!item) return;
+
+    let hearts = session.hearts;
+    let combo = session.combo;
+    let correctCount = session.correctCount;
+    let heartsEmptyTick = session.heartsEmptyTick;
+
+    if (correct) {
+      combo += 1;
+      if (!item.isRepeat && item.exercise !== 'intro') correctCount += 1;
     } else {
-      set({ testIdx: testIdx + 1, testSel: null });
-      persistLearnSession();
+      combo = 0;
+      hearts = Math.max(hearts - 1, 0);
+      if (hearts === 0) {
+        hearts = 1;
+        heartsEmptyTick += 1;
+      }
     }
-  },
 
+    // Only the first attempt at a given (wordId, exercise) is graded server-side;
+    // re-queued repeats after a miss are ungraded practice (see below).
+    if (!item.isRepeat) {
+      try {
+        await postLearnAnswer({ sessionId: session.sessionId, wordId: item.wordId, exercise: item.exercise, correct, responseMs });
+      } catch (err) {
+        console.error('Learn answer failed:', err);
+      }
+    }
+
+    let queue = session.queue;
+    if (!correct) {
+      const insertAt = Math.min(session.cursor + 3, queue.length);
+      queue = [...queue.slice(0, insertAt), { ...item, isRepeat: true }, ...queue.slice(insertAt)];
+    }
+
+    const cursor = session.cursor + 1;
+    const finished = cursor >= queue.length;
+
+    set({
+      learnSession: {
+        ...session,
+        queue,
+        cursor,
+        hearts,
+        combo,
+        correctCount,
+        heartsEmptyTick,
+        status: finished ? 'summary' : 'active',
+      },
+    });
+
+    if (finished) await get().completeLearnSession();
+  },
   completeLearnSession: async () => {
-    const { currentUnitId, writeCorrectCount, testCorrectCount, xp: xpBefore } = get();
-    if (currentUnitId == null) {
-      set({ learnPhase: 'summary' });
-      return;
-    }
-    set({ sessionSaveError: null });
-    try {
-      const { user } = await api.post<{ user: ApiUser }>('/api/learn/session-complete', {
-        unitId: currentUnitId,
-        writeCorrect: writeCorrectCount,
-        testCorrect: testCorrectCount,
-      });
-      set({ ...userToFields(user), learnPhase: 'summary', sessionXpGained: Math.max(0, user.xp - xpBefore) });
-      clearLearnSession();
-    } catch (err) {
-      console.error('Session complete failed:', err);
-      const message = err instanceof ApiError ? getErrorMessage(i18n.t, err) : i18n.t('common.networkError');
-      set({ sessionSaveError: message });
-    }
+    const session = get().learnSession;
+    if (!session) throw new Error('No active learn session');
+    const summary = await apiCompleteLearnSession(session.sessionId);
+    set((s) => ({
+      ...userToFields(summary.user),
+      learnSession: s.learnSession ? { ...s.learnSession, status: 'summary', summary } : null,
+    }));
+    return summary;
   },
-  advanceToNextUnit: async () => {
-    const previousUnitId = get().currentUnitId;
-    await get().loadUnits();
-    set({ currentUnitId: null });
-    await get().ensureCurrentUnit();
-    const newUnitId = get().currentUnitId;
-    const hasNext = newUnitId != null && newUnitId !== previousUnitId;
-    set({ allUnitsCompleted: !hasNext, learnPhase: hasNext ? 'familiarize' : 'summary' });
-    return hasNext;
-  },
+  abandonLearnSession: () => set({ learnSession: null }),
 
   // Battle (WebSocket-driven; the socket itself is owned by BattleScreen,
   // which feeds server messages into battleApplyMessage)

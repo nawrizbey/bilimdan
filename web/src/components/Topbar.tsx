@@ -16,7 +16,6 @@ export function Topbar({ onMenuClick }: TopbarProps) {
   const xp = useAppStore((s) => s.xp);
   const units = useAppStore((s) => s.units);
   const loadUnits = useAppStore((s) => s.loadUnits);
-  const loadUnitWords = useAppStore((s) => s.loadUnitWords);
   const initial = studentName.charAt(0).toUpperCase();
 
   const [query, setQuery] = useState('');
@@ -50,9 +49,7 @@ export function Topbar({ onMenuClick }: TopbarProps) {
   const goToUnit = (unitId: number) => {
     setOpen(false);
     setQuery('');
-    loadUnitWords(unitId)
-      .then(() => navigate('/app/learn'))
-      .catch((err) => console.error('Failed to open unit from search:', err));
+    navigate('/app/learn', { state: { scrollToUnit: unitId } });
   };
 
   return (

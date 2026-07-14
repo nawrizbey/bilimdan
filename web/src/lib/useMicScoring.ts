@@ -22,13 +22,17 @@ interface UseMicScoringOptions {
   /** Fires once the recognizer actually starts listening (mic granted) — use to clear stale results. */
   onStart?: () => void;
   onResult: (score: number, transcript: string) => void;
+  /** Fires for any real failure (permission denied, no speech heard, network, unsupported browser...) —
+   * i.e. every non-empty error message. Use this to count consecutive mic failures, since it fires as
+   * an event rather than needing to be derived from the `error` string via an effect. */
+  onError?: (message: string) => void;
   /** Changing this aborts any in-flight recognition (e.g. moving to the next word). */
   resetKey?: unknown;
 }
 
 /** Shared Web Speech API recording + Levenshtein pronunciation-scoring flow, used by
  * both the standalone Talaffuz mashqi screen and the per-unit "Aytish" learn phase. */
-export function useMicScoring({ word, micEnabled, onStart, onResult, resetKey }: UseMicScoringOptions) {
+export function useMicScoring({ word, micEnabled, onStart, onResult, onError, resetKey }: UseMicScoringOptions) {
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const watchdogRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const recordingRef = useRef(false);
@@ -40,6 +44,11 @@ export function useMicScoring({ word, micEnabled, onStart, onResult, resetKey }:
   const setRecordingState = (value: boolean) => {
     recordingRef.current = value;
     setRecording(value);
+  };
+
+  const raiseError = (message: string) => {
+    setError(message);
+    if (message) onError?.(message);
   };
 
   const clearWatchdog = () => {
@@ -71,12 +80,12 @@ export function useMicScoring({ word, micEnabled, onStart, onResult, resetKey }:
     }
     setError(null);
     if (!micEnabled) {
-      setError("Mikrofon sazlamalarda óshirilgen. Sazlamalar bóliminen yaqıń.");
+      raiseError("Mikrofon sazlamalarda óshirilgen. Sazlamalar bóliminen yaqıń.");
       return;
     }
     const SpeechRecognitionCtor = getSpeechRecognitionCtor();
     if (!SpeechRecognitionCtor) {
-      setError("Brauzerińiz dawıs tanıwdı qollap-quwatlamaydı. Google Chrome'da urınıp kóriń.");
+      raiseError("Brauzerińiz dawıs tanıwdı qollap-quwatlamaydı. Google Chrome'da urınıp kóriń.");
       return;
     }
 
@@ -103,7 +112,7 @@ export function useMicScoring({ word, micEnabled, onStart, onResult, resetKey }:
       clearWatchdog();
       gotResult = true;
       const message = ERROR_MESSAGES[event.error] ?? "Qátelik júz berdi. Qaytadan urınıp kóriń.";
-      if (message) setError(message);
+      if (message) raiseError(message);
       setRecordingState(false);
     };
     recognition.onend = () => {
@@ -112,7 +121,7 @@ export function useMicScoring({ word, micEnabled, onStart, onResult, resetKey }:
         setRecordingState(false);
         // onend fired without onresult or onerror — mic was open but no speech detected
         if (!gotResult) {
-          setError('Dawıs eshitilmedi. Mikrofonga jaqınıraq turıp, inglizsha sózdi aytıp kóriń.');
+          raiseError('Dawıs eshitilmedi. Mikrofonga jaqınıraq turıp, inglizsha sózdi aytıp kóriń.');
         }
       }
     };
@@ -120,7 +129,7 @@ export function useMicScoring({ word, micEnabled, onStart, onResult, resetKey }:
     try {
       recognition.start();
     } catch {
-      setError("Mikrofondı ishke tushirip bolmadı. Qaytadan urınıp kóriń.");
+      raiseError("Mikrofondı ishke tushirip bolmadı. Qaytadan urınıp kóriń.");
       return;
     }
 
@@ -128,7 +137,7 @@ export function useMicScoring({ word, micEnabled, onStart, onResult, resetKey }:
       if (!started || recordingRef.current) {
         recognitionRef.current?.abort();
         setRecordingState(false);
-        setError(
+        raiseError(
           !started
             ? 'Dawıs tanıw xizmeti juwap bermedi. Internet baylanısıńızdı tekserip, qaytadan urınıń.'
             : "Waqıt tamamlandı. Qaytadan urınıp kóriń.",

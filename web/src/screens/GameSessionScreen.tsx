@@ -4,14 +4,14 @@ import { useAppStore } from '../store/useAppStore';
 import { HeartsBar } from '../components/HeartsBar';
 import { Confetti } from '../components/Confetti';
 
-import { MemoryFlipPhase } from './learn/MemoryFlipPhase';
-import { TrueFalsePhase } from './learn/TrueFalsePhase';
-import { FillBlankPhase } from './learn/FillBlankPhase';
-import { MissingLetterPhase } from './learn/MissingLetterPhase';
-import { DictationPhase } from './learn/DictationPhase';
-import { FlashcardSprintPhase } from './learn/FlashcardSprintPhase';
-import { SentenceScramblePhase } from './learn/SentenceScramblePhase';
-import { CategorySortPhase } from './learn/CategorySortPhase';
+import { MemoryFlipPhase } from './games/MemoryFlipPhase';
+import { TrueFalsePhase } from './games/TrueFalsePhase';
+import { FillBlankPhase } from './games/FillBlankPhase';
+import { MissingLetterPhase } from './games/MissingLetterPhase';
+import { DictationPhase } from './games/DictationPhase';
+import { FlashcardSprintPhase } from './games/FlashcardSprintPhase';
+import { SentenceScramblePhase } from './games/SentenceScramblePhase';
+import { CategorySortPhase } from './games/CategorySortPhase';
 
 type GameType =
   | 'memory' | 'truefalse' | 'fillblank' | 'missing'
@@ -174,7 +174,7 @@ export function GameSessionScreen() {
               O'yin o'ynash uchun Darslarda birini tanlang
             </div>
             <button
-              onClick={() => navigate('/app/lessons')}
+              onClick={() => navigate('/app/learn')}
               className="px-6 py-3 rounded-[14px] font-bold text-white"
               style={{ background: meta.color }}
             >

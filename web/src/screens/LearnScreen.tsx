@@ -1,378 +1,185 @@
-import { useEffect, useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAppStore, type LearnPhase } from '../store/useAppStore';
-import { speak } from '../lib/speech';
+import { useEffect, useRef, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { useAppStore } from '../store/useAppStore';
 import { ContentLoader } from '../components/ContentLoader';
-import { HeartsBar } from '../components/HeartsBar';
-import { Confetti } from '../components/Confetti';
-import { FamiliarizePhase } from './learn/FamiliarizePhase';
-import { WritePhase } from './learn/WritePhase';
-import { SpeakPhase } from './learn/SpeakPhase';
-import { TestPhase } from './learn/TestPhase';
-import { SummaryPhase } from './learn/SummaryPhase';
-import { LetterTilesPhase } from './learn/LetterTilesPhase';
-import { MatchPairsPhase } from './learn/MatchPairsPhase';
-import { ListenPickPhase } from './learn/ListenPickPhase';
-import { TrueFalsePhase } from './learn/TrueFalsePhase';
-import { MemoryFlipPhase } from './learn/MemoryFlipPhase';
-import { FillBlankPhase } from './learn/FillBlankPhase';
-import { MissingLetterPhase } from './learn/MissingLetterPhase';
-import { DictationPhase } from './learn/DictationPhase';
-import { FlashcardSprintPhase } from './learn/FlashcardSprintPhase';
-import { SentenceScramblePhase } from './learn/SentenceScramblePhase';
-import { CategorySortPhase } from './learn/CategorySortPhase';
-import type { ApiWord } from '../types/api';
+import type { LearnLessonStatus, LearnUnitStatus } from '../types/api';
 
-// ── Exercise queue ────────────────────────────────────────────────────────────
+// Cycled per unit for visual variety — same palette used across the rest of the app.
+const UNIT_COLORS = ['#22C55E', '#3B82F6', '#F59E0B', '#EC4899', '#06B6D4', '#8B5CF6', '#14B8A6'];
+// Gentle left/right sway so the lesson row reads as a winding path, not a straight column.
+const WAVE_OFFSETS = [0, 46, 64, 46, 0, -46, -64, -46];
 
-type NewExercise =
-  | { type: 'letterTiles';      wordIdx: number }
-  | { type: 'missingLetter';    wordIdx: number }
-  | { type: 'dictation';        wordIdx: number }
-  | { type: 'flashcardSprint';  wordIdx: number }
-  | { type: 'fillBlank';        wordIdx: number }
-  | { type: 'listenPick';       wordIdx: number }
-  | { type: 'sentenceScramble'; wordIdx: number }
-  | { type: 'matchPairs';       wordIdxs: number[] }
-  | { type: 'memoryFlip';       wordIdxs: number[] }
-  | { type: 'trueFalse';        wordIdxs: number[] }
-  | { type: 'categorySort';     wordIdxs: number[] };
+type NodeState = 'done' | 'active' | 'locked';
 
-function shuffle<T>(arr: T[]): T[] {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
+function lessonState(unit: LearnUnitStatus, lesson: LearnLessonStatus, foundActive: { value: boolean }): NodeState {
+  if (lesson.complete) return 'done';
+  if (unit.locked) return 'locked';
+  if (!foundActive.value) {
+    foundActive.value = true;
+    return 'active';
   }
-  return a;
+  return 'locked';
 }
-
-function buildExercises(words: ApiWord[]): NewExercise[] {
-  const N = words.length;
-  if (N === 0) return [];
-
-  // Per-word exercises — cycle through single-word types for variety
-  const singleWordTypes: NewExercise['type'][] = [
-    'letterTiles', 'missingLetter', 'dictation', 'flashcardSprint',
-    'fillBlank', 'listenPick', 'sentenceScramble',
-  ];
-
-  const perWord: NewExercise[] = words.map((_, i) => ({
-    type: singleWordTypes[i % singleWordTypes.length],
-    wordIdx: i,
-  } as NewExercise));
-
-  // Multi-word exercises (use first min(6,N) words)
-  const groupSize = Math.min(6, N);
-  const groupIdxs = Array.from({ length: groupSize }, (_, i) => i);
-
-  const multiWord: NewExercise[] = N >= 2 ? [
-    { type: 'matchPairs',    wordIdxs: groupIdxs },
-    { type: 'memoryFlip',   wordIdxs: groupIdxs.slice(0, Math.min(4, N)) },
-    { type: 'trueFalse',    wordIdxs: groupIdxs },
-    { type: 'categorySort', wordIdxs: groupIdxs },
-  ] : [];
-
-  // Interleave: per-word first, then multi-word games at the end
-  return [...perWord, ...shuffle(multiWord)];
-}
-
-// ── Extended 5-step stepper ───────────────────────────────────────────────────
-
-const EXT_STEPS = [
-  { id: 'familiarize', label: 'Tanishish', emoji: '📖', color: '#22C55E' },
-  { id: 'practice',   label: 'Mashq',     emoji: '✦',  color: '#8B5CF6' },
-  { id: 'write',      label: 'Yozish',    emoji: '✍️', color: '#3B82F6' },
-  { id: 'speak',      label: 'Gapirish',  emoji: '🎙️', color: '#A855F7' },
-  { id: 'test',       label: 'Test',      emoji: '✅', color: '#F59E0B' },
-];
-
-function getActiveStepIdx(phase: LearnPhase, newExDone: boolean): number {
-  if (phase === 'familiarize') return 0;
-  if (phase === 'write' && !newExDone) return 1;
-  if (phase === 'write') return 2;
-  if (phase === 'speak') return 3;
-  if (phase === 'test') return 4;
-  return -1;
-}
-
-function ExtStepper({ phase, newExDone }: { phase: LearnPhase; newExDone: boolean }) {
-  const activeIdx = getActiveStepIdx(phase, newExDone);
-  return (
-    <div className="flex items-center justify-center gap-1 sm:gap-3 mb-7">
-      {EXT_STEPS.map((step, i) => {
-        const done = phase === 'summary' || i < activeIdx;
-        const active = i === activeIdx;
-        return (
-          <div key={step.id} className="flex items-center gap-1 sm:gap-3">
-            <div className="flex flex-col items-center gap-1">
-              <div
-                className="w-9 h-9 rounded-full flex items-center justify-center text-[15px] font-extrabold transition-all duration-300"
-                style={{
-                  background: done ? step.color : active ? `${step.color}22` : '#F1F5F9',
-                  color: done ? '#fff' : active ? step.color : '#94A3B8',
-                  border: active ? `2.5px solid ${step.color}` : '2px solid transparent',
-                  boxShadow: active ? `0 0 0 4px ${step.color}18` : 'none',
-                }}
-              >
-                {done ? '✓' : step.emoji}
-              </div>
-              <span
-                className="text-[9.5px] sm:text-[10.5px] font-extrabold hidden sm:block"
-                style={{ color: active ? step.color : done ? '#64748B' : '#CBD5E1' }}
-              >
-                {step.label}
-              </span>
-            </div>
-            {i < EXT_STEPS.length - 1 && (
-              <div
-                className="w-3 sm:w-7 h-[2px] rounded-full transition-all duration-500"
-                style={{ background: i < activeIdx ? step.color : '#E8EDF3' }}
-              />
-            )}
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-// ── Main screen ───────────────────────────────────────────────────────────────
 
 export function LearnScreen() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
+  const learnPath = useAppStore((s) => s.learnPath);
+  const loadLearnPath = useAppStore((s) => s.loadLearnPath);
+  const startLearnSession = useAppStore((s) => s.startLearnSession);
 
-  const learnPhase      = useAppStore((s) => s.learnPhase);
-  const currentUnitTitle = useAppStore((s) => s.currentUnitTitle);
-  const currentUnitWords = useAppStore((s) => s.currentUnitWords);
-  const loadingUnitWords = useAppStore((s) => s.loadingUnitWords);
-  const ensureCurrentUnit = useAppStore((s) => s.ensureCurrentUnit);
-  const card              = useAppStore((s) => s.card);
-  const flipCard          = useAppStore((s) => s.flipCard);
-  const nextCardLocal     = useAppStore((s) => s.nextCardLocal);
-  const prevCard          = useAppStore((s) => s.prevCard);
-  const familiarizeViewed = useAppStore((s) => s.familiarizeViewed);
-  const writeIdx          = useAppStore((s) => s.writeIdx);
-  const learnSpeakIdx     = useAppStore((s) => s.learnSpeakIdx);
-  const testIdx           = useAppStore((s) => s.testIdx);
-  const testQuestions     = useAppStore((s) => s.testQuestions);
-
-  const [exercises, setExercises] = useState<NewExercise[]>([]);
-  const [newExIdx,  setNewExIdx]  = useState(0);
-  const [newExDone, setNewExDone] = useState(false);
-  const [hearts, setHearts] = useState(3);
-  const [combo,  setCombo]  = useState(0);
-
-  useEffect(() => { ensureCurrentUnit(); }, [ensureCurrentUnit]);
+  const [starting, setStarting] = useState(false);
+  const [shakeKey, setShakeKey] = useState<string | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
+  const activeRef = useRef<HTMLButtonElement | null>(null);
+  const unitRefs = useRef(new Map<number, HTMLDivElement>());
 
   useEffect(() => {
-    if (currentUnitWords.length === 0) return;
-    const built = buildExercises(currentUnitWords);
-    setExercises(built);
-    setNewExIdx(0);
-    setNewExDone(built.length === 0);
-    setHearts(3);
-    setCombo(0);
-  }, [currentUnitWords]);
-
-  useEffect(() => {
-    if (learnPhase !== 'familiarize') return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      const word = currentUnitWords[card];
-      if (!word) return;
-      if (e.key === 'ArrowRight') nextCardLocal();
-      else if (e.key === 'ArrowLeft') prevCard();
-      else if (e.key === ' ') { e.preventDefault(); flipCard(); }
-      else if (e.key === 's' || e.key === 'S') speak(word.en);
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [learnPhase, card, currentUnitWords, nextCardLocal, prevCard, flipCard]);
-
-  // ── Callbacks ───────────────────────────────────────────────────────────────
-
-  const advance = useCallback((exLength: number) => {
-    setNewExIdx((i) => {
-      const next = i + 1;
-      if (next >= exLength) setNewExDone(true);
-      return next;
-    });
+    loadLearnPath().catch((err) => console.error('Learn path load failed:', err));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleCorrect = useCallback(() => {
-    setCombo((c) => c + 1);
-    advance(exercises.length);
-  }, [exercises.length, advance]);
-
-  const handleWrong = useCallback(() => {
-    setHearts((h) => Math.max(0, h - 1));
-    setCombo(0);
-    advance(exercises.length);
-  }, [exercises.length, advance]);
-
-  const handleSkip = useCallback(() => {
-    advance(exercises.length);
-  }, [exercises.length, advance]);
-
-  const handleMultiComplete = useCallback((correct: number, total: number) => {
-    if (correct < total) { setHearts((h) => Math.max(0, h - 1)); setCombo(0); }
-    else setCombo((c) => c + 1);
-    advance(exercises.length);
-  }, [exercises.length, advance]);
-
-  // ── Distractors helper ───────────────────────────────────────────────────────
-
-  const getDistractors = useCallback((wordId: number, count = 3): string[] => {
-    const others = currentUnitWords.filter((w) => w.id !== wordId).map((w) => w.uz);
-    return shuffle(others).slice(0, count);
-  }, [currentUnitWords]);
-
-  const getEnDistractors = useCallback((wordId: number, count = 3): string[] => {
-    const others = currentUnitWords.filter((w) => w.id !== wordId).map((w) => w.en);
-    return shuffle(others).slice(0, count);
-  }, [currentUnitWords]);
-
-  // ── Guards ──────────────────────────────────────────────────────────────────
-
-  if (loadingUnitWords) return <ContentLoader />;
-
-  if (currentUnitWords.length === 0) {
-    return (
-      <div className="animate-pop max-w-[760px] mx-auto text-center bg-white border border-border-2 rounded-[24px] p-10">
-        <div className="text-[48px] mb-2">📚</div>
-        <h2 className="font-display font-extrabold text-[22px] text-text mb-1">So'zlar yo'q</h2>
-        <p className="text-[14px] font-bold text-text-softer">Bu bo'limda hozircha so'zlar qo'shilmagan.</p>
-      </div>
-    );
-  }
-
-  // ── Progress ────────────────────────────────────────────────────────────────
-
-  const total = currentUnitWords.length;
-  const isNewExPhase = learnPhase === 'write' && !newExDone;
-
-  let overallPct = 0;
-  if (learnPhase === 'familiarize') {
-    overallPct = Math.round((familiarizeViewed.length / total) * 20);
-  } else if (isNewExPhase) {
-    overallPct = 20 + Math.round((newExIdx / (exercises.length || 1)) * 20);
-  } else if (learnPhase === 'write') {
-    overallPct = 40 + Math.round((writeIdx / total) * 20);
-  } else if (learnPhase === 'speak') {
-    overallPct = 60 + Math.round((learnSpeakIdx / total) * 20);
-  } else if (learnPhase === 'test') {
-    overallPct = 80 + Math.round((testIdx / (testQuestions.length || 1)) * 20);
-  } else if (learnPhase === 'summary') {
-    overallPct = 100;
-  }
-
-  // ── Render exercise ──────────────────────────────────────────────────────────
-
-  const renderNewExercise = () => {
-    const ex = exercises[newExIdx];
-    if (!ex) return null;
-
-    // Single-word exercises
-    if (ex.type === 'letterTiles') {
-      const word = currentUnitWords[ex.wordIdx];
-      if (!word) return null;
-      return <LetterTilesPhase word={word} onCorrect={handleCorrect} onWrong={handleWrong} onSkip={handleSkip} wordIndex={newExIdx} totalWords={exercises.length} />;
+  useEffect(() => {
+    const scrollToUnit = (location.state as { scrollToUnit?: number } | null)?.scrollToUnit;
+    if (scrollToUnit != null) {
+      unitRefs.current.get(scrollToUnit)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+      activeRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
-    if (ex.type === 'missingLetter') {
-      const word = currentUnitWords[ex.wordIdx];
-      if (!word) return null;
-      return <MissingLetterPhase word={word} onCorrect={handleCorrect} onWrong={handleWrong} onSkip={handleSkip} wordIndex={newExIdx} totalWords={exercises.length} />;
-    }
-    if (ex.type === 'dictation') {
-      const word = currentUnitWords[ex.wordIdx];
-      if (!word) return null;
-      return <DictationPhase word={word} onCorrect={handleCorrect} onWrong={handleWrong} onSkip={handleSkip} wordIndex={newExIdx} totalWords={exercises.length} />;
-    }
-    if (ex.type === 'flashcardSprint') {
-      const word = currentUnitWords[ex.wordIdx];
-      if (!word) return null;
-      return <FlashcardSprintPhase word={word} onCorrect={handleCorrect} onWrong={handleWrong} onSkip={handleSkip} wordIndex={newExIdx} totalWords={exercises.length} />;
-    }
-    if (ex.type === 'fillBlank') {
-      const word = currentUnitWords[ex.wordIdx];
-      if (!word) return null;
-      return <FillBlankPhase word={word} distractors={getEnDistractors(word.id)} onCorrect={handleCorrect} onWrong={handleWrong} onSkip={handleSkip} wordIndex={newExIdx} totalWords={exercises.length} />;
-    }
-    if (ex.type === 'listenPick') {
-      const word = currentUnitWords[ex.wordIdx];
-      if (!word) return null;
-      return <ListenPickPhase word={word} distractors={getDistractors(word.id)} onCorrect={handleCorrect} onWrong={handleWrong} onSkip={handleSkip} wordIndex={newExIdx} />;
-    }
-    if (ex.type === 'sentenceScramble') {
-      const word = currentUnitWords[ex.wordIdx];
-      if (!word) return null;
-      return <SentenceScramblePhase word={word} onCorrect={handleCorrect} onWrong={handleWrong} onSkip={handleSkip} wordIndex={newExIdx} totalWords={exercises.length} />;
-    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [learnPath]);
 
-    // Multi-word exercises
-    if (ex.type === 'matchPairs') {
-      const words = ex.wordIdxs.map((i) => currentUnitWords[i]).filter(Boolean);
-      return <MatchPairsPhase words={words} onComplete={handleMultiComplete} onSkip={handleSkip} />;
-    }
-    if (ex.type === 'memoryFlip') {
-      const words = ex.wordIdxs.map((i) => currentUnitWords[i]).filter(Boolean);
-      return <MemoryFlipPhase words={words} onComplete={handleMultiComplete} onSkip={handleSkip} />;
-    }
-    if (ex.type === 'trueFalse') {
-      return <TrueFalsePhase words={currentUnitWords} onComplete={handleMultiComplete} onSkip={handleSkip} />;
-    }
-    if (ex.type === 'categorySort') {
-      const words = ex.wordIdxs.map((i) => currentUnitWords[i]).filter(Boolean);
-      return <CategorySortPhase words={words} onComplete={handleMultiComplete} onSkip={handleSkip} />;
-    }
-
-    return null;
+  const showLockedToast = (key: string) => {
+    setShakeKey(key);
+    setToast(t('learn.lockedToast'));
+    setTimeout(() => setShakeKey(null), 400);
+    setTimeout(() => setToast(null), 1800);
   };
 
-  // ── Layout ──────────────────────────────────────────────────────────────────
+  const handleLessonClick = (unit: LearnUnitStatus, lesson: LearnLessonStatus, state: NodeState) => {
+    if (starting) return;
+    if (state === 'locked') {
+      showLockedToast(`${unit.id}-${lesson.index}`);
+      return;
+    }
+    setStarting(true);
+    startLearnSession({ type: 'lesson', unitId: unit.id, lessonIndex: lesson.index })
+      .then(() => navigate('/app/learn/session'))
+      .catch((err) => {
+        console.error('Failed to start lesson:', err);
+        setStarting(false);
+      });
+  };
 
-  const showHeartsBar = learnPhase !== 'familiarize' && learnPhase !== 'summary';
-  const animKey = isNewExPhase ? `new-${newExIdx}` : learnPhase;
+  const handleReviewClick = () => {
+    if (starting) return;
+    setStarting(true);
+    startLearnSession({ type: 'review' })
+      .then(() => navigate('/app/learn/session'))
+      .catch((err) => {
+        console.error('Failed to start review:', err);
+        setStarting(false);
+      });
+  };
+
+  if (!learnPath) return <ContentLoader />;
+
+  const foundActive = { value: false };
+  const globalIndexByKey = new Map(
+    learnPath.units
+      .flatMap((unit) => unit.lessons.map((lesson) => `${unit.id}-${lesson.index}`))
+      .map((key, i) => [key, i] as const),
+  );
 
   return (
-    <div className="max-w-[820px] mx-auto">
-      <Confetti active={learnPhase === 'summary'} />
+    <div className="animate-pop max-w-[640px] mx-auto relative pb-16">
+      <h2 className="font-display font-extrabold text-[25px] text-text mb-1">{t('learn.title')}</h2>
 
-      <div className="flex items-center justify-between mb-2">
-        <h2 className="font-display font-extrabold text-[22px] sm:text-[24px] m-0 text-text">
-          {currentUnitTitle}
-        </h2>
+      {learnPath.dueCount > 0 && (
         <button
-          onClick={() => navigate('/app/dashboard')}
-          className="text-[12.5px] font-bold text-text-softer bg-white border border-border-2 py-[7px] px-[13px] rounded-[13px] cursor-pointer hover:border-text-soft transition-colors"
+          onClick={handleReviewClick}
+          disabled={starting}
+          className="w-full flex items-center gap-4 mt-4 mb-2 p-[18px] rounded-[20px] border-2 border-[#FDE68A] bg-[#FFFBEB] cursor-pointer text-left disabled:opacity-60"
         >
-          ← Orqaga
+          <div className="w-12 h-12 flex-none rounded-[14px] bg-[#F59E0B] flex items-center justify-center text-[22px]">🔁</div>
+          <div className="flex-1 min-w-0">
+            <div className="font-display font-extrabold text-[16px] text-[#92400E]">{t('learn.reviewTitle')}</div>
+            <div className="text-[13px] font-bold text-[#B45309]">{t('learn.reviewDue', { count: learnPath.dueCount })}</div>
+          </div>
+          <div className="font-extrabold text-[13px] text-white bg-[#F59E0B] flex-none whitespace-nowrap py-[8px] px-4 rounded-[20px]">
+            {t('learn.reviewStart')}
+          </div>
         </button>
-      </div>
-
-      <ExtStepper phase={learnPhase} newExDone={newExDone} />
-
-      {showHeartsBar && (
-        <div className="mb-4">
-          <HeartsBar hearts={hearts} maxHearts={3} combo={combo} />
-        </div>
       )}
 
-      <div className="h-[5px] bg-border rounded-[20px] overflow-hidden mb-7 max-w-[360px] mx-auto">
-        <div
-          className="h-full rounded-[20px] transition-[width] duration-500 ease-out"
-          style={{ width: `${overallPct}%`, background: 'linear-gradient(90deg,#22C55E,#8B5CF6,#F59E0B)' }}
-        />
+      <div className="flex flex-col items-center mt-8">
+        {learnPath.units.map((unit, unitIdx) => {
+          const color = UNIT_COLORS[unitIdx % UNIT_COLORS.length];
+          return (
+            <div key={unit.id} className="w-full flex flex-col items-center">
+              <div
+                ref={(el) => {
+                  if (el) unitRefs.current.set(unit.id, el);
+                }}
+                className="flex items-center gap-3 py-[10px] px-4 rounded-[16px] mb-6 mt-2"
+                style={{ background: unit.locked ? '#F1F5F9' : `${color}1A` }}
+              >
+                <span className="text-[22px]" style={{ filter: unit.locked ? 'grayscale(1)' : 'none' }}>
+                  {unit.emoji}
+                </span>
+                <span
+                  className="font-display font-extrabold text-[15px]"
+                  style={{ color: unit.locked ? '#94A3B8' : color }}
+                >
+                  {unit.title}
+                </span>
+                {unit.complete && (
+                  <span className="text-[11px] font-extrabold text-white bg-primary py-[3px] px-[9px] rounded-[20px]">
+                    ✓ {t('learn.unitComplete')}
+                  </span>
+                )}
+              </div>
+
+              <div className="flex flex-col items-center gap-5 mb-4">
+                {unit.lessons.map((lesson) => {
+                  const state = lessonState(unit, lesson, foundActive);
+                  const key = `${unit.id}-${lesson.index}`;
+                  const offset = WAVE_OFFSETS[(globalIndexByKey.get(key) ?? 0) % WAVE_OFFSETS.length];
+
+                  return (
+                    <button
+                      key={key}
+                      ref={state === 'active' ? activeRef : undefined}
+                      onClick={() => handleLessonClick(unit, lesson, state)}
+                      disabled={starting && state !== 'locked'}
+                      style={{
+                        transform: `translateX(${offset}px)`,
+                        background: state === 'done' ? color : state === 'active' ? color : undefined,
+                        borderColor: state === 'done' || state === 'active' ? color : undefined,
+                        boxShadow: state === 'done' || state === 'active' ? `0 6px 0 ${color}88` : undefined,
+                      }}
+                      className={`relative flex-none w-16 h-16 rounded-full border-4 flex items-center justify-center text-[24px] font-display font-extrabold cursor-pointer disabled:cursor-not-allowed ${
+                        state === 'locked' ? 'bg-border-3 border-border-2 text-text-softer' : 'text-white'
+                      } ${state === 'active' ? 'animate-pulse' : ''} ${shakeKey === key ? 'animate-shake' : ''}`}
+                      aria-label={t('learn.lessonLabel', { n: lesson.index + 1 })}
+                    >
+                      {state === 'done' ? '✓' : state === 'locked' ? '🔒' : lesson.index + 1}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
       </div>
 
-      <div key={animKey} className="animate-pop">
-        {learnPhase === 'familiarize'           && <FamiliarizePhase />}
-        {isNewExPhase                            && renderNewExercise()}
-        {learnPhase === 'write' && newExDone    && <WritePhase />}
-        {learnPhase === 'speak'                  && <SpeakPhase />}
-        {learnPhase === 'test'                   && <TestPhase />}
-        {learnPhase === 'summary'                && <SummaryPhase />}
-      </div>
+      {toast && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-text text-white font-bold text-[13px] py-[10px] px-5 rounded-[20px] shadow-lg z-30">
+          {toast}
+        </div>
+      )}
     </div>
   );
 }

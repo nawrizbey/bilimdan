@@ -62,6 +62,103 @@ export interface ApiUnit {
   pct: number;
 }
 
+// --- Learn module (FSRS-based path/session) ---
+
+export type ExerciseType =
+  | 'intro'
+  | 'mcq_en2kaa'
+  | 'mcq_kaa2en'
+  | 'listen_pick'
+  | 'letter_tiles'
+  | 'type_en'
+  | 'dictation'
+  | 'speak'
+  | 'fill_blank';
+
+export interface LearnLessonStatus {
+  index: number;
+  wordsCount: number;
+  complete: boolean;
+}
+
+export interface LearnUnitStatus {
+  id: number;
+  title: string;
+  emoji: string;
+  order: number;
+  wordsCount: number;
+  lessons: LearnLessonStatus[];
+  complete: boolean;
+  locked: boolean;
+}
+
+export interface LearnPathResponse {
+  dueCount: number;
+  units: LearnUnitStatus[];
+}
+
+export interface LearnWord {
+  id: number;
+  en: string;
+  ipa: string;
+  kaa: string;
+  example: string;
+  emoji: string;
+}
+
+export interface LearnQueueItem {
+  wordId: number;
+  exercise: ExerciseType;
+  word: LearnWord;
+  options?: string[];
+  correctIndex?: number;
+}
+
+export interface LearnSessionUnit {
+  id: number;
+  title: string;
+  emoji: string;
+}
+
+export interface LearnSessionStartResponse {
+  sessionId: number;
+  type: 'lesson' | 'review';
+  unit: LearnSessionUnit | null;
+  items: LearnQueueItem[];
+}
+
+export interface LearnAnsweredEntry {
+  wordId: number;
+  exercise: ExerciseType;
+  correct: boolean;
+  responseMs: number;
+  newlyKnown: boolean;
+}
+
+export interface LearnSessionActiveResponse {
+  session: null;
+}
+export interface LearnSessionActiveData {
+  sessionId: number;
+  type: 'lesson' | 'review';
+  unit: LearnSessionUnit | null;
+  items: LearnQueueItem[];
+  answered: LearnAnsweredEntry[];
+}
+
+export interface LearnAnswerResponse {
+  level: number;
+  due: string;
+}
+
+export interface LearnSummaryResponse {
+  user: ApiUser;
+  xpGained: number;
+  correctCount: number;
+  itemsTotal: number;
+  newWordsLearned: number;
+}
+
 export interface ApiWord {
   id: number;
   en: string;
