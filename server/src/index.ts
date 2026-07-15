@@ -22,6 +22,10 @@ import { AppError } from './lib/errors';
 const corsOrigins = (process.env.CORS_ORIGIN ?? 'http://localhost:5173').split(',').map((o) => o.trim());
 
 const app = express();
+// Behind nginx in production — trust the first hop's X-Forwarded-For so
+// req.ip is the real client IP (needed for IP-keyed rate limiting), not
+// nginx's own address.
+app.set('trust proxy', 1);
 app.use(cors({ origin: corsOrigins }));
 app.use(express.json());
 

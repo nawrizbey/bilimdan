@@ -4,12 +4,13 @@ import { hashPassword, signToken, verifyPassword } from '../lib/auth';
 import { badRequest, conflict, notFound, unauthorized } from '../lib/errors';
 import { serializeUser } from '../lib/serialize';
 import { requireAuth } from '../middleware/auth';
+import { rateLimitByIp } from '../middleware/rateLimit';
 
 export const authRouter = Router();
 
 const userInclude = { region: true, district: true, school: true } as const;
 
-authRouter.post('/signup', async (req, res, next) => {
+authRouter.post('/signup', rateLimitByIp(5, 60_000), async (req, res, next) => {
   try {
     const { fullName, username, password, regionId, districtId, schoolId } = req.body ?? {};
 
@@ -71,7 +72,7 @@ authRouter.post('/signup', async (req, res, next) => {
   }
 });
 
-authRouter.post('/login', async (req, res, next) => {
+authRouter.post('/login', rateLimitByIp(10, 60_000), async (req, res, next) => {
   try {
     const { username, password } = req.body ?? {};
     if (typeof username !== 'string' || typeof password !== 'string') {

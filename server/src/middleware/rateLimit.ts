@@ -1,13 +1,14 @@
 import type { NextFunction, Request, Response } from 'express';
 import { AppError } from '../lib/errors';
 
-/** Simple in-memory sliding-window rate limiter, keyed by userId. Sufficient for a
- * single-instance deployment; not meant to replace a real abuse-prevention system. */
-export function rateLimit(maxRequests: number, windowMs: number) {
-  const hits = new Map<number, number[]>();
+/** Simple in-memory sliding-window rate limiter core, keyed by whatever `keyFn`
+ * returns. Sufficient for a single-instance deployment; not meant to replace a
+ * real abuse-prevention system. */
+function createLimiter<K>(keyFn: (req: Request) => K | null | undefined, maxRequests: number, windowMs: number) {
+  const hits = new Map<K, number[]>();
 
   // Drop fully-expired entries periodically so memory doesn't grow unbounded
-  // with every distinct user that has ever hit this endpoint.
+  // with every distinct key that has ever hit this endpoint.
   const sweepInterval = setInterval(() => {
     const now = Date.now();
     for (const [key, timestamps] of hits) {
@@ -17,7 +18,7 @@ export function rateLimit(maxRequests: number, windowMs: number) {
   sweepInterval.unref();
 
   return (req: Request, _res: Response, next: NextFunction) => {
-    const key = req.userId;
+    const key = keyFn(req);
     if (key == null) return next();
 
     const now = Date.now();
@@ -30,4 +31,17 @@ export function rateLimit(maxRequests: number, windowMs: number) {
     hits.set(key, timestamps);
     next();
   };
+}
+
+/** Rate limits by authenticated userId — only useful after `requireAuth`. */
+export function rateLimit(maxRequests: number, windowMs: number) {
+  return createLimiter<number>((req) => req.userId, maxRequests, windowMs);
+}
+
+/** Rate limits by client IP — for unauthenticated endpoints (login/signup)
+ * where there's no userId yet to key on. Requires `app.set('trust proxy', ...)`
+ * (see server/src/index.ts) so `req.ip` reflects the real client behind
+ * nginx's X-Forwarded-For instead of every request sharing one IP. */
+export function rateLimitByIp(maxRequests: number, windowMs: number) {
+  return createLimiter<string>((req) => req.ip, maxRequests, windowMs);
 }
