@@ -70,6 +70,7 @@ model User {
   matchesAsP1   BattleMatch[]      @relation("Player1")
   matchesAsP2   BattleMatch[]      @relation("Player2")
   learnSessions LearnSession[]
+  learnBlockProgress LearnBlockProgress[]
 
   @@index([districtId, xp])
   @@index([regionId, xp])
@@ -131,6 +132,7 @@ model LearnSession {
   type        String // 'lesson' | 'review'
   unitId      Int? // set for lessons, null for reviews
   lessonIndex Int? // 0-based lesson number within the unit
+  block       String? // block key for lesson sessions ('intro'|'listen'|'translate'|'letters'|'speak'|'write'), null for reviews
   isPractice  Boolean   @default(false) // true if the lesson was already complete when this session started (half XP, no bonus)
   items       Json // ordered queue: [{ wordId, exercise }]
   answered    Json      @default("[]") // [{ wordId, exercise, correct, responseMs, newlyKnown }]
@@ -141,6 +143,22 @@ model LearnSession {
   user User @relation(fields: [userId], references: [id])
 
   @@index([userId, completedAt])
+}
+
+// One row per (user, unit, lesson, block) that the student has finished —
+// drives block lock/unlock state on the learn path. See learnQueue.ts BLOCK_ORDER.
+model LearnBlockProgress {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  unitId      Int
+  lessonIndex Int
+  block       String
+  completedAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([userId, unitId, lessonIndex, block])
+  @@index([userId, unitId, lessonIndex])
 }
 
 model QuizQuestion {

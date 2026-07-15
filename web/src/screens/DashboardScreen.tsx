@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Trans, useTranslation } from 'react-i18next';
 import { MascotIcon } from '../components/MascotIcon';
 import { useAppStore } from '../store/useAppStore';
-import { findActiveLesson } from '../lib/learnPath';
+import { findActiveBlock } from '../lib/learnPath';
 
 const SESSION_MINUTES_CAP = 20;
 
@@ -63,7 +63,7 @@ export function DashboardScreen() {
   const loadLearnPath = useAppStore((s) => s.loadLearnPath);
   const goalPct = Math.min(100, Math.round((goalDone / goalMin) * 100));
   const remaining = Math.max(0, goalMin - goalDone);
-  const activeLesson = learnPath ? findActiveLesson(learnPath) : null;
+  const activeLesson = learnPath ? findActiveBlock(learnPath) : null;
   const activeUnit = activeLesson ? learnPath!.units.find((u) => u.id === activeLesson.unitId) : undefined;
   const activeLessonWordsCount = activeUnit?.lessons[activeLesson!.lessonIndex]?.wordsCount ?? 0;
   const dueCount = learnPath?.dueCount ?? 0;

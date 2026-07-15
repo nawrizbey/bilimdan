@@ -2,6 +2,26 @@ import { exerciseForLevel, type ExerciseType } from './srs';
 
 export const LESSON_SIZE = 5;
 
+/** A lesson row on the learn path is broken into these independently-playable
+ * blocks, played in order. Each block drills every lesson word with exactly
+ * one fixed exercise type — see BLOCK_EXERCISE. */
+export type BlockKey = 'intro' | 'listen' | 'translate' | 'letters' | 'speak' | 'write';
+
+export const BLOCK_ORDER: BlockKey[] = ['intro', 'listen', 'translate', 'letters', 'speak', 'write'];
+
+export const BLOCK_EXERCISE: Record<BlockKey, ExerciseType> = {
+  intro: 'intro',
+  listen: 'listen_pick',
+  translate: 'mcq_en2kaa',
+  letters: 'fill_blank',
+  speak: 'speak',
+  write: 'type_en',
+};
+
+export function isBlockKey(value: unknown): value is BlockKey {
+  return typeof value === 'string' && (BLOCK_ORDER as string[]).includes(value);
+}
+
 export interface ProgressLite {
   level: number;
   state: number;
@@ -20,8 +40,16 @@ export function chunkLessons<T>(words: T[]): T[][] {
   return chunks;
 }
 
-export function isLessonComplete(lessonWordIds: number[], progressMap: Map<number, ProgressLite | undefined>): boolean {
-  return lessonWordIds.length > 0 && lessonWordIds.every((id) => (progressMap.get(id)?.level ?? 0) >= 1);
+// Under the old (pre-block) system, a brand-new word's very first session
+// queue was always ['intro', 'mcq_en2kaa', 'letter_tiles'] — three correct
+// answers landing it at level 3. Level >= 1 alone isn't a safe legacy signal
+// any more: the new `intro` block also seeds level 1 on its own, after just
+// one block, so a level-1 word may simply be mid-way through the new block
+// flow rather than a leftover from the old one.
+const LEGACY_LESSON_LEVEL = 3;
+
+function isLegacyLessonComplete(lessonWordIds: number[], progressMap: Map<number, ProgressLite | undefined>): boolean {
+  return lessonWordIds.length > 0 && lessonWordIds.every((id) => (progressMap.get(id)?.level ?? 0) >= LEGACY_LESSON_LEVEL);
 }
 
 export interface UnitInput {
@@ -32,10 +60,17 @@ export interface UnitInput {
   wordIds: number[];
 }
 
+export interface LearnBlockStatus {
+  key: BlockKey;
+  done: boolean;
+  locked: boolean;
+}
+
 export interface LessonStatus {
   index: number;
   wordsCount: number;
   complete: boolean;
+  blocks: LearnBlockStatus[];
 }
 
 export interface UnitStatus {
@@ -49,22 +84,54 @@ export interface UnitStatus {
   locked: boolean;
 }
 
+export function blockProgressMapKey(unitId: number, lessonIndex: number): string {
+  return `${unitId}-${lessonIndex}`;
+}
+
+/** Computes per-block done/locked state for one lesson. Blocks unlock in
+ * BLOCK_ORDER sequence, one at a time. Lessons finished under the old
+ * (pre-block) single-session system have every word at level >= 1 but no
+ * LearnBlockProgress rows — those are backfilled as fully done so returning
+ * students aren't forced to replay lessons they already finished. */
+function computeLessonBlocks(
+  lessonWordIds: number[],
+  doneBlocks: Set<BlockKey>,
+  progressMap: Map<number, ProgressLite | undefined>,
+): LearnBlockStatus[] {
+  const legacyComplete = isLegacyLessonComplete(lessonWordIds, progressMap);
+  const effectiveDone = legacyComplete ? new Set(BLOCK_ORDER) : doneBlocks;
+  return BLOCK_ORDER.map((key, i) => ({
+    key,
+    done: effectiveDone.has(key),
+    locked: i > 0 && !effectiveDone.has(BLOCK_ORDER[i - 1]),
+  }));
+}
+
 /** Units unlock sequentially: unit N is locked until unit N-1 is complete (first
  * unit always unlocked). A unit with no words yet (still being authored) is
  * treated as auto-complete so it never blocks the units after it — mirrors the
  * old `pickTargetUnit`'s `wordsCount > 0` filter. */
-export function computeUnitsStatus(units: UnitInput[], progressMap: Map<number, ProgressLite | undefined>): UnitStatus[] {
+export function computeUnitsStatus(
+  units: UnitInput[],
+  progressMap: Map<number, ProgressLite | undefined>,
+  blockProgressMap: Map<string, Set<BlockKey>> = new Map(),
+): UnitStatus[] {
   const sorted = [...units].sort((a, b) => a.order - b.order);
   const result: UnitStatus[] = [];
   let previousComplete = true;
 
   for (const unit of sorted) {
     const lessonChunks = chunkLessons(unit.wordIds);
-    const lessons: LessonStatus[] = lessonChunks.map((ids, index) => ({
-      index,
-      wordsCount: ids.length,
-      complete: isLessonComplete(ids, progressMap),
-    }));
+    const lessons: LessonStatus[] = lessonChunks.map((ids, index) => {
+      const doneBlocks = blockProgressMap.get(blockProgressMapKey(unit.id, index)) ?? new Set<BlockKey>();
+      const blocks = computeLessonBlocks(ids, doneBlocks, progressMap);
+      return {
+        index,
+        wordsCount: ids.length,
+        complete: blocks.every((b) => b.done),
+        blocks,
+      };
+    });
     const complete = unit.wordIds.length === 0 || lessons.every((l) => l.complete);
     const locked = !previousComplete;
 
@@ -94,81 +161,22 @@ export function isLessonStartable(unit: UnitStatus, lessonIndex: number): boolea
   return unit.lessons[lessonIndex - 1].complete;
 }
 
-interface Track {
-  wordId: number;
-  steps: ExerciseType[];
-  cursor: number;
-  lastPlacedAt: number;
-  orderHint: number;
+/** A block is startable if its lesson row is reachable and the block itself
+ * isn't locked (i.e. every earlier block in BLOCK_ORDER is already done). */
+export function isBlockStartable(unit: UnitStatus, lessonIndex: number, block: BlockKey): boolean {
+  if (!isLessonStartable(unit, lessonIndex)) return false;
+  const status = unit.lessons[lessonIndex].blocks.find((b) => b.key === block);
+  return !!status && !status.locked;
 }
 
-/** Interleaves several words' exercise steps so the same word never appears
- * twice in a row and, where possible, its steps are spaced >= minGap positions
- * apart. Falls back to placing whatever's left once spacing can't be honored
- * (e.g. only one word has steps remaining at the tail of the queue).
- *
- * Picking randomly among all eligible tracks (rather than always the
- * least-recently-placed one) matters here: with several tracks of identical
- * length starting at the same time, a deterministic least-recently-used pick
- * lockisteps them — every track finishes its 1st step before any starts its
- * 2nd, producing "all intros, then all mcqs, then all tiles" instead of a
- * genuine mix of exercise types. */
-function interleave(tracks: Track[], minGap = 2, rng: () => number = Math.random): QueueItem[] {
-  const result: QueueItem[] = [];
-  let pos = 0;
-
-  const hasRemaining = () => tracks.some((t) => t.cursor < t.steps.length);
-  while (hasRemaining()) {
-    let eligible = tracks.filter((t) => t.cursor < t.steps.length && pos - t.lastPlacedAt >= minGap);
-    let track: Track;
-    if (eligible.length > 0) {
-      track = eligible[Math.floor(rng() * eligible.length)];
-    } else {
-      // Nothing has waited long enough — take whichever remaining track has
-      // waited the longest, so the queue still makes progress.
-      eligible = tracks.filter((t) => t.cursor < t.steps.length);
-      eligible.sort((a, b) => a.lastPlacedAt - b.lastPlacedAt || a.orderHint - b.orderHint);
-      track = eligible[0];
-    }
-
-    result.push({ wordId: track.wordId, exercise: track.steps[track.cursor] });
-    track.cursor += 1;
-    track.lastPlacedAt = pos;
-    pos += 1;
-  }
-
-  return result;
-}
-
-/** Builds a lesson session queue: each new word (level 0) gets an intro plus two
- * retrievals; each already-started word in the lesson gets one exercise for its
- * current level; up to a handful of due review words (from any unit) are mixed
- * in. See TASK.md §2.5. */
-export function buildLessonQueue(
-  lessonWordIds: number[],
-  dueReviewWordIds: number[],
-  progressMap: Map<number, ProgressLite | undefined>,
-  rng: () => number = Math.random,
-): QueueItem[] {
-  const tracks: Track[] = [];
-  let orderHint = 0;
-
-  for (const wordId of lessonWordIds) {
-    const p = progressMap.get(wordId);
-    const level = p?.level ?? 0;
-    const steps: ExerciseType[] =
-      level === 0 ? ['intro', 'mcq_en2kaa', 'letter_tiles'] : [exerciseForLevel(level, p!.state, rng)];
-    tracks.push({ wordId, steps, cursor: 0, lastPlacedAt: -Infinity, orderHint: orderHint++ });
-  }
-
-  for (const wordId of dueReviewWordIds) {
-    const p = progressMap.get(wordId);
-    const level = p?.level ?? 1;
-    const state = p?.state ?? 0;
-    tracks.push({ wordId, steps: [exerciseForLevel(level, state, rng)], cursor: 0, lastPlacedAt: -Infinity, orderHint: orderHint++ });
-  }
-
-  return interleave(tracks, 2, rng);
+/** Builds a block session queue: every word in the lesson gets exactly one
+ * exercise, of the fixed type for `block` (see BLOCK_EXERCISE). Unlike the
+ * old adaptive per-word selection, the block itself determines the exercise
+ * type — mastery level only drives the FSRS due date, not which block is
+ * playable next. */
+export function buildBlockQueue(lessonWordIds: number[], block: BlockKey): QueueItem[] {
+  const exercise = BLOCK_EXERCISE[block];
+  return lessonWordIds.map((wordId) => ({ wordId, exercise }));
 }
 
 /** Builds a pure review-session queue: one exercise per due word, ordered by

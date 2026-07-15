@@ -3,23 +3,37 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAppStore } from '../store/useAppStore';
 import { ContentLoader } from '../components/ContentLoader';
-import type { LearnLessonStatus, LearnUnitStatus } from '../types/api';
+import type { BlockKey, LearnLessonStatus, LearnUnitStatus } from '../types/api';
 
 // Cycled per unit for visual variety — same palette used across the rest of the app.
 const UNIT_COLORS = ['#22C55E', '#3B82F6', '#F59E0B', '#EC4899', '#06B6D4', '#8B5CF6', '#14B8A6'];
-// Gentle left/right sway so the lesson row reads as a winding path, not a straight column.
-const WAVE_OFFSETS = [0, 46, 64, 46, 0, -46, -64, -46];
 
-type NodeState = 'done' | 'active' | 'locked';
+const BLOCK_ICON: Record<BlockKey, string> = {
+  intro: '📖',
+  listen: '🎧',
+  translate: '🌐',
+  letters: '🔤',
+  speak: '🎤',
+  write: '⌨️',
+};
 
-function lessonState(unit: LearnUnitStatus, lesson: LearnLessonStatus, foundActive: { value: boolean }): NodeState {
-  if (lesson.complete) return 'done';
-  if (unit.locked) return 'locked';
-  if (!foundActive.value) {
-    foundActive.value = true;
-    return 'active';
-  }
-  return 'locked';
+const BLOCK_LABEL_KEY: Record<BlockKey, string> = {
+  intro: 'learn.blockIntro',
+  listen: 'learn.blockListen',
+  translate: 'learn.blockTranslate',
+  letters: 'learn.blockLetters',
+  speak: 'learn.blockSpeak',
+  write: 'learn.blockWrite',
+};
+
+/** A lesson row is only reachable at all if its unit isn't locked and every
+ * earlier lesson in the unit is complete — mirrors the server's
+ * `isLessonStartable` (see server/src/lib/learnQueue.ts). Individual block
+ * lock/unlock *within* a reachable row comes straight from `block.locked`. */
+function isLessonReachable(unit: LearnUnitStatus, lessonIndex: number): boolean {
+  if (unit.locked) return false;
+  if (lessonIndex === 0) return true;
+  return unit.lessons[lessonIndex - 1].complete;
 }
 
 export function LearnScreen() {
@@ -33,7 +47,7 @@ export function LearnScreen() {
   const [starting, setStarting] = useState(false);
   const [shakeKey, setShakeKey] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
-  const activeRef = useRef<HTMLButtonElement | null>(null);
+  const activeRowRef = useRef<HTMLDivElement | null>(null);
   const unitRefs = useRef(new Map<number, HTMLDivElement>());
 
   useEffect(() => {
@@ -46,7 +60,7 @@ export function LearnScreen() {
     if (scrollToUnit != null) {
       unitRefs.current.get(scrollToUnit)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     } else {
-      activeRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      activeRowRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [learnPath]);
@@ -58,17 +72,18 @@ export function LearnScreen() {
     setTimeout(() => setToast(null), 1800);
   };
 
-  const handleLessonClick = (unit: LearnUnitStatus, lesson: LearnLessonStatus, state: NodeState) => {
+  const handleBlockClick = (unit: LearnUnitStatus, lesson: LearnLessonStatus, block: BlockKey, unlocked: boolean) => {
     if (starting) return;
-    if (state === 'locked') {
-      showLockedToast(`${unit.id}-${lesson.index}`);
+    const key = `${unit.id}-${lesson.index}-${block}`;
+    if (!unlocked) {
+      showLockedToast(key);
       return;
     }
     setStarting(true);
-    startLearnSession({ type: 'lesson', unitId: unit.id, lessonIndex: lesson.index })
+    startLearnSession({ type: 'lesson', unitId: unit.id, lessonIndex: lesson.index, block })
       .then(() => navigate('/app/learn/session'))
       .catch((err) => {
-        console.error('Failed to start lesson:', err);
+        console.error('Failed to start block:', err);
         setStarting(false);
       });
   };
@@ -86,12 +101,7 @@ export function LearnScreen() {
 
   if (!learnPath) return <ContentLoader />;
 
-  const foundActive = { value: false };
-  const globalIndexByKey = new Map(
-    learnPath.units
-      .flatMap((unit) => unit.lessons.map((lesson) => `${unit.id}-${lesson.index}`))
-      .map((key, i) => [key, i] as const),
-  );
+  let foundActiveRow = false;
 
   return (
     <div className="animate-pop max-w-[640px] mx-auto relative pb-16">
@@ -114,16 +124,16 @@ export function LearnScreen() {
         </button>
       )}
 
-      <div className="flex flex-col items-center mt-8">
+      <div className="flex flex-col mt-8">
         {learnPath.units.map((unit, unitIdx) => {
           const color = UNIT_COLORS[unitIdx % UNIT_COLORS.length];
           return (
-            <div key={unit.id} className="w-full flex flex-col items-center">
+            <div key={unit.id} className="w-full flex flex-col">
               <div
                 ref={(el) => {
                   if (el) unitRefs.current.set(unit.id, el);
                 }}
-                className="flex items-center gap-3 py-[10px] px-4 rounded-[16px] mb-6 mt-2"
+                className="flex items-center gap-3 py-[10px] px-4 rounded-[16px] mb-4 mt-2 self-start"
                 style={{ background: unit.locked ? '#F1F5F9' : `${color}1A` }}
               >
                 <span className="text-[22px]" style={{ filter: unit.locked ? 'grayscale(1)' : 'none' }}>
@@ -142,31 +152,61 @@ export function LearnScreen() {
                 )}
               </div>
 
-              <div className="flex flex-col items-center gap-5 mb-4">
+              <div className="flex flex-col gap-4 mb-6">
                 {unit.lessons.map((lesson) => {
-                  const state = lessonState(unit, lesson, foundActive);
-                  const key = `${unit.id}-${lesson.index}`;
-                  const offset = WAVE_OFFSETS[(globalIndexByKey.get(key) ?? 0) % WAVE_OFFSETS.length];
+                  const reachable = isLessonReachable(unit, lesson.index);
+                  const doneCount = lesson.blocks.filter((b) => b.done).length;
+                  const pct = Math.round((doneCount / lesson.blocks.length) * 100);
+                  const isActiveRow = reachable && !lesson.complete && !foundActiveRow;
+                  if (isActiveRow) foundActiveRow = true;
 
                   return (
-                    <button
-                      key={key}
-                      ref={state === 'active' ? activeRef : undefined}
-                      onClick={() => handleLessonClick(unit, lesson, state)}
-                      disabled={starting && state !== 'locked'}
-                      style={{
-                        transform: `translateX(${offset}px)`,
-                        background: state === 'done' ? color : state === 'active' ? color : undefined,
-                        borderColor: state === 'done' || state === 'active' ? color : undefined,
-                        boxShadow: state === 'done' || state === 'active' ? `0 6px 0 ${color}88` : undefined,
-                      }}
-                      className={`relative flex-none w-16 h-16 rounded-full border-4 flex items-center justify-center text-[24px] font-display font-extrabold cursor-pointer disabled:cursor-not-allowed ${
-                        state === 'locked' ? 'bg-border-3 border-border-2 text-text-softer' : 'text-white'
-                      } ${state === 'active' ? 'animate-pulse' : ''} ${shakeKey === key ? 'animate-shake' : ''}`}
-                      aria-label={t('learn.lessonLabel', { n: lesson.index + 1 })}
+                    <div
+                      key={lesson.index}
+                      ref={isActiveRow ? activeRowRef : undefined}
+                      className="flex flex-col gap-[6px]"
                     >
-                      {state === 'done' ? '✓' : state === 'locked' ? '🔒' : lesson.index + 1}
-                    </button>
+                      <div className="text-[11.5px] font-extrabold text-text-softer px-[2px]">
+                        {t('learn.lessonLabel', { n: lesson.index + 1 })}
+                      </div>
+                      <div className="flex items-center gap-[9px] flex-wrap">
+                        {lesson.blocks.map((block) => {
+                          const unlocked = reachable && !block.locked;
+                          const key = `${unit.id}-${lesson.index}-${block.key}`;
+                          return (
+                            <button
+                              key={block.key}
+                              onClick={() => handleBlockClick(unit, lesson, block.key, unlocked)}
+                              disabled={starting && unlocked}
+                              style={{
+                                background: block.done || unlocked ? color : undefined,
+                                borderColor: block.done || unlocked ? color : undefined,
+                                boxShadow: block.done || unlocked ? `0 4px 0 ${color}88` : undefined,
+                              }}
+                              className={`relative flex-none w-[52px] h-[52px] rounded-[16px] border-2 flex items-center justify-center text-[21px] cursor-pointer disabled:cursor-not-allowed transition-transform ${
+                                !block.done && !unlocked ? 'bg-border-3 border-border-2 text-text-softer' : 'text-white'
+                              } ${shakeKey === key ? 'animate-shake' : ''}`}
+                              aria-label={t(BLOCK_LABEL_KEY[block.key]) ?? undefined}
+                            >
+                              {block.done ? '✓' : !unlocked ? '🔒' : BLOCK_ICON[block.key]}
+                            </button>
+                          );
+                        })}
+
+                        <div
+                          className="flex-none w-[52px] h-[52px] rounded-[16px] border-2 flex flex-col items-center justify-center gap-0 select-none"
+                          style={{
+                            background: lesson.complete ? `${color}1A` : '#F8FAFC',
+                            borderColor: lesson.complete ? color : '#E8EDF3',
+                          }}
+                          aria-label={t('learn.blockFinish') ?? undefined}
+                        >
+                          <span className="text-[14px] leading-none" style={{ color: lesson.complete ? color : '#94A3B8' }}>
+                            {lesson.complete ? '🏁' : `${pct}%`}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
                   );
                 })}
               </div>

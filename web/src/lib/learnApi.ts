@@ -1,5 +1,6 @@
 import { api } from './api';
 import type {
+  BlockKey,
   ExerciseType,
   LearnAnswerResponse,
   LearnPathResponse,
@@ -12,8 +13,8 @@ export function getLearnPath() {
   return api.get<LearnPathResponse>('/api/learn/path');
 }
 
-export function startLessonSession(unitId: number, lessonIndex: number) {
-  return api.post<LearnSessionStartResponse>('/api/learn/session-start', { type: 'lesson', unitId, lessonIndex });
+export function startLessonSession(unitId: number, lessonIndex: number, block: BlockKey) {
+  return api.post<LearnSessionStartResponse>('/api/learn/session-start', { type: 'lesson', unitId, lessonIndex, block });
 }
 
 export function startReviewSession() {

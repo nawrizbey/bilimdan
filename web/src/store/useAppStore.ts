@@ -18,6 +18,7 @@ import type {
   BattleOpponent,
   BattleQuestionPayload,
   BattleServerMessage,
+  BlockKey,
   LeaderboardResponse,
   LeaderboardScope,
   LearnPathResponse,
@@ -118,7 +119,9 @@ interface AppState {
   learnPath: LearnPathResponse | null;
   loadLearnPath: () => Promise<void>;
   learnSession: LearnSessionState | null;
-  startLearnSession: (args: { type: 'lesson'; unitId: number; lessonIndex: number } | { type: 'review' }) => Promise<void>;
+  startLearnSession: (
+    args: { type: 'lesson'; unitId: number; lessonIndex: number; block: BlockKey } | { type: 'review' },
+  ) => Promise<void>;
   resumeLearnSession: () => Promise<boolean>;
   answerCurrent: (correct: boolean, responseMs: number) => Promise<void>;
   completeLearnSession: () => Promise<LearnSummaryResponse>;
@@ -365,7 +368,9 @@ export const useAppStore = create<AppState>((set, get) => {
   learnSession: null,
   startLearnSession: async (args) => {
     const res =
-      args.type === 'lesson' ? await startLessonSession(args.unitId, args.lessonIndex) : await startReviewSession();
+      args.type === 'lesson'
+        ? await startLessonSession(args.unitId, args.lessonIndex, args.block)
+        : await startReviewSession();
     set({
       learnSession: {
         sessionId: res.sessionId,

@@ -75,10 +75,19 @@ export type ExerciseType =
   | 'speak'
   | 'fill_blank';
 
+export type BlockKey = 'intro' | 'listen' | 'translate' | 'letters' | 'speak' | 'write';
+
+export interface LearnBlockStatus {
+  key: BlockKey;
+  done: boolean;
+  locked: boolean;
+}
+
 export interface LearnLessonStatus {
   index: number;
   wordsCount: number;
   complete: boolean;
+  blocks: LearnBlockStatus[];
 }
 
 export interface LearnUnitStatus {

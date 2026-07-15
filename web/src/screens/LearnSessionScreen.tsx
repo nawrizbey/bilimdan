@@ -5,7 +5,7 @@ import { useAppStore } from '../store/useAppStore';
 import { HeartsBar } from '../components/HeartsBar';
 import { ContentLoader } from '../components/ContentLoader';
 import { playCorrect, playIncorrect } from '../lib/sound';
-import { findActiveLesson } from '../lib/learnPath';
+import { findActiveBlock } from '../lib/learnPath';
 import type { LearnQueueItem } from '../types/api';
 import { IntroCard } from './learn/IntroCard';
 import { McqExercise } from './learn/McqExercise';
@@ -92,20 +92,20 @@ export function LearnSessionScreen() {
   };
 
   const handleContinue = () => {
-    const next = learnPath ? findActiveLesson(learnPath) : null;
+    const next = learnPath ? findActiveBlock(learnPath) : null;
     if (!next) {
       navigate('/app/learn', { replace: true });
       return;
     }
-    startLearnSession({ type: 'lesson', unitId: next.unitId, lessonIndex: next.lessonIndex }).catch((err) => {
-      console.error('Failed to start next lesson:', err);
+    startLearnSession({ type: 'lesson', unitId: next.unitId, lessonIndex: next.lessonIndex, block: next.block }).catch((err) => {
+      console.error('Failed to start next block:', err);
       navigate('/app/learn', { replace: true });
     });
   };
 
   if (learnSession.status === 'summary') {
     if (!learnSession.summary) return <ContentLoader />;
-    const hasNext = learnSession.type === 'lesson' && !!learnPath && !!findActiveLesson(learnPath);
+    const hasNext = learnSession.type === 'lesson' && !!learnPath && !!findActiveBlock(learnPath);
     return (
       <SessionSummary
         summary={learnSession.summary}

@@ -8,11 +8,14 @@ import { serializeUser } from '../lib/serialize';
 import { badRequest, notFound } from '../lib/errors';
 import { initialSrsState, nextLevel, reviewWord, type SrsState } from '../lib/srs';
 import {
-  buildLessonQueue,
+  blockProgressMapKey,
+  buildBlockQueue,
   buildOptions,
   buildReviewQueue,
   computeUnitsStatus,
-  isLessonStartable,
+  isBlockKey,
+  isBlockStartable,
+  type BlockKey,
   type ProgressLite,
   type QueueItem,
   type UnitInput,
@@ -21,7 +24,6 @@ import {
 export const learnRouter = Router();
 
 const REVIEW_BATCH_SIZE = 15;
-const LESSON_REVIEW_MIX = 5;
 const SESSION_MINUTES_CAP = 20;
 const KNOWN_AT_LEVEL = 3;
 
@@ -80,6 +82,19 @@ async function fetchUnitsStatus(userId: number) {
   });
   const progressMap = new Map<number, ProgressLite>(progress.map((p) => [p.wordId, { level: p.level, state: p.state }]));
 
+  const blockRows = await prisma.learnBlockProgress.findMany({
+    where: { userId },
+    select: { unitId: true, lessonIndex: true, block: true },
+  });
+  const blockProgressMap = new Map<string, Set<BlockKey>>();
+  for (const row of blockRows) {
+    const key = blockProgressMapKey(row.unitId, row.lessonIndex);
+    if (!isBlockKey(row.block)) continue;
+    const set = blockProgressMap.get(key) ?? new Set<BlockKey>();
+    set.add(row.block);
+    blockProgressMap.set(key, set);
+  }
+
   const unitInputs: UnitInput[] = units.map((u) => ({
     id: u.id,
     title: u.title,
@@ -88,7 +103,7 @@ async function fetchUnitsStatus(userId: number) {
     wordIds: u.words.map((w) => w.id),
   }));
 
-  return { statuses: computeUnitsStatus(unitInputs, progressMap), progressMap };
+  return { statuses: computeUnitsStatus(unitInputs, progressMap, blockProgressMap), progressMap };
 }
 
 learnRouter.get('/path', requireAuth, async (req, res, next) => {
@@ -135,36 +150,33 @@ learnRouter.post('/session-start', requireAuth, rateLimit(15, 60_000), async (re
     if (type === 'lesson') {
       const unitId = Number(req.body?.unitId);
       const lessonIndex = Number(req.body?.lessonIndex);
+      const block = req.body?.block;
       if (!unitId || !Number.isInteger(lessonIndex) || lessonIndex < 0) throw badRequest("Sabaq kórsetilmegen");
+      if (!isBlockKey(block)) throw badRequest('Blok kórsetilmegen');
 
       const { statuses } = await fetchUnitsStatus(userId);
       const unitStatus = statuses.find((u) => u.id === unitId);
       if (!unitStatus) throw notFound('Tema tabılmadı');
-      if (!isLessonStartable(unitStatus, lessonIndex)) throw badRequest('Bul sabaq ele qulıplanǵan');
+      if (!isBlockStartable(unitStatus, lessonIndex, block)) throw badRequest('Bul blok ele qulıplanǵan');
 
       const unitWords = await prisma.word.findMany({ where: { unitId }, orderBy: { order: 'asc' } });
       const lessonWordIds = unitWords.slice(lessonIndex * 5, lessonIndex * 5 + 5).map((w) => w.id);
-      const isPractice = unitStatus.lessons[lessonIndex].complete;
+      const isPractice = unitStatus.lessons[lessonIndex].blocks.find((b) => b.key === block)?.done ?? false;
 
-      const dueReviewRows = await prisma.userWordProgress.findMany({
-        where: { userId, due: { lte: now }, wordId: { notIn: lessonWordIds } },
-        orderBy: { due: 'asc' },
-        take: LESSON_REVIEW_MIX,
-        select: { wordId: true, level: true, state: true },
-      });
-      const dueReviewWordIds = dueReviewRows.map((r) => r.wordId);
-
-      const relevantProgress = await prisma.userWordProgress.findMany({
-        where: { userId, wordId: { in: [...lessonWordIds, ...dueReviewWordIds] } },
-        select: { wordId: true, level: true, state: true },
-      });
-      const progressMap = new Map<number, ProgressLite>(relevantProgress.map((p) => [p.wordId, { level: p.level, state: p.state }]));
-
-      const items = buildLessonQueue(lessonWordIds, dueReviewWordIds, progressMap);
+      const items = buildBlockQueue(lessonWordIds, block);
       const allWords = await prisma.word.findMany();
 
       const session = await prisma.learnSession.create({
-        data: { userId, type: 'lesson', unitId, lessonIndex, isPractice, items: items as unknown as Prisma.InputJsonValue, answered: [] },
+        data: {
+          userId,
+          type: 'lesson',
+          unitId,
+          lessonIndex,
+          block,
+          isPractice,
+          items: items as unknown as Prisma.InputJsonValue,
+          answered: [],
+        },
       });
 
       res.json({
@@ -395,6 +407,21 @@ learnRouter.post('/session-complete', requireAuth, rateLimit(15, 60_000), async 
       xpGain += 20;
     } else if (session.type === 'review') {
       xpGain += 10;
+    }
+
+    if (session.type === 'lesson' && session.block && session.unitId != null && session.lessonIndex != null) {
+      await prisma.learnBlockProgress.upsert({
+        where: {
+          userId_unitId_lessonIndex_block: {
+            userId,
+            unitId: session.unitId,
+            lessonIndex: session.lessonIndex,
+            block: session.block,
+          },
+        },
+        create: { userId, unitId: session.unitId, lessonIndex: session.lessonIndex, block: session.block },
+        update: {},
+      });
     }
 
     const minutes = Math.min(Math.ceil(items.length / 2), SESSION_MINUTES_CAP);
