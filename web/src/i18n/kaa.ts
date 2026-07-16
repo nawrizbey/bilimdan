@@ -148,6 +148,7 @@ export const kaa = {
     gotIt: 'Túsindim →',
     check: 'Tekseriw',
     correct: 'Durıs! ✓',
+    almostCorrect: 'Payıtları durıs! Jazılıwın tekserıń: {{answer}}',
     incorrectAnswer: 'Durıs juwabı: {{answer}}',
     repeatChip: '↻ Qaytalaw',
     heartsEmpty: 'Itibarlıraq bolıń! 💪',

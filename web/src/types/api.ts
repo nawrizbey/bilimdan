@@ -164,6 +164,10 @@ export interface LearnAnswerResponse {
   due: string;
   correct: boolean;
   correctIndex?: number;
+  /** True when a typed answer was accepted via typo tolerance (small edit
+   * distance) rather than an exact match — still `correct`, but the UI shows
+   * a distinct "check the spelling" message instead of plain success. */
+  almost?: boolean;
 }
 
 export interface LearnSummaryResponse {

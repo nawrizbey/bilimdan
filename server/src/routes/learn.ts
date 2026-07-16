@@ -7,6 +7,7 @@ import { awardProgress } from '../lib/progress';
 import { serializeUser } from '../lib/serialize';
 import { badRequest, notFound } from '../lib/errors';
 import { initialSrsState, nextLevel, reviewWord, type SrsState } from '../lib/srs';
+import { gradeTypedAnswer } from '../lib/typing';
 import {
   blockProgressMapKey,
   buildBlockQueue,
@@ -49,7 +50,10 @@ type AnsweredEntry = { wordId: number; exercise: string; correct: boolean; respo
 type StoredItem = QueueItem & { options?: string[]; correctIndex?: number };
 
 const MCQ_EXERCISES = new Set(['mcq_en2kaa', 'mcq_kaa2en', 'listen_pick', 'fill_blank']);
-const TYPING_EXERCISES = new Set(['type_en', 'dictation', 'letter_tiles']);
+// letter_tiles is exact-match only — the tile set is the exact right letters
+// plus a few decoys, so there's no keyboard-typo concept to tolerate there.
+const TYPO_TOLERANT_EXERCISES = new Set(['type_en', 'dictation']);
+const EXACT_TYPING_EXERCISES = new Set(['letter_tiles']);
 
 function publicWord(w: WordRow) {
   return { id: w.id, en: w.en, ipa: w.ipa, kaa: w.uz, example: w.example, emoji: w.emoji };
@@ -261,13 +265,21 @@ learnRouter.post('/answer', requireAuth, rateLimit(120, 60_000), async (req, res
     // boolean, except for `speak`, which can't be verified without
     // server-side audio (mic scoring is inherently client-side).
     let correct: boolean;
+    let almost = false;
     if (exercise === 'intro') {
       correct = true;
     } else if (MCQ_EXERCISES.has(exercise)) {
       const answerIndexNum = Number(answerIndex);
       if (!Number.isInteger(answerIndexNum)) throw badRequest('Juwap maǵlıwmatları qáte');
       correct = answerIndexNum === storedItem.correctIndex;
-    } else if (TYPING_EXERCISES.has(exercise)) {
+    } else if (TYPO_TOLERANT_EXERCISES.has(exercise)) {
+      if (typeof answerText !== 'string') throw badRequest('Juwap maǵlıwmatları qáte');
+      const word = await prisma.word.findUnique({ where: { id: wordIdNum }, select: { en: true } });
+      if (!word) throw notFound('Sóz tabılmadı');
+      const graded = gradeTypedAnswer(answerText, word.en);
+      correct = graded.correct;
+      almost = graded.almost;
+    } else if (EXACT_TYPING_EXERCISES.has(exercise)) {
       if (typeof answerText !== 'string') throw badRequest('Juwap maǵlıwmatları qáte');
       const word = await prisma.word.findUnique({ where: { id: wordIdNum }, select: { en: true } });
       if (!word) throw notFound('Sóz tabılmadı');
@@ -284,7 +296,7 @@ learnRouter.post('/answer', requireAuth, rateLimit(120, 60_000), async (req, res
     // the session's answer log. Only the first real attempt at a
     // (wordId, exercise) pair counts.
     if (practice === true) {
-      res.json({ correct, correctIndex: storedItem.correctIndex });
+      res.json({ correct, correctIndex: storedItem.correctIndex, almost });
       return;
     }
 
@@ -293,7 +305,7 @@ learnRouter.post('/answer', requireAuth, rateLimit(120, 60_000), async (req, res
     if (already) {
       // Idempotent replay (e.g. a retried network request) — don't re-run FSRS.
       const progress = await prisma.userWordProgress.findUnique({ where: { userId_wordId: { userId, wordId: wordIdNum } } });
-      res.json({ level: progress?.level ?? 0, due: progress?.due ?? now, correct: already.correct, correctIndex: storedItem.correctIndex });
+      res.json({ level: progress?.level ?? 0, due: progress?.due ?? now, correct: already.correct, correctIndex: storedItem.correctIndex, almost });
       return;
     }
 
@@ -387,7 +399,7 @@ learnRouter.post('/answer', requireAuth, rateLimit(120, 60_000), async (req, res
       data: { answered: [...answered, entry] },
     });
 
-    res.json({ level, due: srs.due, correct, correctIndex: storedItem.correctIndex });
+    res.json({ level, due: srs.due, correct, correctIndex: storedItem.correctIndex, almost });
   } catch (err) {
     next(err);
   }

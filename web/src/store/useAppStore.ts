@@ -133,7 +133,7 @@ interface AppState {
     payload: LearnAnswerPayload,
     responseMs: number,
     revealDelayMs: number,
-  ) => Promise<{ correct: boolean; correctIndex?: number }>;
+  ) => Promise<{ correct: boolean; correctIndex?: number; almost?: boolean }>;
   completeLearnSession: () => Promise<LearnSummaryResponse>;
   abandonLearnSession: () => void;
 
@@ -492,6 +492,7 @@ export const useAppStore = create<AppState>((set, get) => {
     // session's answer log (see the `practice` flag on the endpoint).
     let correct: boolean;
     let correctIndex: number | undefined;
+    let almost: boolean | undefined;
     try {
       const res = await postLearnAnswer({
         sessionId: session.sessionId,
@@ -503,6 +504,7 @@ export const useAppStore = create<AppState>((set, get) => {
       });
       correct = res.correct;
       correctIndex = res.correctIndex;
+      almost = res.almost;
     } catch (err) {
       console.error('Learn answer failed:', err);
       return { correct: false };
@@ -511,7 +513,7 @@ export const useAppStore = create<AppState>((set, get) => {
     const cursorAtAnswer = session.cursor;
     setTimeout(() => advanceLearnQueue(cursorAtAnswer, item, correct), revealDelayMs);
 
-    return { correct, correctIndex };
+    return { correct, correctIndex, almost };
   },
   completeLearnSession: async () => {
     const session = get().learnSession;

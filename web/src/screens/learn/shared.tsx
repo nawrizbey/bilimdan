@@ -14,7 +14,7 @@ export interface ExerciseProps {
     payload: LearnAnswerPayload,
     responseMs: number,
     revealDelayMs: number,
-  ) => Promise<{ correct: boolean; correctIndex?: number }>;
+  ) => Promise<{ correct: boolean; correctIndex?: number; almost?: boolean }>;
 }
 
 export function PromptHeader({ label, isRepeat }: { label: string; isRepeat?: boolean }) {
@@ -104,8 +104,25 @@ export function OptionsList({ options, correctIndex, selected, onPick }: Options
   );
 }
 
-export function FeedbackLine({ correct, correctAnswer }: { correct: boolean; correctAnswer?: string }) {
+export function FeedbackLine({
+  correct,
+  correctAnswer,
+  almost,
+}: {
+  correct: boolean;
+  correctAnswer?: string;
+  /** Accepted via typo tolerance rather than an exact match — still
+   * `correct`, but shown as a distinct "check the spelling" amber line. */
+  almost?: boolean;
+}) {
   const { t } = useTranslation();
+  if (correct && almost) {
+    return (
+      <div className="text-[14px] font-extrabold text-[#B45309] mt-4 animate-pop">
+        {t('learn.almostCorrect', { answer: correctAnswer ?? '' })}
+      </div>
+    );
+  }
   if (correct) {
     return <div className="text-[15px] font-extrabold text-[#15803D] mt-4 animate-pop">{t('learn.correct')}</div>;
   }
@@ -133,8 +150,10 @@ export function AudioReplayButton({ onClick, label }: { onClick: () => void; lab
 }
 
 /** Shared body for type_en (word.kaa shown as the prompt) and dictation (only
- * audio, no text) — both are "type the English word" with a case-insensitive
- * exact match and no typo tolerance. Graded server-side (see /api/learn/answer). */
+ * audio, no text) — both are "type the English word". Graded server-side
+ * (see /api/learn/answer), which tolerates a small typo (single adjacent-key
+ * slip on longer words) as `correct` but flags it `almost` for a distinct
+ * amber "check the spelling" message instead of plain success. */
 export function TypingExerciseBody({
   item,
   onAnswer,
@@ -144,7 +163,7 @@ export function TypingExerciseBody({
   const { t } = useTranslation();
   const getElapsed = useResponseTimer(item.wordId + item.exercise);
   const [value, setValue] = useState('');
-  const [result, setResult] = useState<null | 'correct' | 'wrong'>(null);
+  const [result, setResult] = useState<null | 'correct' | 'almost' | 'wrong'>(null);
   const [submitting, setSubmitting] = useState(false);
   const { word } = item;
 
@@ -152,7 +171,7 @@ export function TypingExerciseBody({
     if (result !== null || submitting || value.trim() === '') return;
     setSubmitting(true);
     const res = await onAnswer({ answerText: value.trim() }, getElapsed(), 1100);
-    setResult(res.correct ? 'correct' : 'wrong');
+    setResult(res.correct ? (res.almost ? 'almost' : 'correct') : 'wrong');
   };
 
   return (
@@ -182,8 +201,10 @@ export function TypingExerciseBody({
           placeholder={t('learn.typePlaceholder') ?? undefined}
           className="w-full text-center font-sans font-bold text-[18px] border-2 border-border-2 rounded-[14px] py-[13px] px-4 outline-none"
           style={{
-            borderColor: result === 'correct' ? '#22C55E' : result === 'wrong' ? '#EF4444' : undefined,
-            background: result === 'correct' ? '#F0FDF4' : result === 'wrong' ? '#FEF2F2' : '#fff',
+            borderColor:
+              result === 'correct' ? '#22C55E' : result === 'almost' ? '#F59E0B' : result === 'wrong' ? '#EF4444' : undefined,
+            background:
+              result === 'correct' ? '#F0FDF4' : result === 'almost' ? '#FFFBEB' : result === 'wrong' ? '#FEF2F2' : '#fff',
           }}
         />
 
@@ -195,10 +216,10 @@ export function TypingExerciseBody({
           >
             {t('learn.check')}
           </button>
-        ) : result === 'correct' ? (
-          <FeedbackLine correct />
-        ) : (
+        ) : result === 'wrong' ? (
           <FeedbackLine correct={false} correctAnswer={word.en} />
+        ) : (
+          <FeedbackLine correct almost={result === 'almost'} correctAnswer={word.en} />
         )}
       </ExerciseCard>
     </div>
