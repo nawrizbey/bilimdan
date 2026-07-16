@@ -8,6 +8,7 @@ import {
   startLessonSession,
   startReviewSession,
 } from '../lib/learnApi';
+import { getTodayQuests } from '../lib/questsApi';
 import type {
   ApiBadge,
   ApiQuizQuestion,
@@ -19,6 +20,7 @@ import type {
   BattleQuestionPayload,
   BattleServerMessage,
   BlockKey,
+  DailyQuest,
   LearnAnswerPayload,
   LeaderboardResponse,
   LeaderboardScope,
@@ -136,6 +138,10 @@ interface AppState {
   ) => Promise<{ correct: boolean; correctIndex?: number; almost?: boolean }>;
   completeLearnSession: () => Promise<LearnSummaryResponse>;
   abandonLearnSession: () => void;
+
+  // Daily quests
+  dailyQuests: DailyQuest[] | null;
+  loadDailyQuests: () => Promise<void>;
 
   // Battle (WebSocket-driven)
   battleStatus: 'idle' | 'queueing' | 'matched' | 'playing' | 'revealed' | 'ended';
@@ -374,6 +380,7 @@ export const useAppStore = create<AppState>((set, get) => {
       currentUnitWords: [],
       learnPath: null,
       learnSession: null,
+      dailyQuests: null,
       quizQuestions: [],
       listenQuestions: [],
       listenIdx: 0,
@@ -526,6 +533,13 @@ export const useAppStore = create<AppState>((set, get) => {
     return summary;
   },
   abandonLearnSession: () => set({ learnSession: null }),
+
+  // Daily quests
+  dailyQuests: null,
+  loadDailyQuests: async () => {
+    const { quests } = await getTodayQuests();
+    set({ dailyQuests: quests });
+  },
 
   // Battle (WebSocket-driven; the socket itself is owned by BattleScreen,
   // which feeds server messages into battleApplyMessage)

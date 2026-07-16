@@ -7,7 +7,7 @@ import { checkAndAwardBadges } from './badges';
 // experiences, not what the UTC clock shows on the server.
 const UZ_OFFSET_MS = 5 * 60 * 60 * 1000;
 
-function uzDay(date: Date) {
+export function uzDay(date: Date) {
   const shifted = new Date(date.getTime() + UZ_OFFSET_MS);
   return { y: shifted.getUTCFullYear(), m: shifted.getUTCMonth(), d: shifted.getUTCDate() };
 }

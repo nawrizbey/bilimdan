@@ -170,6 +170,14 @@ export interface LearnAnswerResponse {
   almost?: boolean;
 }
 
+export interface DailyQuest {
+  key: 'blocks' | 'newWords' | 'correct';
+  current: number;
+  target: number;
+  done: boolean;
+  xp: number;
+}
+
 export interface LearnSummaryResponse {
   user: ApiUser;
   xpGained: number;

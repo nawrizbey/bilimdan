@@ -71,6 +71,7 @@ model User {
   matchesAsP2   BattleMatch[]      @relation("Player2")
   learnSessions LearnSession[]
   learnBlockProgress LearnBlockProgress[]
+  dailyQuestProgress DailyQuestProgress[]
 
   @@index([districtId, xp])
   @@index([regionId, xp])
@@ -159,6 +160,28 @@ model LearnBlockProgress {
 
   @@unique([userId, unitId, lessonIndex, block])
   @@index([userId, unitId, lessonIndex])
+}
+
+// One row per (user, day) tracking progress toward the three fixed daily
+// quests. dateKey is 'YYYY-MM-DD' in Uzbekistan local time (UTC+5, see
+// uzDateKey in server/src/lib/quests.ts) so it rolls over at local midnight
+// regardless of server timezone. The *Claimed flags make each quest's XP
+// award a one-time event per day (checked via an atomic conditional update,
+// not just a read-then-write, so concurrent requests can't double-award).
+model DailyQuestProgress {
+  id              Int      @id @default(autoincrement())
+  userId          Int
+  dateKey         String
+  blocksCount     Int      @default(0)
+  newWordsCount   Int      @default(0)
+  correctCount    Int      @default(0)
+  blocksClaimed   Boolean  @default(false)
+  newWordsClaimed Boolean  @default(false)
+  correctClaimed  Boolean  @default(false)
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([userId, dateKey])
 }
 
 model QuizQuestion {

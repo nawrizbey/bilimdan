@@ -67,6 +67,12 @@ export const kaa = {
     quizMeta: '10 soraw · 7 minut',
     schoolLeaderboard: 'Mektep reytingi',
     seeFullLeaderboard: 'Tolıq reytingti kóriw →',
+    questsTitle: 'Kúnlik tapsırmalar',
+    questBlocks: '3 blok tamamlaw',
+    questNewWords: '2 jańa sóz úyreniw',
+    questCorrect: '20 durıs juwap beriw',
+    questXp: '+{{xp}} XP',
+    questDone: 'Tamamlandı ✓',
   },
 
   leaders: {

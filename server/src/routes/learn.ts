@@ -8,6 +8,7 @@ import { serializeUser } from '../lib/serialize';
 import { badRequest, notFound } from '../lib/errors';
 import { initialSrsState, nextLevel, reviewWord, type SrsState } from '../lib/srs';
 import { gradeTypedAnswer } from '../lib/typing';
+import { recordBlockCompleted, recordCorrectAnswer, recordNewWordLearned } from '../lib/quests';
 import {
   blockProgressMapKey,
   buildBlockQueue,
@@ -387,6 +388,16 @@ learnRouter.post('/answer', requireAuth, rateLimit(120, 60_000), async (req, res
       await prisma.user.update({ where: { id: userId }, data: { wordsKnownCount: { increment: 1 } } });
     }
 
+    // Daily quest progress — quest ③ (20 correct answers) counts graded,
+    // non-intro attempts; quest ② (2 new words) fires on the same mastery
+    // crossing that sets `newlyKnown` above.
+    if (correct && exercise !== 'intro') {
+      await recordCorrectAnswer(userId, now);
+    }
+    if (newlyKnown) {
+      await recordNewWordLearned(userId, now);
+    }
+
     const entry: AnsweredEntry = {
       wordId: wordIdNum,
       exercise,
@@ -491,6 +502,9 @@ learnRouter.post('/session-complete', requireAuth, rateLimit(15, 60_000), async 
         create: { userId, unitId: session.unitId, lessonIndex: session.lessonIndex, block: session.block },
         update: {},
       });
+      // Daily quest ① (3 learn blocks) — every fresh block completion counts,
+      // practice replays included (a practice write-block is still real work).
+      await recordBlockCompleted(userId);
     }
 
     // The intro block is a pure reading step (tap through 5 word cards) —

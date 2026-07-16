@@ -1,9 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Trans, useTranslation } from 'react-i18next';
 import { MascotIcon } from '../components/MascotIcon';
+import { Confetti } from '../components/Confetti';
 import { useAppStore } from '../store/useAppStore';
 import { findActiveBlock } from '../lib/learnPath';
+import type { DailyQuest } from '../types/api';
 
 const SESSION_MINUTES_CAP = 20;
 
@@ -42,6 +44,12 @@ const dayStyle: Record<DayState, string> = {
   upcoming: 'bg-border-3 text-[#CBD5E1]',
 };
 
+const QUEST_META: Record<DailyQuest['key'], { icon: string; labelKey: string; color: string; bg: string }> = {
+  blocks: { icon: '🧩', labelKey: 'dashboard.questBlocks', color: '#3B82F6', bg: '#EFF6FF' },
+  newWords: { icon: '🆕', labelKey: 'dashboard.questNewWords', color: '#8B5CF6', bg: '#F5F3FF' },
+  correct: { icon: '🎯', labelKey: 'dashboard.questCorrect', color: '#22C55E', bg: '#F0FDF4' },
+};
+
 const rankBadgeStyle = (i: number) => {
   if (i === 0) return { background: '#FACC15', color: '#0F172A' };
   if (i === 1) return { background: '#CBD5E1', color: '#0F172A' };
@@ -61,6 +69,8 @@ export function DashboardScreen() {
   const loadLeaderboard = useAppStore((s) => s.loadLeaderboard);
   const learnPath = useAppStore((s) => s.learnPath);
   const loadLearnPath = useAppStore((s) => s.loadLearnPath);
+  const dailyQuests = useAppStore((s) => s.dailyQuests);
+  const loadDailyQuests = useAppStore((s) => s.loadDailyQuests);
   const goalPct = Math.min(100, Math.round((goalDone / goalMin) * 100));
   const remaining = Math.max(0, goalMin - goalDone);
   const activeLesson = learnPath ? findActiveBlock(learnPath) : null;
@@ -84,14 +94,34 @@ export function DashboardScreen() {
   useEffect(() => {
     loadLeaderboardWidget();
     loadLearnPath().catch((err) => console.error('Dashboard learn path load failed:', err));
+    loadDailyQuests().catch((err) => console.error('Dashboard quests load failed:', err));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Fires a brief confetti burst the moment any quest flips from
+  // not-done to done (comparing against the previously loaded snapshot,
+  // not a real-time push — Dashboard only refetches quests on mount/focus).
+  const prevQuestsRef = useRef<DailyQuest[] | null>(null);
+  const [questCelebration, setQuestCelebration] = useState(false);
+  useEffect(() => {
+    if (!dailyQuests) return;
+    const prev = prevQuestsRef.current;
+    if (prev) {
+      const newlyDone = dailyQuests.some((q) => q.done && !prev.find((p) => p.key === q.key)?.done);
+      if (newlyDone) {
+        setQuestCelebration(true);
+        setTimeout(() => setQuestCelebration(false), 2500);
+      }
+    }
+    prevQuestsRef.current = dailyQuests;
+  }, [dailyQuests]);
 
   const ringCircumference = 251;
   const ringOffset = ringCircumference - (ringCircumference * goalPct) / 100;
 
   return (
     <div className="animate-pop max-w-[1180px]">
+      <Confetti active={questCelebration} />
       {/* HERO */}
       <div
         className="relative overflow-hidden rounded-[26px] p-6 sm:p-[32px_36px] flex flex-col sm:flex-row items-center gap-6"
@@ -211,6 +241,46 @@ export function DashboardScreen() {
           <div className="text-[12.5px] font-bold text-secondary mt-[10px]">{t('dashboard.keepGoing')}</div>
         </div>
       </div>
+
+      {/* DAILY QUESTS */}
+      {dailyQuests && (
+        <div className="bg-white border border-border-2 rounded-[22px] p-6 mt-[18px] shadow-[0_2px_10px_rgba(15,23,42,.04)]">
+          <h3 className="font-display font-extrabold text-[19px] text-text m-0 mb-4">{t('dashboard.questsTitle')}</h3>
+          <div className="flex flex-col gap-3">
+            {dailyQuests.map((q) => {
+              const meta = QUEST_META[q.key];
+              const pct = Math.min(100, Math.round((q.current / q.target) * 100));
+              return (
+                <div key={q.key} className="flex items-center gap-[14px]">
+                  <div
+                    className="w-11 h-11 flex-none rounded-[13px] flex items-center justify-center text-[20px]"
+                    style={{ background: meta.bg }}
+                  >
+                    {q.done ? '✅' : meta.icon}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-2 mb-[6px]">
+                      <span className="font-extrabold text-[14px] text-text truncate">{t(meta.labelKey)}</span>
+                      <span
+                        className="text-[12px] font-extrabold flex-none whitespace-nowrap"
+                        style={{ color: q.done ? '#16A34A' : meta.color }}
+                      >
+                        {q.done ? t('dashboard.questDone') : t('dashboard.questXp', { xp: q.xp })}
+                      </span>
+                    </div>
+                    <div className="h-2 bg-border-3 rounded-full overflow-hidden">
+                      <div
+                        className="h-full rounded-full transition-all"
+                        style={{ width: `${pct}%`, background: q.done ? '#22C55E' : meta.color }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* LOWER */}
       <div className="grid grid-cols-1 lg:grid-cols-[1.6fr_1fr] gap-[18px] mt-[18px]">
