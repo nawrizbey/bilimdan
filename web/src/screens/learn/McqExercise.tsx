@@ -14,7 +14,8 @@ export function McqExercise({ item, onAnswer }: ExerciseProps) {
   const { t } = useTranslation();
   const getElapsed = useResponseTimer(item.wordId + item.exercise);
   const [selected, setSelected] = useState<number | null>(null);
-  const { word, options = [], correctIndex = 0 } = item;
+  const [correctIndex, setCorrectIndex] = useState<number | null>(null);
+  const { word, options = [] } = item;
   const isEn2Kaa = item.exercise === 'mcq_en2kaa';
 
   useEffect(() => {
@@ -24,12 +25,12 @@ export function McqExercise({ item, onAnswer }: ExerciseProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handlePick = (i: number) => {
+  const handlePick = async (i: number) => {
     if (selected !== null) return;
     setSelected(i);
-    const correct = i === correctIndex;
-    if (!isEn2Kaa) speak(options[correctIndex]);
-    setTimeout(() => onAnswer(correct, getElapsed()), REVEAL_DELAY_MS);
+    const res = await onAnswer({ answerIndex: i }, getElapsed(), REVEAL_DELAY_MS);
+    setCorrectIndex(res.correctIndex ?? null);
+    if (!isEn2Kaa && res.correctIndex != null) speak(options[res.correctIndex]);
   };
 
   return (
@@ -50,7 +51,9 @@ export function McqExercise({ item, onAnswer }: ExerciseProps) {
 
         <OptionsList options={options} correctIndex={correctIndex} selected={selected} onPick={handlePick} />
 
-        {selected !== null && (selected === correctIndex ? <FeedbackLine correct /> : <FeedbackLine correct={false} correctAnswer={options[correctIndex]} />)}
+        {selected !== null &&
+          correctIndex !== null &&
+          (selected === correctIndex ? <FeedbackLine correct /> : <FeedbackLine correct={false} correctAnswer={options[correctIndex]} />)}
       </ExerciseCard>
     </div>
   );

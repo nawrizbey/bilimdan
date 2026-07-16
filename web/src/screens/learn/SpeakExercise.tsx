@@ -29,7 +29,10 @@ export function SpeakExercise({ item, onAnswer }: ExerciseProps) {
     setOutcome({ score, transcript });
     if (score >= PASS_SCORE && !resolvedRef.current) {
       resolvedRef.current = true;
-      setTimeout(() => onAnswer(true, getElapsed()), 1300);
+      // The mic score is already the "reveal" — no further delay needed
+      // before the queue advances (unlike the other exercise types, whose
+      // onAnswer submits immediately and needs revealDelayMs to show feedback).
+      setTimeout(() => void onAnswer({ correct: true }, getElapsed(), 0), 1300);
     }
   };
 
@@ -51,7 +54,7 @@ export function SpeakExercise({ item, onAnswer }: ExerciseProps) {
   const forceContinue = () => {
     if (resolvedRef.current) return;
     resolvedRef.current = true;
-    onAnswer(true, getElapsed());
+    void onAnswer({ correct: true }, getElapsed(), 0);
   };
 
   const passed = outcome != null && outcome.score >= PASS_SCORE;

@@ -38,6 +38,7 @@ export function LetterTilesExercise({ item, onAnswer }: ExerciseProps) {
   const [pool, setPool] = useState<Tile[]>(() => buildTiles(word.en));
   const [placed, setPlaced] = useState<Tile[]>([]);
   const [result, setResult] = useState<null | 'correct' | 'wrong'>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   const place = (tile: Tile) => {
     if (result || placed.length >= target.length) return;
@@ -51,11 +52,12 @@ export function LetterTilesExercise({ item, onAnswer }: ExerciseProps) {
     setPool((p) => [...p, last]);
   };
 
-  const handleCheck = () => {
+  const handleCheck = async () => {
+    if (result !== null || submitting) return;
+    setSubmitting(true);
     const answer = placed.map((tl) => tl.char).join('');
-    const correct = answer === target;
-    setResult(correct ? 'correct' : 'wrong');
-    setTimeout(() => onAnswer(correct, getElapsed()), 1100);
+    const res = await onAnswer({ answerText: answer }, getElapsed(), 1100);
+    setResult(res.correct ? 'correct' : 'wrong');
   };
 
   const full = placed.length === target.length;
@@ -74,7 +76,7 @@ export function LetterTilesExercise({ item, onAnswer }: ExerciseProps) {
               <button
                 key={i}
                 onClick={tile ? undoLast : undefined}
-                disabled={!tile || result !== null}
+                disabled={!tile || result !== null || submitting}
                 className="w-[42px] h-[48px] rounded-[10px] border-2 flex items-center justify-center font-display font-extrabold text-[20px] uppercase"
                 style={{
                   borderColor: result === 'correct' ? '#22C55E' : result === 'wrong' ? '#EF4444' : tile ? '#CBD5E1' : '#E2E8F0',
@@ -94,7 +96,7 @@ export function LetterTilesExercise({ item, onAnswer }: ExerciseProps) {
             <button
               key={tile.id}
               onClick={() => place(tile)}
-              disabled={result !== null}
+              disabled={result !== null || submitting}
               className="w-[42px] h-[48px] rounded-[10px] border-2 border-border-2 bg-white flex items-center justify-center font-display font-extrabold text-[20px] uppercase cursor-pointer"
             >
               {tile.char}
@@ -105,7 +107,7 @@ export function LetterTilesExercise({ item, onAnswer }: ExerciseProps) {
         {result === null ? (
           <button
             onClick={handleCheck}
-            disabled={!full}
+            disabled={!full || submitting}
             className="w-full mt-6 bg-primary text-white font-display font-extrabold text-[16px] border-none rounded-[16px] py-[14px] cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
             style={{ boxShadow: full ? '0 6px 0 #16A34A' : 'none' }}
           >

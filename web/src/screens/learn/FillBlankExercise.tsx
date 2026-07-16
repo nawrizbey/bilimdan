@@ -43,16 +43,18 @@ export function FillBlankExercise({ item, onAnswer }: ExerciseProps) {
   const { t } = useTranslation();
   const getElapsed = useResponseTimer(item.wordId + item.exercise);
   const [selected, setSelected] = useState<number | null>(null);
-  const { word, options = [], correctIndex = 0 } = item;
+  const [correctIndex, setCorrectIndex] = useState<number | null>(null);
+  const { word, options = [] } = item;
 
   const { sentence: blanked, ok } = blankSentence(word.example ?? '', word.en);
   const displaySentence = ok ? blanked : `${(word.example ?? '').trim()} ___`.trim();
 
-  const handlePick = (i: number) => {
+  const handlePick = async (i: number) => {
     if (selected !== null) return;
     setSelected(i);
     speak(word.example);
-    setTimeout(() => onAnswer(i === correctIndex, getElapsed()), REVEAL_DELAY_MS);
+    const res = await onAnswer({ answerIndex: i }, getElapsed(), REVEAL_DELAY_MS);
+    setCorrectIndex(res.correctIndex ?? null);
   };
 
   return (
@@ -68,7 +70,9 @@ export function FillBlankExercise({ item, onAnswer }: ExerciseProps) {
 
         <OptionsList options={options} correctIndex={correctIndex} selected={selected} onPick={handlePick} />
 
-        {selected !== null && (selected === correctIndex ? <FeedbackLine correct /> : <FeedbackLine correct={false} correctAnswer={options[correctIndex]} />)}
+        {selected !== null &&
+          correctIndex !== null &&
+          (selected === correctIndex ? <FeedbackLine correct /> : <FeedbackLine correct={false} correctAnswer={options[correctIndex]} />)}
       </ExerciseCard>
     </div>
   );

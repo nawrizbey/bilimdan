@@ -1,14 +1,20 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { LearnQueueItem } from '../../types/api';
+import type { LearnAnswerPayload, LearnQueueItem } from '../../types/api';
 import { useResponseTimer } from './useResponseTimer';
 
 /** Every exercise component shares this contract: render the prompt for `item`,
- * call `onAnswer` exactly once when the student has answered (after showing its
- * own brief inline feedback — mirrors how the Oyinlar game phases work). */
+ * then call `onAnswer` with the student's answer — the server grades it and
+ * returns the verdict, which the component uses to show its own brief inline
+ * feedback (mirrors how the Oyinlar game phases work) before the queue
+ * advances `revealDelayMs` later. */
 export interface ExerciseProps {
   item: LearnQueueItem & { isRepeat?: boolean };
-  onAnswer: (correct: boolean, responseMs: number) => void;
+  onAnswer: (
+    payload: LearnAnswerPayload,
+    responseMs: number,
+    revealDelayMs: number,
+  ) => Promise<{ correct: boolean; correctIndex?: number }>;
 }
 
 export function PromptHeader({ label, isRepeat }: { label: string; isRepeat?: boolean }) {
@@ -40,7 +46,10 @@ export function ExerciseCard({ children }: { children: React.ReactNode }) {
 
 interface OptionsListProps {
   options: string[];
-  correctIndex: number;
+  /** Only known once the server has graded the pick — null while a pick is
+   * in flight (buttons are already disabled via `selected`, so there's no
+   * interaction to block, just nothing to color yet). */
+  correctIndex: number | null;
   selected: number | null;
   onPick: (i: number) => void;
 }
@@ -57,7 +66,7 @@ export function OptionsList({ options, correctIndex, selected, onPick }: Options
         let bbg = '#E2E8F0';
         let bcol = '#64748B';
 
-        if (selected !== null) {
+        if (selected !== null && correctIndex !== null) {
           if (i === correctIndex) {
             bg = '#DCFCE7';
             bd = '#22C55E';
@@ -125,7 +134,7 @@ export function AudioReplayButton({ onClick, label }: { onClick: () => void; lab
 
 /** Shared body for type_en (word.kaa shown as the prompt) and dictation (only
  * audio, no text) — both are "type the English word" with a case-insensitive
- * exact match and no typo tolerance. */
+ * exact match and no typo tolerance. Graded server-side (see /api/learn/answer). */
 export function TypingExerciseBody({
   item,
   onAnswer,
@@ -136,13 +145,14 @@ export function TypingExerciseBody({
   const getElapsed = useResponseTimer(item.wordId + item.exercise);
   const [value, setValue] = useState('');
   const [result, setResult] = useState<null | 'correct' | 'wrong'>(null);
+  const [submitting, setSubmitting] = useState(false);
   const { word } = item;
 
-  const submit = () => {
-    if (result !== null || value.trim() === '') return;
-    const correct = value.trim().toLowerCase() === word.en.trim().toLowerCase();
-    setResult(correct ? 'correct' : 'wrong');
-    setTimeout(() => onAnswer(correct, getElapsed()), 1100);
+  const submit = async () => {
+    if (result !== null || submitting || value.trim() === '') return;
+    setSubmitting(true);
+    const res = await onAnswer({ answerText: value.trim() }, getElapsed(), 1100);
+    setResult(res.correct ? 'correct' : 'wrong');
   };
 
   return (
@@ -167,7 +177,7 @@ export function TypingExerciseBody({
           value={value}
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && submit()}
-          disabled={result !== null}
+          disabled={result !== null || submitting}
           autoFocus
           placeholder={t('learn.typePlaceholder') ?? undefined}
           className="w-full text-center font-sans font-bold text-[18px] border-2 border-border-2 rounded-[14px] py-[13px] px-4 outline-none"
@@ -180,7 +190,7 @@ export function TypingExerciseBody({
         {result === null ? (
           <button
             onClick={submit}
-            disabled={value.trim() === ''}
+            disabled={value.trim() === '' || submitting}
             className="w-full mt-4 bg-primary text-white font-display font-extrabold text-[16px] border-none rounded-[16px] py-[14px] cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {t('learn.check')}

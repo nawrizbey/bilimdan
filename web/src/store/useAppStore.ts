@@ -19,6 +19,7 @@ import type {
   BattleQuestionPayload,
   BattleServerMessage,
   BlockKey,
+  LearnAnswerPayload,
   LeaderboardResponse,
   LeaderboardScope,
   LearnPathResponse,
@@ -123,7 +124,16 @@ interface AppState {
     args: { type: 'lesson'; unitId: number; lessonIndex: number; block: BlockKey } | { type: 'review' },
   ) => Promise<void>;
   resumeLearnSession: () => Promise<boolean>;
-  answerCurrent: (correct: boolean, responseMs: number) => Promise<void>;
+  /** Submits an attempt for grading and returns the server's verdict
+   * immediately, so the exercise component can show feedback. The queue
+   * only advances (hearts/combo/cursor, possibly completing the session)
+   * after `revealDelayMs` — long enough for the component to display that
+   * feedback before the next exercise mounts. */
+  answerCurrent: (
+    payload: LearnAnswerPayload,
+    responseMs: number,
+    revealDelayMs: number,
+  ) => Promise<{ correct: boolean; correctIndex?: number }>;
   completeLearnSession: () => Promise<LearnSummaryResponse>;
   abandonLearnSession: () => void;
 
@@ -222,6 +232,57 @@ export const useAppStore = create<AppState>((set, get) => {
         console.error('Progress sync failed:', err);
       }
     }
+  }
+
+  /** Applies hearts/combo/cursor effects for an already-graded attempt and
+   * advances the queue — called after a delay so the exercise component has
+   * time to show feedback with the grading result first. `cursorAtAnswer`
+   * guards against a stale timer firing after the session moved on (e.g. the
+   * user exited) or, defensively, firing twice for the same item. */
+  async function advanceLearnQueue(cursorAtAnswer: number, item: LearnSessionState['queue'][number], correct: boolean) {
+    const session = get().learnSession;
+    if (!session || session.status !== 'active' || session.cursor !== cursorAtAnswer) return;
+
+    let hearts = session.hearts;
+    let combo = session.combo;
+    let correctCount = session.correctCount;
+    let heartsEmptyTick = session.heartsEmptyTick;
+
+    if (correct) {
+      combo += 1;
+      if (!item.isRepeat && item.exercise !== 'intro') correctCount += 1;
+    } else {
+      combo = 0;
+      hearts = Math.max(hearts - 1, 0);
+      if (hearts === 0) {
+        hearts = 1;
+        heartsEmptyTick += 1;
+      }
+    }
+
+    let queue = session.queue;
+    if (!correct) {
+      const insertAt = Math.min(session.cursor + 3, queue.length);
+      queue = [...queue.slice(0, insertAt), { ...item, isRepeat: true }, ...queue.slice(insertAt)];
+    }
+
+    const cursor = session.cursor + 1;
+    const finished = cursor >= queue.length;
+
+    set({
+      learnSession: {
+        ...session,
+        queue,
+        cursor,
+        hearts,
+        combo,
+        correctCount,
+        heartsEmptyTick,
+        status: finished ? 'summary' : 'active',
+      },
+    });
+
+    if (finished) await get().completeLearnSession();
   }
 
   return {
@@ -419,62 +480,38 @@ export const useAppStore = create<AppState>((set, get) => {
     if (finished) await get().completeLearnSession();
     return true;
   },
-  answerCurrent: async (correct, responseMs) => {
+  answerCurrent: async (payload, responseMs, revealDelayMs) => {
     const session = get().learnSession;
-    if (!session || session.status !== 'active') return;
+    if (!session || session.status !== 'active') return { correct: false };
     const item = session.queue[session.cursor];
-    if (!item) return;
+    if (!item) return { correct: false };
 
-    let hearts = session.hearts;
-    let combo = session.combo;
-    let correctCount = session.correctCount;
-    let heartsEmptyTick = session.heartsEmptyTick;
-
-    if (correct) {
-      combo += 1;
-      if (!item.isRepeat && item.exercise !== 'intro') correctCount += 1;
-    } else {
-      combo = 0;
-      hearts = Math.max(hearts - 1, 0);
-      if (hearts === 0) {
-        hearts = 1;
-        heartsEmptyTick += 1;
-      }
+    // Grading always goes through the server (source of truth for
+    // correctness) — including practice/repeat attempts, so the UI can show
+    // real feedback for them too, but those don't touch FSRS/mastery or the
+    // session's answer log (see the `practice` flag on the endpoint).
+    let correct: boolean;
+    let correctIndex: number | undefined;
+    try {
+      const res = await postLearnAnswer({
+        sessionId: session.sessionId,
+        wordId: item.wordId,
+        exercise: item.exercise,
+        responseMs,
+        practice: item.isRepeat === true,
+        ...payload,
+      });
+      correct = res.correct;
+      correctIndex = res.correctIndex;
+    } catch (err) {
+      console.error('Learn answer failed:', err);
+      return { correct: false };
     }
 
-    // Only the first attempt at a given (wordId, exercise) is graded server-side;
-    // re-queued repeats after a miss are ungraded practice (see below).
-    if (!item.isRepeat) {
-      try {
-        await postLearnAnswer({ sessionId: session.sessionId, wordId: item.wordId, exercise: item.exercise, correct, responseMs });
-      } catch (err) {
-        console.error('Learn answer failed:', err);
-      }
-    }
+    const cursorAtAnswer = session.cursor;
+    setTimeout(() => advanceLearnQueue(cursorAtAnswer, item, correct), revealDelayMs);
 
-    let queue = session.queue;
-    if (!correct) {
-      const insertAt = Math.min(session.cursor + 3, queue.length);
-      queue = [...queue.slice(0, insertAt), { ...item, isRepeat: true }, ...queue.slice(insertAt)];
-    }
-
-    const cursor = session.cursor + 1;
-    const finished = cursor >= queue.length;
-
-    set({
-      learnSession: {
-        ...session,
-        queue,
-        cursor,
-        hearts,
-        combo,
-        correctCount,
-        heartsEmptyTick,
-        status: finished ? 'summary' : 'active',
-      },
-    });
-
-    if (finished) await get().completeLearnSession();
+    return { correct, correctIndex };
   },
   completeLearnSession: async () => {
     const session = get().learnSession;

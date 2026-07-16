@@ -120,8 +120,12 @@ export interface LearnQueueItem {
   exercise: ExerciseType;
   word: LearnWord;
   options?: string[];
-  correctIndex?: number;
 }
+
+/** What an exercise component submits to grade an attempt — the server
+ * decides `correct`, never the client, except for `speak` (mic scoring is
+ * inherently client-side, can't be verified server-side). */
+export type LearnAnswerPayload = { answerIndex: number } | { answerText: string } | { correct: boolean };
 
 export interface LearnSessionUnit {
   id: number;
@@ -158,6 +162,8 @@ export interface LearnSessionActiveData {
 export interface LearnAnswerResponse {
   level: number;
   due: string;
+  correct: boolean;
+  correctIndex?: number;
 }
 
 export interface LearnSummaryResponse {

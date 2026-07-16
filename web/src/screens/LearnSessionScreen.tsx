@@ -81,9 +81,10 @@ export function LearnSessionScreen() {
 
   if (checking || !learnSession) return <ContentLoader />;
 
-  const handleAnswer = (correct: boolean, ms: number) => {
-    if (settings.sfx) (correct ? playCorrect : playIncorrect)();
-    void answerCurrent(correct, ms);
+  const handleAnswer: ExerciseProps['onAnswer'] = async (payload, ms, revealDelayMs) => {
+    const result = await answerCurrent(payload, ms, revealDelayMs);
+    if (settings.sfx) (result.correct ? playCorrect : playIncorrect)();
+    return result;
   };
 
   const handleExit = () => {

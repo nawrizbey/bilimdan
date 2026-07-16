@@ -49,7 +49,7 @@ export function IntroCard({ item, onAnswer }: ExerciseProps) {
         </div>
 
         <button
-          onClick={() => onAnswer(true, getElapsed())}
+          onClick={() => onAnswer({ correct: true }, getElapsed(), 0)}
           className="w-full mt-6 bg-primary text-white font-display font-extrabold text-[16px] border-none rounded-[16px] py-[14px] cursor-pointer"
           style={{ boxShadow: '0 6px 0 #16A34A' }}
         >

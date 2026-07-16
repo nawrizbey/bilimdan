@@ -42,13 +42,22 @@ const XP_TABLE: Record<string, number> = {
 type WordRow = { id: number; unitId: number; en: string; ipa: string; uz: string; example: string; emoji: string };
 type AnsweredEntry = { wordId: number; exercise: string; correct: boolean; responseMs: number; newlyKnown: boolean };
 
+/** What actually gets persisted in `LearnSession.items` — includes the
+ * server's private answer key (`options`/`correctIndex`) for MCQ-family
+ * items, computed once at session-start so it stays stable for the whole
+ * session (resume, grading, idempotent replay all read the same values). */
+type StoredItem = QueueItem & { options?: string[]; correctIndex?: number };
+
+const MCQ_EXERCISES = new Set(['mcq_en2kaa', 'mcq_kaa2en', 'listen_pick', 'fill_blank']);
+const TYPING_EXERCISES = new Set(['type_en', 'dictation', 'letter_tiles']);
+
 function publicWord(w: WordRow) {
   return { id: w.id, en: w.en, ipa: w.ipa, kaa: w.uz, example: w.example, emoji: w.emoji };
 }
 
-/** Enriches queue items (wordId + exercise) with the word payload and, for
- * multiple-choice exercise types, freshly-shuffled options. */
-function enrichItems(items: QueueItem[], allWords: WordRow[]) {
+/** Computes options + the correct answer index for MCQ-family items. This is
+ * the answer key — it must never be sent to the client before grading. */
+function buildStoredItems(items: QueueItem[], allWords: WordRow[]): StoredItem[] {
   const byId = new Map(allWords.map((w) => [w.id, w]));
   return items.map((item) => {
     const word = byId.get(item.wordId)!;
@@ -56,17 +65,28 @@ function enrichItems(items: QueueItem[], allWords: WordRow[]) {
     switch (item.exercise) {
       case 'mcq_en2kaa': {
         const { options, correctIndex } = buildOptions(word, unitWords, allWords, 'uz');
-        return { wordId: item.wordId, exercise: item.exercise, word: publicWord(word), options, correctIndex };
+        return { wordId: item.wordId, exercise: item.exercise, options, correctIndex };
       }
       case 'mcq_kaa2en':
       case 'listen_pick':
       case 'fill_blank': {
         const { options, correctIndex } = buildOptions(word, unitWords, allWords, 'en');
-        return { wordId: item.wordId, exercise: item.exercise, word: publicWord(word), options, correctIndex };
+        return { wordId: item.wordId, exercise: item.exercise, options, correctIndex };
       }
       default:
-        return { wordId: item.wordId, exercise: item.exercise, word: publicWord(word) };
+        return { wordId: item.wordId, exercise: item.exercise };
     }
+  });
+}
+
+/** Formats stored items for the client: attaches the word payload and keeps
+ * `options` (needed to render the choices), but strips `correctIndex` — the
+ * server alone knows the answer key until `/answer` grades an attempt. */
+function toPublicItems(storedItems: StoredItem[], allWords: WordRow[]) {
+  const byId = new Map(allWords.map((w) => [w.id, w]));
+  return storedItems.map((item) => {
+    const word = byId.get(item.wordId)!;
+    return { wordId: item.wordId, exercise: item.exercise, word: publicWord(word), options: item.options };
   });
 }
 
@@ -165,6 +185,7 @@ learnRouter.post('/session-start', requireAuth, rateLimit(15, 60_000), async (re
 
       const items = buildBlockQueue(lessonWordIds, block);
       const allWords = await prisma.word.findMany();
+      const storedItems = buildStoredItems(items, allWords);
 
       const session = await prisma.learnSession.create({
         data: {
@@ -174,7 +195,7 @@ learnRouter.post('/session-start', requireAuth, rateLimit(15, 60_000), async (re
           lessonIndex,
           block,
           isPractice,
-          items: items as unknown as Prisma.InputJsonValue,
+          items: storedItems as unknown as Prisma.InputJsonValue,
           answered: [],
         },
       });
@@ -183,7 +204,7 @@ learnRouter.post('/session-start', requireAuth, rateLimit(15, 60_000), async (re
         sessionId: session.id,
         type: 'lesson',
         unit: { id: unitId, title: unitStatus.title, emoji: unitStatus.emoji },
-        items: enrichItems(items, allWords),
+        items: toPublicItems(storedItems, allWords),
       });
       return;
     }
@@ -200,16 +221,17 @@ learnRouter.post('/session-start', requireAuth, rateLimit(15, 60_000), async (re
     const progressMap = new Map<number, ProgressLite>(dueRows.map((r) => [r.wordId, { level: r.level, state: r.state }]));
     const items = buildReviewQueue(dueRows.map((r) => r.wordId), progressMap);
     const allWords = await prisma.word.findMany();
+    const storedItems = buildStoredItems(items, allWords);
 
     const session = await prisma.learnSession.create({
-      data: { userId, type: 'review', unitId: null, lessonIndex: null, items: items as unknown as Prisma.InputJsonValue, answered: [] },
+      data: { userId, type: 'review', unitId: null, lessonIndex: null, items: storedItems as unknown as Prisma.InputJsonValue, answered: [] },
     });
 
     res.json({
       sessionId: session.id,
       type: 'review',
       unit: null,
-      items: enrichItems(items, allWords),
+      items: toPublicItems(storedItems, allWords),
     });
   } catch (err) {
     next(err);
@@ -220,10 +242,10 @@ learnRouter.post('/answer', requireAuth, rateLimit(120, 60_000), async (req, res
   try {
     const userId = req.userId!;
     const now = new Date();
-    const { sessionId, wordId, exercise, correct, responseMs } = req.body ?? {};
+    const { sessionId, wordId, exercise, answerIndex, answerText, correct: clientCorrect, responseMs, practice } = req.body ?? {};
     const sessionIdNum = Number(sessionId);
     const wordIdNum = Number(wordId);
-    if (!sessionIdNum || !wordIdNum || typeof exercise !== 'string' || typeof correct !== 'boolean') {
+    if (!sessionIdNum || !wordIdNum || typeof exercise !== 'string') {
       throw badRequest('Juwap maǵlıwmatları qáte');
     }
 
@@ -231,16 +253,47 @@ learnRouter.post('/answer', requireAuth, rateLimit(120, 60_000), async (req, res
     if (!session || session.userId !== userId) throw notFound('Sessiya tabılmadı');
     if (session.completedAt) throw badRequest('Bul sessiya juwmaqlanǵan');
 
-    const items = session.items as unknown as QueueItem[];
-    const belongsToSession = items.some((i) => i.wordId === wordIdNum && i.exercise === exercise);
-    if (!belongsToSession) throw badRequest('Bul mashq bul sessiyaǵa tiyisli emes');
+    const storedItems = session.items as unknown as StoredItem[];
+    const storedItem = storedItems.find((i) => i.wordId === wordIdNum && i.exercise === exercise);
+    if (!storedItem) throw badRequest('Bul mashq bul sessiyaǵa tiyisli emes');
+
+    // Grades the attempt on the server — never trusts a client-claimed
+    // boolean, except for `speak`, which can't be verified without
+    // server-side audio (mic scoring is inherently client-side).
+    let correct: boolean;
+    if (exercise === 'intro') {
+      correct = true;
+    } else if (MCQ_EXERCISES.has(exercise)) {
+      const answerIndexNum = Number(answerIndex);
+      if (!Number.isInteger(answerIndexNum)) throw badRequest('Juwap maǵlıwmatları qáte');
+      correct = answerIndexNum === storedItem.correctIndex;
+    } else if (TYPING_EXERCISES.has(exercise)) {
+      if (typeof answerText !== 'string') throw badRequest('Juwap maǵlıwmatları qáte');
+      const word = await prisma.word.findUnique({ where: { id: wordIdNum }, select: { en: true } });
+      if (!word) throw notFound('Sóz tabılmadı');
+      correct = answerText.trim().toLowerCase() === word.en.trim().toLowerCase();
+    } else if (exercise === 'speak') {
+      if (typeof clientCorrect !== 'boolean') throw badRequest('Juwap maǵlıwmatları qáte');
+      correct = clientCorrect;
+    } else {
+      throw badRequest('Bilinbegen mashq túri');
+    }
+
+    // Practice attempts — re-queued repeats after a miss — are graded the
+    // same way for immediate UI feedback, but never touch FSRS/mastery or
+    // the session's answer log. Only the first real attempt at a
+    // (wordId, exercise) pair counts.
+    if (practice === true) {
+      res.json({ correct, correctIndex: storedItem.correctIndex });
+      return;
+    }
 
     const answered = session.answered as unknown as AnsweredEntry[];
     const already = answered.find((a) => a.wordId === wordIdNum && a.exercise === exercise);
     if (already) {
       // Idempotent replay (e.g. a retried network request) — don't re-run FSRS.
       const progress = await prisma.userWordProgress.findUnique({ where: { userId_wordId: { userId, wordId: wordIdNum } } });
-      res.json({ level: progress?.level ?? 0, due: progress?.due ?? now });
+      res.json({ level: progress?.level ?? 0, due: progress?.due ?? now, correct: already.correct, correctIndex: storedItem.correctIndex });
       return;
     }
 
@@ -334,7 +387,7 @@ learnRouter.post('/answer', requireAuth, rateLimit(120, 60_000), async (req, res
       data: { answered: [...answered, entry] },
     });
 
-    res.json({ level, due: srs.due });
+    res.json({ level, due: srs.due, correct, correctIndex: storedItem.correctIndex });
   } catch (err) {
     next(err);
   }
@@ -351,7 +404,7 @@ learnRouter.get('/session-active', requireAuth, async (req, res, next) => {
       return;
     }
 
-    const items = session.items as unknown as QueueItem[];
+    const storedItems = session.items as unknown as StoredItem[];
     const allWords = await prisma.word.findMany();
     const unit = session.unitId
       ? await prisma.unit.findUnique({ where: { id: session.unitId }, select: { id: true, title: true, emoji: true } })
@@ -361,7 +414,7 @@ learnRouter.get('/session-active', requireAuth, async (req, res, next) => {
       sessionId: session.id,
       type: session.type,
       unit,
-      items: enrichItems(items, allWords),
+      items: toPublicItems(storedItems, allWords),
       answered: session.answered,
     });
   } catch (err) {

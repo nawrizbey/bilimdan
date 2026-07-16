@@ -2,6 +2,7 @@ import { api } from './api';
 import type {
   BlockKey,
   ExerciseType,
+  LearnAnswerPayload,
   LearnAnswerResponse,
   LearnPathResponse,
   LearnSessionActiveData,
@@ -25,13 +26,16 @@ export function getActiveLearnSession() {
   return api.get<{ session: null } | LearnSessionActiveData>('/api/learn/session-active');
 }
 
-export function postLearnAnswer(args: {
-  sessionId: number;
-  wordId: number;
-  exercise: ExerciseType;
-  correct: boolean;
-  responseMs: number;
-}) {
+export function postLearnAnswer(
+  args: {
+    sessionId: number;
+    wordId: number;
+    exercise: ExerciseType;
+    responseMs: number;
+    /** Re-queued repeat after a miss — grades the attempt but doesn't touch FSRS/mastery. */
+    practice?: boolean;
+  } & LearnAnswerPayload,
+) {
   return api.post<LearnAnswerResponse>('/api/learn/answer', args);
 }
 

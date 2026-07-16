@@ -12,7 +12,8 @@ export function ListenPickExercise({ item, onAnswer }: ExerciseProps) {
   const { t } = useTranslation();
   const getElapsed = useResponseTimer(item.wordId + item.exercise);
   const [selected, setSelected] = useState<number | null>(null);
-  const { word, options = [], correctIndex = 0 } = item;
+  const [correctIndex, setCorrectIndex] = useState<number | null>(null);
+  const { word, options = [] } = item;
 
   useEffect(() => {
     speak(word.en);
@@ -20,10 +21,11 @@ export function ListenPickExercise({ item, onAnswer }: ExerciseProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handlePick = (i: number) => {
+  const handlePick = async (i: number) => {
     if (selected !== null) return;
     setSelected(i);
-    setTimeout(() => onAnswer(i === correctIndex, getElapsed()), REVEAL_DELAY_MS);
+    const res = await onAnswer({ answerIndex: i }, getElapsed(), REVEAL_DELAY_MS);
+    setCorrectIndex(res.correctIndex ?? null);
   };
 
   return (
@@ -41,7 +43,9 @@ export function ListenPickExercise({ item, onAnswer }: ExerciseProps) {
 
         <OptionsList options={options} correctIndex={correctIndex} selected={selected} onPick={handlePick} />
 
-        {selected !== null && (selected === correctIndex ? <FeedbackLine correct /> : <FeedbackLine correct={false} correctAnswer={options[correctIndex]} />)}
+        {selected !== null &&
+          correctIndex !== null &&
+          (selected === correctIndex ? <FeedbackLine correct /> : <FeedbackLine correct={false} correctAnswer={options[correctIndex]} />)}
       </ExerciseCard>
     </div>
   );
