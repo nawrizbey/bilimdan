@@ -145,7 +145,7 @@ interface AppState {
   loadDailyQuests: () => Promise<void>;
 
   // Battle (WebSocket-driven)
-  battleStatus: 'idle' | 'queueing' | 'matched' | 'playing' | 'revealed' | 'ended';
+  battleStatus: 'idle' | 'queueing' | 'room-waiting' | 'matched' | 'playing' | 'revealed' | 'ended';
   battleOpponent: BattleOpponent | null;
   battleQIndex: number;
   battleQuestion: BattleQuestionPayload | null;
@@ -157,8 +157,12 @@ interface AppState {
   battleCorrectIndex: number | null;
   battleWinnerId: number | null;
   battleXpAwarded: number;
+  battleRoomCode: string | null;
+  battleRoomError: 'not_found' | 'full' | null;
   battleApplyMessage: (msg: BattleServerMessage) => void;
   battleSetQueueing: () => void;
+  battleSetRoomWaiting: () => void;
+  battleClearRoomError: () => void;
   battleReset: () => void;
 
   // Quiz
@@ -558,11 +562,24 @@ export const useAppStore = create<AppState>((set, get) => {
   battleCorrectIndex: null,
   battleWinnerId: null,
   battleXpAwarded: 0,
+  battleRoomCode: null,
+  battleRoomError: null,
   battleSetQueueing: () => set({ battleStatus: 'queueing' }),
+  battleSetRoomWaiting: () => set({ battleStatus: 'room-waiting', battleRoomCode: null, battleRoomError: null }),
+  battleClearRoomError: () => set({ battleRoomError: null }),
   battleApplyMessage: (msg: BattleServerMessage) => {
     switch (msg.type) {
       case 'queue:waiting':
         set({ battleStatus: 'queueing' });
+        break;
+      case 'room:created':
+        set({ battleStatus: 'room-waiting', battleRoomCode: msg.code });
+        break;
+      case 'room:not_found':
+        set({ battleRoomError: 'not_found' });
+        break;
+      case 'room:full':
+        set({ battleRoomError: 'full' });
         break;
       case 'match:found':
         set({
@@ -574,6 +591,8 @@ export const useAppStore = create<AppState>((set, get) => {
           battleYourChoice: null,
           battleOppChoice: null,
           battleCorrectIndex: null,
+          battleRoomCode: null,
+          battleRoomError: null,
         });
         break;
       case 'question:start':
@@ -626,6 +645,8 @@ export const useAppStore = create<AppState>((set, get) => {
       battleCorrectIndex: null,
       battleWinnerId: null,
       battleXpAwarded: 0,
+      battleRoomCode: null,
+      battleRoomError: null,
     }),
 
   // Quiz

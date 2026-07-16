@@ -18,6 +18,12 @@ const BOT_MATCH_DELAY_MS = 8_000;
 const BOT_USER_ID = -1;
 const BOT_CORRECT_PROBABILITY = 0.55;
 const AUTH_TIMEOUT_MS = 5_000;
+const ROOM_TTL_MS = 10 * 60 * 1000;
+const ROOM_CODE_LENGTH = 4;
+// Excludes 0/O and 1/I — easy to misread aloud or mistype when a kid is
+// reading the code out to a friend across the room.
+const ROOM_CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+const PRIVATE_XP_FACTOR = 0.5;
 
 interface PlayerInfo {
   userId: number;
@@ -51,6 +57,15 @@ interface ActiveMatch {
   revealTimer: ReturnType<typeof setTimeout> | null;
   forfeitTimers: Record<number, ReturnType<typeof setTimeout> | undefined>;
   ended: boolean;
+  isPrivate: boolean;
+}
+
+interface OpenRoom {
+  code: string;
+  creatorConn: Connection;
+  createdAt: number;
+  claimed: boolean;
+  ttlTimer: ReturnType<typeof setTimeout>;
 }
 
 const waitingQueue: Connection[] = [];
@@ -58,6 +73,8 @@ const userConnections = new Map<number, Connection>();
 const userToMatchId = new Map<number, number>();
 const activeMatches = new Map<number, ActiveMatch>();
 const botFallbackTimers = new Map<number, ReturnType<typeof setTimeout>>();
+// Private-room codes waiting for a friend to join — see room:create/room:join.
+const openRooms = new Map<string, OpenRoom>();
 // userIds synchronously claimed by tryMatchmake but not yet reflected in
 // userToMatchId, since startMatch sets that only after awaiting the DB. Without
 // this, the second player to join a pair can race past the `userToMatchId.has`
@@ -90,13 +107,33 @@ function removeFromQueue(conn: Connection) {
   if (idx !== -1) waitingQueue.splice(idx, 1);
 }
 
+function generateRoomCode(): string {
+  let code: string;
+  do {
+    code = Array.from({ length: ROOM_CODE_LENGTH }, () => ROOM_CODE_CHARS[Math.floor(Math.random() * ROOM_CODE_CHARS.length)]).join('');
+  } while (openRooms.has(code));
+  return code;
+}
+
+/** Drops any still-open (unclaimed) room this connection created — called on
+ * disconnect so a player who closes the tab before a friend joins doesn't
+ * leave a stale code sitting around for the rest of its TTL. */
+function removeOpenRoomsCreatedBy(conn: Connection) {
+  for (const [code, room] of openRooms) {
+    if (room.creatorConn === conn && !room.claimed) {
+      clearTimeout(room.ttlTimer);
+      openRooms.delete(code);
+    }
+  }
+}
+
 async function loadPlayerInfo(userId: number): Promise<PlayerInfo> {
   const user = await prisma.user.findUniqueOrThrow({ where: { id: userId } });
   const first = user.fullName.trim().split(/\s+/)[0] ?? user.username;
   return { userId, name: first, initial: first.charAt(0).toUpperCase() };
 }
 
-async function startMatch(p1: Connection, p2: Connection) {
+async function startMatch(p1: Connection, p2: Connection, isPrivate = false) {
   clearBotFallback(p1.userId);
   clearBotFallback(p2.userId);
 
@@ -122,6 +159,7 @@ async function startMatch(p1: Connection, p2: Connection) {
     revealTimer: null,
     forfeitTimers: {},
     ended: false,
+    isPrivate,
   };
   activeMatches.set(match.id, match);
   if (!p1.isBot) userToMatchId.set(p1.userId, match.id);
@@ -258,7 +296,10 @@ async function endMatch(match: ActiveMatch, abandonedBy?: number) {
     if (p.isBot) continue;
     const isWinner = winnerId === p.userId;
     const isDraw = winnerId === null;
-    const xpAwarded = isDraw ? BATTLE_DRAW_XP : isWinner ? BATTLE_WIN_XP : BATTLE_LOSS_XP;
+    const baseXp = isDraw ? BATTLE_DRAW_XP : isWinner ? BATTLE_WIN_XP : BATTLE_LOSS_XP;
+    // Halved for private matches — otherwise two friends could farm XP by
+    // repeatedly battling each other instead of the shared matchmaking pool.
+    const xpAwarded = match.isPrivate ? Math.round(baseXp * PRIVATE_XP_FACTOR) : baseXp;
     const counterField = isDraw ? 'battleDraws' : isWinner ? 'battleWins' : 'battleLosses';
     const user = await awardProgress(p.userId, {
       xpGain: xpAwarded,
@@ -302,6 +343,51 @@ function scheduleBotFallback(conn: Connection) {
   );
 }
 
+function handleRoomCreate(conn: Connection) {
+  if (userToMatchId.has(conn.userId) || pairingInProgress.has(conn.userId)) return; // already in/entering a match
+  const code = generateRoomCode();
+  const room: OpenRoom = {
+    code,
+    creatorConn: conn,
+    createdAt: Date.now(),
+    claimed: false,
+    ttlTimer: setTimeout(() => {
+      const current = openRooms.get(code);
+      if (current && !current.claimed) openRooms.delete(code);
+    }, ROOM_TTL_MS),
+  };
+  openRooms.set(code, room);
+  send(conn, { type: 'room:created', code });
+}
+
+function handleRoomJoin(conn: Connection, data: { code?: unknown }) {
+  if (userToMatchId.has(conn.userId) || pairingInProgress.has(conn.userId)) return; // already in/entering a match
+  const code = typeof data.code === 'string' ? data.code.toUpperCase() : '';
+  const room = openRooms.get(code);
+  if (!room) {
+    send(conn, { type: 'room:not_found' });
+    return;
+  }
+  if (room.claimed) {
+    send(conn, { type: 'room:full' });
+    return;
+  }
+  if (room.creatorConn.userId === conn.userId) {
+    send(conn, { type: 'room:not_found' }); // can't join your own room
+    return;
+  }
+
+  // Claim synchronously — before startMatch's first await — so a second
+  // room:join racing for the same code (or the creator's own queue:join)
+  // can't slip past the check above during the DB round trip.
+  room.claimed = true;
+  clearTimeout(room.ttlTimer);
+  openRooms.delete(code);
+  pairingInProgress.add(room.creatorConn.userId);
+  pairingInProgress.add(conn.userId);
+  void startMatch(room.creatorConn, conn, true);
+}
+
 function handleAnswerSubmit(conn: Connection, data: { qIndex?: number; choice?: number }) {
   const matchId = userToMatchId.get(conn.userId);
   if (matchId == null) return;
@@ -324,6 +410,7 @@ function handleAnswerSubmit(conn: Connection, data: { qIndex?: number; choice?: 
 function handleDisconnect(conn: Connection) {
   removeFromQueue(conn);
   clearBotFallback(conn.userId);
+  removeOpenRoomsCreatedBy(conn);
   if (userConnections.get(conn.userId) === conn) {
     userConnections.delete(conn.userId);
   }
@@ -458,6 +545,10 @@ export function setupBattleWebSocket(server: HttpServer) {
           if (!userToMatchId.has(userId) && !pairingInProgress.has(userId)) scheduleBotFallback(conn);
         } else if (msg.type === 'answer:submit') {
           handleAnswerSubmit(conn, msg as { qIndex?: number; choice?: number });
+        } else if (msg.type === 'room:create') {
+          handleRoomCreate(conn);
+        } else if (msg.type === 'room:join') {
+          handleRoomJoin(conn, msg as { code?: unknown });
         }
       });
 

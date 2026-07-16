@@ -65,3 +65,11 @@ export function sendQueueJoin(ws: WebSocket) {
 export function sendAnswer(ws: WebSocket, qIndex: number, choice: number) {
   sendWhenAuthenticated(ws, { type: 'answer:submit', qIndex, choice });
 }
+
+export function sendRoomCreate(ws: WebSocket) {
+  sendWhenAuthenticated(ws, { type: 'room:create' });
+}
+
+export function sendRoomJoin(ws: WebSocket, code: string) {
+  sendWhenAuthenticated(ws, { type: 'room:join', code });
+}

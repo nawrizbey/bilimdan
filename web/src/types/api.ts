@@ -278,4 +278,7 @@ export type BattleServerMessage =
       xpAwarded: number;
       user: ApiUser;
     }
+  | { type: 'room:created'; code: string }
+  | { type: 'room:not_found' }
+  | { type: 'room:full' }
   | { type: 'error'; code: string; message: string };

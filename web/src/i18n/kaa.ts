@@ -225,6 +225,15 @@ export const kaa = {
     win: 'Jeńis! 🏆',
     lose: 'Jeńilis',
     draw: 'Teń',
+    friendSectionTitle: 'Yamasa dos penen oynań',
+    createRoom: '🔑 Xana jasaw',
+    joinRoom: '🚪 Kod penen qosılıw',
+    roomCodePlaceholder: 'KOD',
+    joinBtn: 'Qosılıw',
+    roomNotFound: 'Bunday kod tabılmadı yamasa múddeti tamam boldı',
+    roomFull: 'Bul xanaǵa basqa oyınshı qosılıp boldı',
+    roomWaitingTitle: '🤝 Dosıńızdı kútip atırmız',
+    roomWaitingDesc: 'Bul kodtı dosıńızǵa aytıń — ol "Kod penen qosılıw" arqalı kiredi',
   },
 
   dailyReminder: {

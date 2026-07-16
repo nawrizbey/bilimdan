@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAppStore } from '../store/useAppStore';
-import { connectBattleSocket, sendAnswer, sendQueueJoin } from '../lib/battleSocket';
+import { connectBattleSocket, sendAnswer, sendQueueJoin, sendRoomCreate, sendRoomJoin } from '../lib/battleSocket';
 import { playCorrect, playIncorrect, playMatchFound, playTick } from '../lib/sound';
 
 const QUESTION_SECONDS = 10;
@@ -30,8 +30,12 @@ export function BattleScreen() {
   const battleOppChoice = useAppStore((s) => s.battleOppChoice);
   const battleCorrectIndex = useAppStore((s) => s.battleCorrectIndex);
   const battleXpAwarded = useAppStore((s) => s.battleXpAwarded);
+  const battleRoomCode = useAppStore((s) => s.battleRoomCode);
+  const battleRoomError = useAppStore((s) => s.battleRoomError);
   const battleApplyMessage = useAppStore((s) => s.battleApplyMessage);
   const battleSetQueueing = useAppStore((s) => s.battleSetQueueing);
+  const battleSetRoomWaiting = useAppStore((s) => s.battleSetRoomWaiting);
+  const battleClearRoomError = useAppStore((s) => s.battleClearRoomError);
   const battleReset = useAppStore((s) => s.battleReset);
 
   const wsRef = useRef<WebSocket | null>(null);
@@ -43,6 +47,9 @@ export function BattleScreen() {
   const [connectError, setConnectError] = useState<string | null>(null);
   const [connectionState, setConnectionState] = useState<ConnectionState>('connected');
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
+  const [showJoinInput, setShowJoinInput] = useState(false);
+  const [joinCode, setJoinCode] = useState('');
+  const [joiningRoom, setJoiningRoom] = useState(false);
 
   const clearReconnectTimers = () => {
     if (reconnectTimeoutRef.current) {
@@ -135,11 +142,12 @@ export function BattleScreen() {
     if (sfxEnabled && battleStatus === 'playing' && remainingSeconds > 0 && remainingSeconds <= 3) playTick();
   }, [remainingSeconds, battleStatus, sfxEnabled]);
 
-  const handleJoinQueue = () => {
+  /** Shared connect step for all three entry points (queue, create room, join
+   * room) — only what happens once the socket is open differs. */
+  const connectAndSend = (onOpen: (ws: WebSocket) => void) => {
     setConnectError(null);
     setConnectionState('connected');
     reconnectAttemptsRef.current = 0;
-    battleSetQueueing();
     const ws = connectBattleSocket((msg) => battleApplyMessage(msg));
     if (!ws) {
       setConnectError(t('battle.loginRequired'));
@@ -147,10 +155,38 @@ export function BattleScreen() {
       return;
     }
     wireSocket(ws);
-    ws.onopen = () => sendQueueJoin(ws);
+    ws.onopen = () => onOpen(ws);
     ws.onerror = () => setConnectError(t('battle.connectError'));
     wsRef.current = ws;
   };
+
+  const handleJoinQueue = () => {
+    battleSetQueueing();
+    connectAndSend((ws) => sendQueueJoin(ws));
+  };
+
+  const handleCreateRoom = () => {
+    battleSetRoomWaiting();
+    connectAndSend((ws) => sendRoomCreate(ws));
+  };
+
+  const handleJoinRoom = () => {
+    const code = joinCode.trim().toUpperCase();
+    if (code.length !== 4 || joiningRoom) return;
+    battleClearRoomError();
+    setJoiningRoom(true);
+    // Deliberately doesn't touch battleStatus — a joiner isn't "waiting for
+    // a friend" the way the creator is, this is just a brief connect step
+    // before match:found fires.
+    connectAndSend((ws) => sendRoomJoin(ws, code));
+  };
+
+  // Clears the joining spinner once we know the outcome (matched, or the
+  // server rejected the code) — connectAndSend's onOpen fires before the
+  // server has actually responded to room:join.
+  useEffect(() => {
+    if (battleRoomError || battleStatus === 'matched') setJoiningRoom(false);
+  }, [battleRoomError, battleStatus]);
 
   const handleAnswer = (choice: number) => {
     if (!wsRef.current || battleQuestion == null) return;
@@ -228,6 +264,48 @@ export function BattleScreen() {
         >
           {t('battle.findOpponent')}
         </button>
+
+        <div className="mt-7 pt-6 border-t border-border-2">
+          <p className="text-[13px] font-bold text-text-softer mb-3">{t('battle.friendSectionTitle')}</p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+            <button
+              onClick={handleCreateRoom}
+              className="bg-white text-battle border-2 border-battle rounded-[14px] py-[11px] px-5 font-display font-extrabold text-[14px] cursor-pointer"
+            >
+              {t('battle.createRoom')}
+            </button>
+            <button
+              onClick={() => setShowJoinInput((v) => !v)}
+              className="bg-white text-battle border-2 border-battle rounded-[14px] py-[11px] px-5 font-display font-extrabold text-[14px] cursor-pointer"
+            >
+              {t('battle.joinRoom')}
+            </button>
+          </div>
+          {showJoinInput && (
+            <div className="mt-4 flex items-center gap-2 justify-center">
+              <input
+                value={joinCode}
+                onChange={(e) => setJoinCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4))}
+                onKeyDown={(e) => e.key === 'Enter' && handleJoinRoom()}
+                placeholder={t('battle.roomCodePlaceholder') ?? undefined}
+                autoFocus
+                className="w-28 text-center font-display font-extrabold text-[20px] tracking-[.15em] border-2 border-border-2 rounded-[12px] py-[9px] outline-none"
+              />
+              <button
+                onClick={handleJoinRoom}
+                disabled={joinCode.length !== 4 || joiningRoom}
+                className="bg-battle text-white border-none rounded-[12px] py-[11px] px-5 font-display font-extrabold text-[14px] cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                {t('battle.joinBtn')}
+              </button>
+            </div>
+          )}
+          {battleRoomError && (
+            <div className="mt-3 text-[12.5px] font-bold text-danger-dark">
+              {t(battleRoomError === 'full' ? 'battle.roomFull' : 'battle.roomNotFound')}
+            </div>
+          )}
+        </div>
       </div>
     );
   }
@@ -244,6 +322,31 @@ export function BattleScreen() {
         >
           {t('common.cancel')}
         </button>
+      </div>
+    );
+  }
+
+  if (battleStatus === 'room-waiting') {
+    return (
+      <div className="animate-pop max-w-[680px] mx-auto text-center bg-white border border-border-2 rounded-[24px] p-10" style={{ boxShadow: '0 8px 26px rgba(15,23,42,.06)' }}>
+        <div className="text-[40px] mb-2">🤝</div>
+        <h2 className="font-display font-extrabold text-[22px] text-text mb-1">{t('battle.roomWaitingTitle')}</h2>
+        <p className="text-[14px] font-bold text-text-softer mb-5">{t('battle.roomWaitingDesc')}</p>
+        {battleRoomCode ? (
+          <div className="inline-block bg-[#FDF2F8] border-2 border-dashed border-battle rounded-[18px] py-4 px-8 mb-6">
+            <div className="font-display font-extrabold text-[40px] tracking-[.2em] text-battle">{battleRoomCode}</div>
+          </div>
+        ) : (
+          <div className="w-10 h-10 mx-auto mb-6 rounded-full border-[3px] border-border-2 animate-spin" style={{ borderTopColor: '#EC4899' }} />
+        )}
+        <div>
+          <button
+            onClick={handleLeave}
+            className="bg-border-3 text-[#475569] border-none rounded-[14px] py-[11px] px-[22px] font-display font-bold text-[15px] cursor-pointer"
+          >
+            {t('common.cancel')}
+          </button>
+        </div>
       </div>
     );
   }
