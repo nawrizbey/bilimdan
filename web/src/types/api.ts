@@ -2,6 +2,7 @@ export interface ApiUser {
   id: number;
   username: string;
   fullName: string;
+  role: 'student' | 'teacher';
   region: string;
   district: string;
   school: string;
@@ -200,6 +201,33 @@ export interface ApiWord {
 export interface UnitWordsResponse {
   unit: { id: number; title: string; emoji: string };
   words: ApiWord[];
+}
+
+// --- Teacher dashboard (class monitoring) ---
+
+export interface TeacherClass {
+  id: number;
+  name: string;
+  joinCode: string;
+  memberCount: number;
+  createdAt: string;
+}
+
+export interface ClassRosterEntry {
+  userId: number;
+  fullName: string;
+  wordsKnownCount: number;
+  xp: number;
+  streak: number;
+  lastActiveDate: string | null;
+  blocksThisWeek: number;
+}
+
+export interface HardWordAggregate {
+  wordId: number;
+  en: string;
+  kaa: string;
+  totalLapses: number;
 }
 
 export interface ApiQuizQuestion {

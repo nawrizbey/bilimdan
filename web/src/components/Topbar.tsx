@@ -14,6 +14,7 @@ export function Topbar({ onMenuClick }: TopbarProps) {
   const studentName = useAppStore((s) => s.studentName);
   const streak = useAppStore((s) => s.streak);
   const xp = useAppStore((s) => s.xp);
+  const role = useAppStore((s) => s.role);
   const units = useAppStore((s) => s.units);
   const loadUnits = useAppStore((s) => s.loadUnits);
   const initial = studentName.charAt(0).toUpperCase();
@@ -31,7 +32,9 @@ export function Topbar({ onMenuClick }: TopbarProps) {
   }, []);
 
   const q = query.trim().toLowerCase();
-  const navMatches = q ? NAV_ITEMS.filter((item) => t(item.labelKey).toLowerCase().includes(q)) : [];
+  const navMatches = q
+    ? NAV_ITEMS.filter((item) => (!item.teacherOnly || role === 'teacher') && t(item.labelKey).toLowerCase().includes(q))
+    : [];
   const unitMatches = q ? (units ?? []).filter((u) => u.title.toLowerCase().includes(q)) : [];
   const hasResults = navMatches.length > 0 || unitMatches.length > 0;
 

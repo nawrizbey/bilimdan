@@ -31,8 +31,14 @@ model School {
   districtId Int
   district   District @relation(fields: [districtId], references: [id])
   users      User[]
+  classes    Class[]
 
   @@unique([districtId, name])
+}
+
+enum UserRole {
+  student
+  teacher
 }
 
 model User {
@@ -41,6 +47,7 @@ model User {
   passwordHash    String
   fullName        String
   grade           String
+  role            UserRole  @default(student)
   regionId        Int
   districtId      Int
   schoolId        Int
@@ -72,11 +79,44 @@ model User {
   learnSessions LearnSession[]
   learnBlockProgress LearnBlockProgress[]
   dailyQuestProgress DailyQuestProgress[]
+  teacherClasses    Class[]       @relation("TeacherClasses")
+  classMemberships  ClassMember[]
 
   @@index([districtId, xp])
   @@index([regionId, xp])
   @@index([schoolId, xp])
   @@index([xp])
+}
+
+// A teacher's roster group. Students join by entering `joinCode` in Settings
+// (POST /api/classes/join) — see server/src/routes/classes.ts. Read-only
+// monitoring for the teacher (server/src/routes/teacher.ts); no messaging.
+model Class {
+  id        Int      @id @default(autoincrement())
+  name      String
+  teacherId Int
+  schoolId  Int
+  joinCode  String   @unique
+  createdAt DateTime @default(now())
+
+  teacher User          @relation("TeacherClasses", fields: [teacherId], references: [id])
+  school  School        @relation(fields: [schoolId], references: [id])
+  members ClassMember[]
+
+  @@index([teacherId])
+}
+
+model ClassMember {
+  id       Int      @id @default(autoincrement())
+  classId  Int
+  userId   Int
+  joinedAt DateTime @default(now())
+
+  class Class @relation(fields: [classId], references: [id])
+  user  User  @relation(fields: [userId], references: [id])
+
+  @@unique([classId, userId])
+  @@index([userId])
 }
 
 model Unit {

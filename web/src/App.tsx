@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { AppLayout } from './components/AppLayout';
 import { RequireAuth } from './components/RequireAuth';
+import { RequireTeacher } from './components/RequireTeacher';
 import { RouteLoader } from './components/RouteLoader';
 import { useAppStore } from './store/useAppStore';
 
@@ -19,6 +20,7 @@ const LeadersScreen = lazy(() => import('./screens/LeadersScreen').then((m) => (
 const ProfileScreen = lazy(() => import('./screens/ProfileScreen').then((m) => ({ default: m.ProfileScreen })));
 const SettingsScreen = lazy(() => import('./screens/SettingsScreen').then((m) => ({ default: m.SettingsScreen })));
 const AdminApp = lazy(() => import('./screens/admin/AdminApp').then((m) => ({ default: m.AdminApp })));
+const TeacherScreen = lazy(() => import('./screens/TeacherScreen').then((m) => ({ default: m.TeacherScreen })));
 
 function App() {
   const loadSession = useAppStore((s) => s.loadSession);
@@ -51,6 +53,14 @@ function App() {
           <Route path="quiz" element={<QuizScreen />} />
           <Route path="listen" element={<ListenScreen />} />
           <Route path="leaders" element={<LeadersScreen />} />
+          <Route
+            path="teacher"
+            element={
+              <RequireTeacher>
+                <TeacherScreen />
+              </RequireTeacher>
+            }
+          />
           <Route path="profile" element={<ProfileScreen />} />
           <Route path="settings" element={<SettingsScreen />} />
         </Route>

@@ -21,6 +21,10 @@ export function notFound(message = 'Topilmadi') {
   return new AppError(404, 'NOT_FOUND', message);
 }
 
+export function forbidden(message = 'Ruxsat berilmegen', code = 'FORBIDDEN') {
+  return new AppError(403, code, message);
+}
+
 export function conflict(message: string) {
   return new AppError(409, 'CONFLICT', message);
 }

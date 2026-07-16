@@ -14,8 +14,10 @@ export function Sidebar({ open, onClose }: SidebarProps) {
   const { t } = useTranslation();
   const goalMin = useAppStore((s) => s.goalMin);
   const goalDone = useAppStore((s) => s.goalDone);
+  const role = useAppStore((s) => s.role);
   const goalPct = Math.min(100, Math.round((goalDone / goalMin) * 100));
   const location = useLocation();
+  const navItems = NAV_ITEMS.filter((item) => !item.teacherOnly || role === 'teacher');
 
   useEffect(() => {
     onClose();
@@ -56,7 +58,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
         </div>
 
         <nav className="flex flex-col gap-1 flex-1">
-          {NAV_ITEMS.map((item) => (
+          {navItems.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}

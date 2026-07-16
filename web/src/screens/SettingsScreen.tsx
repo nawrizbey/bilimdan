@@ -1,6 +1,9 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAppStore } from '../store/useAppStore';
+import { ApiError } from '../lib/api';
+import { getErrorMessage } from '../lib/errorMessage';
 
 const TOGGLES: { key: 'mic' | 'head' | 'sfx' | 'notify'; emoji: string; titleKey: string; descKey: string }[] = [
   { key: 'mic', emoji: '🎙️', titleKey: 'settings.micTitle', descKey: 'settings.micDesc' },
@@ -19,6 +22,26 @@ export function SettingsScreen() {
   const goalMin = useAppStore((s) => s.goalMin);
   const setGoalMin = useAppStore((s) => s.setGoalMin);
   const logout = useAppStore((s) => s.logout);
+  const joinClass = useAppStore((s) => s.joinClass);
+
+  const [classCode, setClassCode] = useState('');
+  const [joining, setJoining] = useState(false);
+  const [joinMessage, setJoinMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  async function handleJoinClass() {
+    if (!classCode.trim() || joining) return;
+    setJoining(true);
+    setJoinMessage(null);
+    try {
+      const className = await joinClass(classCode.trim());
+      setJoinMessage({ type: 'success', text: t('settings.classJoinSuccess', { className }) });
+      setClassCode('');
+    } catch (err) {
+      setJoinMessage({ type: 'error', text: err instanceof ApiError ? getErrorMessage(t, err) : t('common.networkError') });
+    } finally {
+      setJoining(false);
+    }
+  }
 
   return (
     <div className="animate-pop max-w-[680px] mx-auto">
@@ -82,6 +105,38 @@ export function SettingsScreen() {
             );
           })}
         </div>
+      </div>
+
+      <div className="bg-white border border-border-2 rounded-[22px] p-[22px] mb-[18px]" style={{ boxShadow: '0 2px 10px rgba(15,23,42,.04)' }}>
+        <div className="text-[11px] font-extrabold text-text-softer tracking-[.06em] mb-[14px]">{t('settings.classSection')}</div>
+        <div className="flex gap-[10px]">
+          <input
+            value={classCode}
+            onChange={(e) => setClassCode(e.target.value.toUpperCase())}
+            placeholder={t('settings.classCodePlaceholder') ?? undefined}
+            className="flex-1 rounded-[13px] border-2 border-border-2 px-3 py-[11px] text-[14.5px] font-bold outline-none focus:border-primary uppercase"
+          />
+          <button
+            onClick={handleJoinClass}
+            disabled={joining || !classCode.trim()}
+            className="rounded-[13px] px-4 font-display font-extrabold text-[14.5px] text-white cursor-pointer disabled:opacity-50"
+            style={{ background: '#22C55E' }}
+          >
+            {t('settings.classJoinBtn')}
+          </button>
+        </div>
+        {joinMessage && (
+          <div
+            className="mt-3 text-[13px] font-bold rounded-[12px] p-3"
+            style={
+              joinMessage.type === 'success'
+                ? { background: '#F0FDF4', color: '#15803D', border: '1px solid #BBF7D0' }
+                : { background: '#FEF2F2', color: '#B91C1C', border: '1px solid #FECACA' }
+            }
+          >
+            {joinMessage.text}
+          </div>
+        )}
       </div>
 
       <button

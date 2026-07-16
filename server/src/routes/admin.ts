@@ -311,6 +311,7 @@ adminRouter.get('/users', async (req, res, next) => {
           id: true,
           username: true,
           fullName: true,
+          role: true,
           xp: true,
           streak: true,
           createdAt: true,
@@ -325,6 +326,7 @@ adminRouter.get('/users', async (req, res, next) => {
       id: u.id,
       username: u.username,
       fullName: u.fullName,
+      role: u.role,
       xp: u.xp,
       streak: u.streak,
       createdAt: u.createdAt,
@@ -334,6 +336,23 @@ adminRouter.get('/users', async (req, res, next) => {
     }));
 
     res.json({ users, total });
+  } catch (err) {
+    next(err);
+  }
+});
+
+adminRouter.patch('/users/:id/role', async (req, res, next) => {
+  try {
+    const id = Number(req.params.id);
+    const { role } = req.body ?? {};
+    if (!id) throw badRequest('User id qáte');
+    if (role !== 'student' && role !== 'teacher') throw badRequest("role 'student' yamasa 'teacher' bolıwı kerek");
+
+    const user = await prisma.user.findUnique({ where: { id } });
+    if (!user) throw notFound('Paydalanıwshı tabılmadı');
+
+    const updated = await prisma.user.update({ where: { id }, data: { role } });
+    res.json({ id: updated.id, role: updated.role });
   } catch (err) {
     next(err);
   }

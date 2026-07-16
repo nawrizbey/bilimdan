@@ -10,6 +10,7 @@ export function serializeUser(user: UserWithLocation) {
     username: user.username,
     fullName: user.fullName,
     grade: user.grade,
+    role: user.role,
     region: user.region.name,
     district: user.district.name,
     school: user.school.name,

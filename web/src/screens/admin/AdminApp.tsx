@@ -4,6 +4,7 @@ import { AdminLogin } from './AdminLogin';
 import { AdminStats } from './AdminStats';
 import { AdminUnits } from './AdminUnits';
 import { AdminQuestions } from './AdminQuestions';
+import { AdminUsers } from './AdminUsers';
 
 function useIsLoggedIn() {
   const [loggedIn, setLoggedIn] = useState(() => !!localStorage.getItem('admin_token'));
@@ -14,6 +15,7 @@ const NAV = [
   { to: '/admin/stats', label: 'Stats' },
   { to: '/admin/units', label: 'Units & Words' },
   { to: '/admin/questions', label: 'Questions' },
+  { to: '/admin/users', label: 'Users' },
 ];
 
 function AdminLayout({ onLogout }: { onLogout: () => void }) {
@@ -59,6 +61,7 @@ function AdminLayout({ onLogout }: { onLogout: () => void }) {
           <Route path="stats" element={<AdminStats />} />
           <Route path="units" element={<AdminUnits />} />
           <Route path="questions" element={<AdminQuestions />} />
+          <Route path="users" element={<AdminUsers />} />
           <Route path="*" element={<Navigate to="stats" replace />} />
         </Routes>
       </main>

@@ -12,6 +12,7 @@ import {
 import { getTodayQuests } from '../lib/questsApi';
 import { gradeOffline } from '../lib/offlineGrade';
 import { enqueueOfflineAnswer } from '../lib/offlineQueue';
+import { joinClass as apiJoinClass } from '../lib/classesApi';
 import type {
   ApiBadge,
   ApiQuizQuestion,
@@ -88,6 +89,7 @@ interface AppState {
   authStatus: AuthStatus;
   userId: number | null;
   studentName: string;
+  role: 'student' | 'teacher';
   region: string;
   district: string;
   school: string;
@@ -199,6 +201,7 @@ interface AppState {
   settings: SettingsToggles;
   toggleSetting: (key: keyof SettingsToggles) => Promise<void>;
   setGoalMin: (min: number) => Promise<void>;
+  joinClass: (code: string) => Promise<string>;
 }
 
 const emptySignupForm: SignupForm = {
@@ -217,6 +220,7 @@ function userToFields(user: ApiUser) {
   return {
     userId: user.id,
     studentName: user.fullName.split(' ')[0] || user.username,
+    role: user.role,
     region: user.region,
     district: user.district,
     school: user.school,
@@ -302,6 +306,7 @@ export const useAppStore = create<AppState>((set, get) => {
   authStatus: 'idle',
   userId: null,
   studentName: '',
+  role: 'student',
   region: '',
   district: '',
   school: '',
@@ -379,6 +384,7 @@ export const useAppStore = create<AppState>((set, get) => {
       userId: null,
       signupForm: emptySignupForm,
       studentName: '',
+      role: 'student',
       region: '',
       district: '',
       school: '',
@@ -760,6 +766,10 @@ export const useAppStore = create<AppState>((set, get) => {
   setGoalMin: async (min) => {
     set({ goalMin: min });
     await syncUser(api.patch<{ user: ApiUser }>('/api/profile', { goalMin: min }));
+  },
+  joinClass: async (code) => {
+    const { className } = await apiJoinClass(code);
+    return className;
   },
   };
 });
