@@ -13,7 +13,7 @@ export const BLOCK_EXERCISE: Record<BlockKey, ExerciseType> = {
   intro: 'intro',
   listen: 'listen_pick',
   translate: 'mcq_en2kaa',
-  letters: 'fill_blank',
+  letters: 'letter_tiles',
   speak: 'speak',
   write: 'type_en',
 };
