@@ -92,13 +92,23 @@ export function blockProgressMapKey(unitId: number, lessonIndex: number): string
  * BLOCK_ORDER sequence, one at a time. Lessons finished under the old
  * (pre-block) single-session system have every word at level >= 1 but no
  * LearnBlockProgress rows — those are backfilled as fully done so returning
- * students aren't forced to replay lessons they already finished. */
+ * students aren't forced to replay lessons they already finished.
+ *
+ * The backfill only fires when `doneBlocks` is still empty. Without that
+ * guard, a student actively playing a *fresh* lesson through the real block
+ * system would trip it too: answering blocks 1-3 correctly alone pushes a
+ * word's level to 3 (intro:0→1, +1 per correct block after), so
+ * `isLegacyLessonComplete` could go true mid-lesson and falsely backfill
+ * every later block (letters/speak/write) as already done — halving their
+ * XP as "practice" the first time they're genuinely played. Once any real
+ * LearnBlockProgress row exists for a lesson, that recorded state is always
+ * authoritative and the level-based fallback never overrides it again. */
 function computeLessonBlocks(
   lessonWordIds: number[],
   doneBlocks: Set<BlockKey>,
   progressMap: Map<number, ProgressLite | undefined>,
 ): LearnBlockStatus[] {
-  const legacyComplete = isLegacyLessonComplete(lessonWordIds, progressMap);
+  const legacyComplete = doneBlocks.size === 0 && isLegacyLessonComplete(lessonWordIds, progressMap);
   const effectiveDone = legacyComplete ? new Set(BLOCK_ORDER) : doneBlocks;
   return BLOCK_ORDER.map((key, i) => ({
     key,

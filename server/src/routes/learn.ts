@@ -468,7 +468,11 @@ learnRouter.post('/session-complete', requireAuth, rateLimit(15, 60_000), async 
     let xpGain = answered.reduce((sum, a) => (a.correct ? sum + (XP_TABLE[a.exercise] ?? 0) : sum), 0);
     if (session.type === 'lesson' && session.isPractice) {
       xpGain = Math.round(xpGain / 2);
-    } else if (session.type === 'lesson' && items.length > 0) {
+    } else if (session.type === 'lesson' && session.block === 'write') {
+      // The completion bonus belongs to finishing the whole lesson row, not
+      // any single block — 'write' is the last block in BLOCK_ORDER, so
+      // completing it means the lesson is done. Earlier blocks (intro
+      // especially, which awards 0 XP per item) only earn their per-item XP.
       xpGain += 20;
     } else if (session.type === 'review') {
       xpGain += 10;
@@ -489,7 +493,13 @@ learnRouter.post('/session-complete', requireAuth, rateLimit(15, 60_000), async 
       });
     }
 
-    const minutes = Math.min(Math.ceil(items.length / 2), SESSION_MINUTES_CAP);
+    // The intro block is a pure reading step (tap through 5 word cards) —
+    // counting it at the same rate as a real retrieval block would credit
+    // goal-minutes for near-zero effort.
+    const minutes =
+      session.type === 'lesson' && session.block === 'intro'
+        ? 1
+        : Math.min(Math.ceil(items.length / 2), SESSION_MINUTES_CAP);
     const user = await awardProgress(userId, { minutes, xpGain });
 
     await prisma.learnSession.update({
