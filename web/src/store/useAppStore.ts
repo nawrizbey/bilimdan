@@ -5,6 +5,7 @@ import {
   getActiveLearnSession,
   getLearnPath,
   postLearnAnswer,
+  startHardSession,
   startLessonSession,
   startReviewSession,
 } from '../lib/learnApi';
@@ -66,7 +67,7 @@ export function pickTargetUnit(units: ApiUnit[]): ApiUnit | undefined {
 
 export interface LearnSessionState {
   sessionId: number;
-  type: 'lesson' | 'review';
+  type: 'lesson' | 'review' | 'hard';
   unit: LearnSessionUnit | null;
   queue: (LearnQueueItem & { isRepeat?: boolean })[];
   cursor: number;
@@ -123,7 +124,7 @@ interface AppState {
   loadLearnPath: () => Promise<void>;
   learnSession: LearnSessionState | null;
   startLearnSession: (
-    args: { type: 'lesson'; unitId: number; lessonIndex: number; block: BlockKey } | { type: 'review' },
+    args: { type: 'lesson'; unitId: number; lessonIndex: number; block: BlockKey } | { type: 'review' } | { type: 'hard' },
   ) => Promise<void>;
   resumeLearnSession: () => Promise<boolean>;
   /** Submits an attempt for grading and returns the server's verdict
@@ -438,7 +439,9 @@ export const useAppStore = create<AppState>((set, get) => {
     const res =
       args.type === 'lesson'
         ? await startLessonSession(args.unitId, args.lessonIndex, args.block)
-        : await startReviewSession();
+        : args.type === 'hard'
+          ? await startHardSession()
+          : await startReviewSession();
     set({
       learnSession: {
         sessionId: res.sessionId,

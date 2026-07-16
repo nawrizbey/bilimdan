@@ -137,9 +137,13 @@ learnRouter.get('/path', requireAuth, async (req, res, next) => {
     const dueCount = await prisma.userWordProgress.count({
       where: { userId: req.userId!, level: { gte: 1 }, due: { lte: new Date() } },
     });
+    const hardCount = await prisma.userWordProgress.count({
+      where: { userId: req.userId!, lapses: { gte: 2 }, level: { lte: 4 } },
+    });
 
     res.json({
       dueCount,
+      hardCount,
       units: statuses
         .filter((u) => u.wordsCount > 0)
         .map((u) => ({
@@ -163,7 +167,7 @@ learnRouter.post('/session-start', requireAuth, rateLimit(15, 60_000), async (re
     const userId = req.userId!;
     const now = new Date();
     const { type } = req.body ?? {};
-    if (type !== 'lesson' && type !== 'review') throw badRequest("Sessiya túri qáte");
+    if (type !== 'lesson' && type !== 'review' && type !== 'hard') throw badRequest("Sessiya túri qáte");
 
     // Only one session may be in flight at a time — starting a new one abandons
     // whatever was left unfinished, so the student always gets a clean slate.
@@ -209,6 +213,37 @@ learnRouter.post('/session-start', requireAuth, rateLimit(15, 60_000), async (re
         sessionId: session.id,
         type: 'lesson',
         unit: { id: unitId, title: unitStatus.title, emoji: unitStatus.emoji },
+        items: toPublicItems(storedItems, allWords),
+      });
+      return;
+    }
+
+    if (type === 'hard') {
+      // Words the student keeps getting wrong (lapses >= 2), excluding ones
+      // that have since climbed back to full mastery (level 5) through
+      // repeated correct reviews — lapses never decreases, so the level cap
+      // is what lets a "fixed" word actually leave the hard-words pool.
+      const hardRows = await prisma.userWordProgress.findMany({
+        where: { userId, lapses: { gte: 2 }, level: { lte: 4 } },
+        orderBy: [{ lapses: 'desc' }, { due: 'asc' }],
+        take: 10,
+        select: { wordId: true, level: true, state: true },
+      });
+      if (hardRows.length < 3) throw badRequest('Qıyın sózler ele joq', 'NO_HARD_WORDS');
+
+      const progressMap = new Map<number, ProgressLite>(hardRows.map((r) => [r.wordId, { level: r.level, state: r.state }]));
+      const items = buildReviewQueue(hardRows.map((r) => r.wordId), progressMap);
+      const allWords = await prisma.word.findMany();
+      const storedItems = buildStoredItems(items, allWords);
+
+      const session = await prisma.learnSession.create({
+        data: { userId, type: 'hard', unitId: null, lessonIndex: null, items: storedItems as unknown as Prisma.InputJsonValue, answered: [] },
+      });
+
+      res.json({
+        sessionId: session.id,
+        type: 'hard',
+        unit: null,
         items: toPublicItems(storedItems, allWords),
       });
       return;
@@ -485,7 +520,7 @@ learnRouter.post('/session-complete', requireAuth, rateLimit(15, 60_000), async 
       // completing it means the lesson is done. Earlier blocks (intro
       // especially, which awards 0 XP per item) only earn their per-item XP.
       xpGain += 20;
-    } else if (session.type === 'review') {
+    } else if (session.type === 'review' || session.type === 'hard') {
       xpGain += 10;
     }
 

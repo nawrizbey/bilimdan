@@ -22,6 +22,10 @@ export function startReviewSession() {
   return api.post<LearnSessionStartResponse>('/api/learn/session-start', { type: 'review' });
 }
 
+export function startHardSession() {
+  return api.post<LearnSessionStartResponse>('/api/learn/session-start', { type: 'hard' });
+}
+
 export function getActiveLearnSession() {
   return api.get<{ session: null } | LearnSessionActiveData>('/api/learn/session-active');
 }

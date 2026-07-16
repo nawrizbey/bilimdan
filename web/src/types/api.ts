@@ -103,6 +103,7 @@ export interface LearnUnitStatus {
 
 export interface LearnPathResponse {
   dueCount: number;
+  hardCount: number;
   units: LearnUnitStatus[];
 }
 
@@ -135,7 +136,7 @@ export interface LearnSessionUnit {
 
 export interface LearnSessionStartResponse {
   sessionId: number;
-  type: 'lesson' | 'review';
+  type: 'lesson' | 'review' | 'hard';
   unit: LearnSessionUnit | null;
   items: LearnQueueItem[];
 }
@@ -153,7 +154,7 @@ export interface LearnSessionActiveResponse {
 }
 export interface LearnSessionActiveData {
   sessionId: number;
-  type: 'lesson' | 'review';
+  type: 'lesson' | 'review' | 'hard';
   unit: LearnSessionUnit | null;
   items: LearnQueueItem[];
   answered: LearnAnsweredEntry[];

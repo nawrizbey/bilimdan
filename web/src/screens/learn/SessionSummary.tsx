@@ -4,7 +4,7 @@ import type { LearnSummaryResponse } from '../../types/api';
 
 interface Props {
   summary: LearnSummaryResponse;
-  type: 'lesson' | 'review';
+  type: 'lesson' | 'review' | 'hard';
   onContinue: () => void;
   onBackToPath: () => void;
   /** true when there's a next not-yet-complete lesson right after this one. */
@@ -13,14 +13,14 @@ interface Props {
 
 export function SessionSummary({ summary, type, onContinue, onBackToPath, hasNext }: Props) {
   const { t } = useTranslation();
+  const title =
+    type === 'review' ? t('learn.summaryReviewTitle') : type === 'hard' ? t('learn.summaryHardTitle') : t('learn.summaryTitle');
 
   return (
     <div className="max-w-[440px] mx-auto text-center animate-pop">
       <Confetti active />
       <div className="text-[64px] mb-2 leading-none">🎉</div>
-      <h2 className="font-display font-extrabold text-[24px] text-text mb-6">
-        {type === 'review' ? t('learn.summaryReviewTitle') : t('learn.summaryTitle')}
-      </h2>
+      <h2 className="font-display font-extrabold text-[24px] text-text mb-6">{title}</h2>
 
       <div className="grid grid-cols-3 gap-3 mb-8">
         <div className="bg-white border border-border-2 rounded-[18px] py-4 px-2 shadow-[0_2px_10px_rgba(15,23,42,.04)]">

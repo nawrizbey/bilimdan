@@ -99,6 +99,17 @@ export function LearnScreen() {
       });
   };
 
+  const handleHardClick = () => {
+    if (starting) return;
+    setStarting(true);
+    startLearnSession({ type: 'hard' })
+      .then(() => navigate('/app/learn/session'))
+      .catch((err) => {
+        console.error('Failed to start hard-words session:', err);
+        setStarting(false);
+      });
+  };
+
   if (!learnPath) return <ContentLoader />;
 
   let foundActiveRow = false;
@@ -120,6 +131,23 @@ export function LearnScreen() {
           </div>
           <div className="font-extrabold text-[13px] text-white bg-[#F59E0B] flex-none whitespace-nowrap py-[8px] px-4 rounded-[20px]">
             {t('learn.reviewStart')}
+          </div>
+        </button>
+      )}
+
+      {learnPath.hardCount >= 3 && (
+        <button
+          onClick={handleHardClick}
+          disabled={starting}
+          className="w-full flex items-center gap-4 mt-2 mb-2 p-[18px] rounded-[20px] border-2 border-[#FECACA] bg-[#FEF2F2] cursor-pointer text-left disabled:opacity-60"
+        >
+          <div className="w-12 h-12 flex-none rounded-[14px] bg-danger flex items-center justify-center text-[22px]">🎯</div>
+          <div className="flex-1 min-w-0">
+            <div className="font-display font-extrabold text-[16px] text-danger-dark">{t('learn.hardTitle')}</div>
+            <div className="text-[13px] font-bold text-danger">{t('learn.hardDue', { count: learnPath.hardCount })}</div>
+          </div>
+          <div className="font-extrabold text-[13px] text-white bg-danger flex-none whitespace-nowrap py-[8px] px-4 rounded-[20px]">
+            {t('learn.hardStart')}
           </div>
         </button>
       )}

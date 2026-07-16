@@ -140,6 +140,9 @@ export const kaa = {
     reviewDue: '{{count}} sóz qaytalawdı kútip tur',
     reviewStart: 'Baslaw',
     reviewEmpty: 'Búgin qaytalaw joq — bárin úlgerdińiz! 🎉',
+    hardTitle: '🎯 Qıyın sózler',
+    hardDue: '{{count}} qıyın sóz — mashqlanıń',
+    hardStart: 'Mashqlanıw',
     lessonLabel: '{{n}}-sabaq',
     lockedToast: 'Aldın aldıńǵı sabaqtı tamamlań',
     blockIntro: 'Sózler menen tanısıw',
@@ -183,6 +186,7 @@ export const kaa = {
     // summary
     summaryTitle: 'Sabaq tamamlandı! 🎉',
     summaryReviewTitle: 'Qaytalaw tamamlandı! 🎉',
+    summaryHardTitle: 'Mashqlanıw tamamlandı! 🎉',
     summaryCorrect: 'Durıs juwaplar',
     summaryNewWords: 'Jańa sózler',
     summaryXp: 'Jıynalǵan XP',
