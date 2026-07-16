@@ -1,0 +1,302 @@
+[
+  {
+    "sentence": "She is smart and always gets good grades.",
+    "options": [
+      "smart",
+      "naughty",
+      "friendly",
+      "shy"
+    ],
+    "correctIndex": 0
+  },
+  {
+    "sentence": "Brazil is famous for its beautiful beaches and football.",
+    "options": [
+      "Spain",
+      "Brazil",
+      "the United States",
+      "the United Kingdom"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "sentence": "We swam in the cool water of the lake.",
+    "options": [
+      "volcano",
+      "lake",
+      "jungle",
+      "waterfall"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "sentence": "Don't forget to fill your water bottle before the hike.",
+    "options": [
+      "bowl",
+      "tent",
+      "water bottle",
+      "cup"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "sentence": "A musician played the drum during the whole parade.",
+    "options": [
+      "musician",
+      "mask",
+      "costume",
+      "float"
+    ],
+    "correctIndex": 0
+  },
+  {
+    "sentence": "My brother plays football games on his games console.",
+    "options": [
+      "smartphone",
+      "e-reader",
+      "games console",
+      "tablet"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "sentence": "We were surprised to see snow in April.",
+    "options": [
+      "hungry",
+      "surprised",
+      "scared",
+      "worried"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "sentence": "We rode the roller coaster at the amusement park all day.",
+    "options": [
+      "dancer",
+      "musician",
+      "amusement park",
+      "dragon"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "sentence": "They went canoeing down the river last weekend.",
+    "options": [
+      "trampolining",
+      "snorkeling",
+      "scuba diving",
+      "canoeing"
+    ],
+    "correctIndex": 3
+  },
+  {
+    "sentence": "Please don't litter in the school playground.",
+    "options": [
+      "cry",
+      "help others",
+      "throw a ball",
+      "litter"
+    ],
+    "correctIndex": 3
+  },
+  {
+    "sentence": "We used a map to find the camping site.",
+    "options": [
+      "bowl",
+      "blanket",
+      "map",
+      "water bottle"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "sentence": "The turtle slowly crawled across the warm sand.",
+    "options": [
+      "dolphin",
+      "whale",
+      "jellyfish",
+      "turtle"
+    ],
+    "correctIndex": 3
+  },
+  {
+    "sentence": "The team practiced rowing on the lake every morning.",
+    "options": [
+      "bodyboarding",
+      "go-carting",
+      "trampolining",
+      "rowing"
+    ],
+    "correctIndex": 3
+  },
+  {
+    "sentence": "She is very interested in learning new foreign languages.",
+    "options": [
+      "hungry",
+      "thirsty",
+      "bored",
+      "interested"
+    ],
+    "correctIndex": 3
+  },
+  {
+    "sentence": "Tigers and monkeys live in the thick jungle.",
+    "options": [
+      "cave",
+      "mountain",
+      "jungle",
+      "island"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "sentence": "Our family enjoys hiking in the mountains every summer.",
+    "options": [
+      "windsurfing",
+      "rock climbing",
+      "hiking",
+      "go-carting"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "sentence": "My brother learned to play the clarinet last year.",
+    "options": [
+      "clarinet",
+      "trombone",
+      "keyboard",
+      "cymbals"
+    ],
+    "correctIndex": 0
+  },
+  {
+    "sentence": "He reads many books on his e-reader every night.",
+    "options": [
+      "MP4 player",
+      "video camera",
+      "tablet",
+      "e-reader"
+    ],
+    "correctIndex": 3
+  },
+  {
+    "sentence": "Students shouldn't use a cell phone during the lesson.",
+    "options": [
+      "shout",
+      "use a cell phone",
+      "help others",
+      "laugh"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "sentence": "Put the food on your plate before we eat.",
+    "options": [
+      "plate",
+      "flashlight",
+      "cup",
+      "blanket"
+    ],
+    "correctIndex": 0
+  },
+  {
+    "sentence": "She reads an e-book on her tablet every night.",
+    "options": [
+      "e-book",
+      "text message",
+      "magazine",
+      "newspaper"
+    ],
+    "correctIndex": 0
+  },
+  {
+    "sentence": "The shy boy didn't want to speak in class.",
+    "options": [
+      "shy",
+      "sporty",
+      "naughty",
+      "hardworking"
+    ],
+    "correctIndex": 0
+  },
+  {
+    "sentence": "France is famous for the Eiffel Tower in Paris.",
+    "options": [
+      "France",
+      "Mexico",
+      "China",
+      "Colombia"
+    ],
+    "correctIndex": 0
+  },
+  {
+    "sentence": "She bought a new electric guitar for her birthday.",
+    "options": [
+      "keyboard",
+      "electric guitar",
+      "trombone",
+      "flute"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "sentence": "He can juggle three balls at the same time.",
+    "options": [
+      "paint portraits",
+      "juggle",
+      "do street dancing",
+      "play instruments"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "sentence": "The little boy was scared of the dark room.",
+    "options": [
+      "tired",
+      "thirsty",
+      "interested",
+      "scared"
+    ],
+    "correctIndex": 3
+  },
+  {
+    "sentence": "China has the longest wall in the world.",
+    "options": [
+      "China",
+      "Mexico",
+      "the United Kingdom",
+      "Brazil"
+    ],
+    "correctIndex": 0
+  },
+  {
+    "sentence": "The little boy started to cry when he fell down.",
+    "options": [
+      "litter",
+      "cry",
+      "hop",
+      "text a friend"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "sentence": "He listens to songs and watches videos on his MP4 player.",
+    "options": [
+      "headphones",
+      "tablet",
+      "MP4 player",
+      "e-reader"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "sentence": "The children watched cartoons on the tablet after school.",
+    "options": [
+      "headphones",
+      "tablet",
+      "digital camera",
+      "video camera"
+    ],
+    "correctIndex": 1
+  }
+]

@@ -1,0 +1,602 @@
+[
+  {
+    "question": "\"the United States\" sóziniń awdarması qaysı?",
+    "options": [
+      "Qurama Shtatlar",
+      "Italiya",
+      "Kolumbiya",
+      "Ullı Britaniya"
+    ],
+    "correctIndex": 0
+  },
+  {
+    "question": "\"trampolining\" sóziniń awdarması qaysı?",
+    "options": [
+      "Aqualang menen suwǵa shómiw",
+      "Batutta sekiriw",
+      "Qayaǵa tırmasıw",
+      "Jel taqtasında suzıw"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "question": "\"make sculptures\" sóziniń awdarması qaysı?",
+    "options": [
+      "Muzıka áspaplarında oynaw",
+      "Kóshe biyin orınlaw",
+      "Aylanba atlaw",
+      "Músin jasaw"
+    ],
+    "correctIndex": 3
+  },
+  {
+    "question": "\"dry the dishes\" sóziniń awdarması qaysı?",
+    "options": [
+      "Qoqıstı shığarıw",
+      "Idıstı súrtiw",
+      "Dastarhandı jayıw",
+      "Gúllerdi suwgarıw"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "question": "\"stew\" sóziniń awdarması qaysı?",
+    "options": [
+      "Karri",
+      "Sorpa",
+      "Lapsha",
+      "Kebab"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "question": "\"Aqıllı\" inglizshede qalay aytıladı?",
+    "options": [
+      "talkative",
+      "smart",
+      "funny",
+      "sporty"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "question": "\"kind\" sóziniń awdarması qaysı?",
+    "options": [
+      "Dostana",
+      "Ónerpaz",
+      "Sózmar",
+      "Meyirban"
+    ],
+    "correctIndex": 3
+  },
+  {
+    "question": "\"costume\" sóziniń awdarması qaysı?",
+    "options": [
+      "Ajdarha",
+      "Qaraqshı",
+      "Kostyum",
+      "Maska"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "question": "\"video camera\" sóziniń awdarması qaysı?",
+    "options": [
+      "Noutbuk",
+      "Video kamera",
+      "Elektron kitap oqıǵısh",
+      "Sanlı kamera"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "question": "\"Idıstı súrtiw\" inglizshede qalay aytıladı?",
+    "options": [
+      "dry the dishes",
+      "set the table",
+      "clean my bedroom",
+      "cook dinner"
+    ],
+    "correctIndex": 0
+  },
+  {
+    "question": "\"Qorqqan\" inglizshede qalay aytıladı?",
+    "options": [
+      "hungry",
+      "tired",
+      "scared",
+      "interested"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "question": "\"whale\" sóziniń awdarması qaysı?",
+    "options": [
+      "Júldız balıq",
+      "Kit",
+      "Delfin",
+      "Segizayaq"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "question": "\"sushi\" sóziniń awdarması qaysı?",
+    "options": [
+      "Kebab",
+      "Balıq hám kartoshka",
+      "Sushi",
+      "Karri"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "question": "\"Kórpe\" inglizshede qalay aytıladı?",
+    "options": [
+      "tent",
+      "bowl",
+      "blanket",
+      "plate"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "question": "\"map\" sóziniń awdarması qaysı?",
+    "options": [
+      "Tabaq",
+      "Karta",
+      "Shatır",
+      "Kasa"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "question": "\"canoeing\" sóziniń awdarması qaysı?",
+    "options": [
+      "Kartingde jarısıw",
+      "Qayaǵa tırmasıw",
+      "Kanoeda esiw",
+      "Batutta sekiriw"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "question": "\"Colombia\" sóziniń awdarması qaysı?",
+    "options": [
+      "Ispaniya",
+      "Meksika",
+      "Ullı Britaniya",
+      "Kolumbiya"
+    ],
+    "correctIndex": 3
+  },
+  {
+    "question": "\"Sportshı\" inglizshede qalay aytıladı?",
+    "options": [
+      "sporty",
+      "shy",
+      "funny",
+      "talkative"
+    ],
+    "correctIndex": 0
+  },
+  {
+    "question": "\"read poetry\" sóziniń awdarması qaysı?",
+    "options": [
+      "Portret sızıw",
+      "Jonglyorlıq etiw",
+      "Muzıka áspaplarında oynaw",
+      "Óleń oqıw"
+    ],
+    "correctIndex": 3
+  },
+  {
+    "question": "\"hiking\" sóziniń awdarması qaysı?",
+    "options": [
+      "Qayaǵa tırmasıw",
+      "Piyada sayaqatlaw",
+      "Kartingde jarısıw",
+      "Tolqında taqta menen suzıw"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "question": "\"Qıs\" inglizshede qalay aytıladı?",
+    "options": [
+      "winter",
+      "storm",
+      "monsoon",
+      "fall"
+    ],
+    "correctIndex": 0
+  },
+  {
+    "question": "\"Aral\" inglizshede qalay aytıladı?",
+    "options": [
+      "jungle",
+      "waterfall",
+      "volcano",
+      "island"
+    ],
+    "correctIndex": 3
+  },
+  {
+    "question": "\"hardworking\" sóziniń awdarması qaysı?",
+    "options": [
+      "Uyatshań",
+      "Ónerpaz",
+      "Meyirban",
+      "Miynetsúyer"
+    ],
+    "correctIndex": 3
+  },
+  {
+    "question": "\"rowing\" sóziniń awdarması qaysı?",
+    "options": [
+      "Batutta sekiriw",
+      "Trubka menen suzıw",
+      "Qayıq esiw",
+      "Qayaǵa tırmasıw"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "question": "\"tablet\" sóziniń awdarması qaysı?",
+    "options": [
+      "Planshet",
+      "Noutbuk",
+      "Smartfon",
+      "Elektron kitap oqıǵısh"
+    ],
+    "correctIndex": 0
+  },
+  {
+    "question": "\"France\" sóziniń awdarması qaysı?",
+    "options": [
+      "Meksika",
+      "Fransiya",
+      "Qıtay",
+      "Ullı Britaniya"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "question": "\"worried\" sóziniń awdarması qaysı?",
+    "options": [
+      "Alańdaǵan",
+      "Qorqqan",
+      "Sharshaǵan",
+      "Shóllegen"
+    ],
+    "correctIndex": 0
+  },
+  {
+    "question": "\"space station\" sóziniń awdarması qaysı?",
+    "options": [
+      "Ay",
+      "Kosmonavt",
+      "Kosmos kemesi",
+      "Kosmos stansiyası"
+    ],
+    "correctIndex": 3
+  },
+  {
+    "question": "\"Kloun\" inglizshede qalay aytıladı?",
+    "options": [
+      "float",
+      "mask",
+      "pirate",
+      "clown"
+    ],
+    "correctIndex": 3
+  },
+  {
+    "question": "\"China\" sóziniń awdarması qaysı?",
+    "options": [
+      "Meksika",
+      "Qıtay",
+      "Italiya",
+      "Kolumbiya"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "question": "\"jellyfish\" sóziniń awdarması qaysı?",
+    "options": [
+      "Meduza",
+      "Tasbaqa",
+      "Segizayaq",
+      "Skat"
+    ],
+    "correctIndex": 0
+  },
+  {
+    "question": "\"Zerikken\" inglizshede qalay aytıladı?",
+    "options": [
+      "scared",
+      "surprised",
+      "bored",
+      "angry"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "question": "\"bodyboarding\" sóziniń awdarması qaysı?",
+    "options": [
+      "Tolqında taqta menen suzıw",
+      "Qayaǵa tırmasıw",
+      "Piyada sayaqatlaw",
+      "Kanoeda esiw"
+    ],
+    "correctIndex": 0
+  },
+  {
+    "question": "\"turtle\" sóziniń awdarması qaysı?",
+    "options": [
+      "Tasbaqa",
+      "Segizayaq",
+      "Skat",
+      "Shayan"
+    ],
+    "correctIndex": 0
+  },
+  {
+    "question": "\"Kúlkili\" inglizshede qalay aytıladı?",
+    "options": [
+      "sporty",
+      "funny",
+      "hardworking",
+      "naughty"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "question": "\"angry\" sóziniń awdarması qaysı?",
+    "options": [
+      "Aş",
+      "Tań qalǵan",
+      "Ashıwlı",
+      "Alańdaǵan"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "question": "\"scuba diving\" sóziniń awdarması qaysı?",
+    "options": [
+      "Aqualang menen suwǵa shómiw",
+      "Piyada sayaqatlaw",
+      "Qayıq esiw",
+      "Trubka menen suzıw"
+    ],
+    "correctIndex": 0
+  },
+  {
+    "question": "\"Paelya\" inglizshede qalay aytıladı?",
+    "options": [
+      "paella",
+      "kebabs",
+      "sushi",
+      "dumplings"
+    ],
+    "correctIndex": 0
+  },
+  {
+    "question": "\"Shól\" inglizshede qalay aytıladı?",
+    "options": [
+      "desert",
+      "volcano",
+      "lake",
+      "mountain"
+    ],
+    "correctIndex": 0
+  },
+  {
+    "question": "\"text message\" sóziniń awdarması qaysı?",
+    "options": [
+      "Elektron kitap",
+      "Sózlik",
+      "Onlayn oyın",
+      "Qısqa xabar"
+    ],
+    "correctIndex": 3
+  },
+  {
+    "question": "\"dictionary\" sóziniń awdarması qaysı?",
+    "options": [
+      "Qısqa xabar",
+      "Sayt",
+      "Sózlik",
+      "Jurnal"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "question": "\"astronaut\" sóziniń awdarması qaysı?",
+    "options": [
+      "Kosmonavt",
+      "Kosmos kemesi",
+      "Kosmos laboratoriyası",
+      "Kosmos stansiyası"
+    ],
+    "correctIndex": 0
+  },
+  {
+    "question": "\"MP4 player\" sóziniń awdarması qaysı?",
+    "options": [
+      "Sanlı kamera",
+      "Oyın konsolı",
+      "Planshet",
+      "MP4 pleer"
+    ],
+    "correctIndex": 3
+  },
+  {
+    "question": "\"volcano\" sóziniń awdarması qaysı?",
+    "options": [
+      "Kól",
+      "Taw",
+      "Vulkan",
+      "Úńgir"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "question": "\"Trubka menen suzıw\" inglizshede qalay aytıladı?",
+    "options": [
+      "go-carting",
+      "windsurfing",
+      "snorkeling",
+      "rowing"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "question": "\"text a friend\" sóziniń awdarması qaysı?",
+    "options": [
+      "Basqalarǵa járdem beriw",
+      "Dosqa xabar jazıw",
+      "Jılaw",
+      "Qıyqırıw"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "question": "\"seal\" sóziniń awdarması qaysı?",
+    "options": [
+      "Skat",
+      "Júldız balıq",
+      "Kit",
+      "Itbalıq"
+    ],
+    "correctIndex": 3
+  },
+  {
+    "question": "\"Naushnik\" inglizshede qalay aytıladı?",
+    "options": [
+      "headphones",
+      "MP4 player",
+      "smartphone",
+      "video camera"
+    ],
+    "correctIndex": 0
+  },
+  {
+    "question": "\"sweep the floor\" sóziniń awdarması qaysı?",
+    "options": [
+      "Keshki tamaqtı pisiriw",
+      "Gúllerdi suwgarıw",
+      "Poldı súpiriw",
+      "Idıstı súrtiw"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "question": "\"Russia\" sóziniń awdarması qaysı?",
+    "options": [
+      "Ispaniya",
+      "Kolumbiya",
+      "Italiya",
+      "Rossiya"
+    ],
+    "correctIndex": 3
+  },
+  {
+    "question": "\"interested\" sóziniń awdarması qaysı?",
+    "options": [
+      "Alańdaǵan",
+      "Tań qalǵan",
+      "Qızıqqan",
+      "Sharshaǵan"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "question": "\"surprised\" sóziniń awdarması qaysı?",
+    "options": [
+      "Tolqınlanǵan",
+      "Tań qalǵan",
+      "Ashıwlı",
+      "Sharshaǵan"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "question": "\"Earth\" sóziniń awdarması qaysı?",
+    "options": [
+      "Jer",
+      "Kosmos laboratoriyası",
+      "Kosmonavt",
+      "Mars"
+    ],
+    "correctIndex": 0
+  },
+  {
+    "question": "\"set the table\" sóziniń awdarması qaysı?",
+    "options": [
+      "Bólmemdi tazalaw",
+      "Dastarhandı jayıw",
+      "Idıstı súrtiw",
+      "Tósegimdi jıynaw"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "question": "\"Alańdaǵan\" inglizshede qalay aytıladı?",
+    "options": [
+      "bored",
+      "scared",
+      "surprised",
+      "worried"
+    ],
+    "correctIndex": 3
+  },
+  {
+    "question": "\"glass\" sóziniń awdarması qaysı?",
+    "options": [
+      "Gaz",
+      "Shisha",
+      "Elektr",
+      "Alyuminiy"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "question": "\"tent\" sóziniń awdarması qaysı?",
+    "options": [
+      "Shatır",
+      "Uyqı qapı",
+      "Tabaq",
+      "Suw shishesi"
+    ],
+    "correctIndex": 0
+  },
+  {
+    "question": "\"drums\" sóziniń awdarması qaysı?",
+    "options": [
+      "Klarnet",
+      "Klaviatura",
+      "Baraban",
+      "Truba"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "question": "\"laptop\" sóziniń awdarması qaysı?",
+    "options": [
+      "Oyın konsolı",
+      "MP4 pleer",
+      "Noutbuk",
+      "Planshet"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "question": "\"shout\" sóziniń awdarması qaysı?",
+    "options": [
+      "Dosqa xabar jazıw",
+      "Kúliw",
+      "Qıyqırıw",
+      "Sekiriw"
+    ],
+    "correctIndex": 2
+  }
+]

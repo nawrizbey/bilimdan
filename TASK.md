@@ -28,6 +28,10 @@ build`, curl against `npm run dev` (port 4000), and browser click-through (Vite 
   any migration/seed on prod.** ⚠️ The VPS is shared with other projects (Camelot etc.) whose
   deploys have twice overwritten `/etc/nginx/sites-available/bilimdan.uz` — check that file first
   if the domain serves the wrong app (restore from `bilimdan.uz.bak-20260707090520`).
+- Seed content (units/words, quiz/listen/battle banks) lives in `server/content/*.json`, loaded by
+  `server/src/seed.ts` via a relative `../content` path from wherever it's running (`src/` under
+  tsx, `dist/` when compiled) — no build step copies it. **The deploy rsync must sync
+  `server/content/` in addition to `server/src/`**, or a prod seed run will fail to find it.
 - `books/` (gitignored, 176MB) holds the source textbook PDFs.
 
 **Suggested order:** F1 → F4 → F2 → F5 → C1 → C2 → C3 → F3 → C4 → C5 → N2 → N3 → N4 → N1 → N5.

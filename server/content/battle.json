@@ -1,0 +1,602 @@
+[
+  {
+    "question": "\"Elektron kitap oqıǵısh\" inglizshede qalay aytıladı?",
+    "options": [
+      "e-reader",
+      "games console",
+      "MP4 player",
+      "digital camera"
+    ],
+    "correctIndex": 0
+  },
+  {
+    "question": "\"stars\" sóziniń awdarması qaysı?",
+    "options": [
+      "Kosmonavt",
+      "Jıldızlar",
+      "Kosmos kemesi",
+      "Kosmos stansiyası"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "question": "\"cry\" sóziniń awdarması qaysı?",
+    "options": [
+      "Mobil telefon paydalanıw",
+      "Jılaw",
+      "Atlap júriw",
+      "Sekiriw"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "question": "\"fall\" sóziniń awdarması qaysı?",
+    "options": [
+      "Kúz",
+      "Gúrildew hám shaqmaq",
+      "Báhár",
+      "Boran"
+    ],
+    "correctIndex": 0
+  },
+  {
+    "question": "\"Sharshaǵan\" inglizshede qalay aytıladı?",
+    "options": [
+      "excited",
+      "tired",
+      "interested",
+      "angry"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "question": "\"read poetry\" sóziniń awdarması qaysı?",
+    "options": [
+      "Jonglyorlıq etiw",
+      "Óleń oqıw",
+      "Muzıka áspaplarında oynaw",
+      "Kóshe biyin orınlaw"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "question": "\"Oyın konsolı\" inglizshede qalay aytıladı?",
+    "options": [
+      "smartphone",
+      "games console",
+      "television",
+      "MP4 player"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "question": "\"Júldız balıq\" inglizshede qalay aytıladı?",
+    "options": [
+      "octopus",
+      "shark",
+      "starfish",
+      "stingray"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "question": "\"thunder and lightning\" sóziniń awdarması qaysı?",
+    "options": [
+      "Qıs",
+      "Boran",
+      "Musson",
+      "Gúrildew hám shaqmaq"
+    ],
+    "correctIndex": 3
+  },
+  {
+    "question": "\"paella\" sóziniń awdarması qaysı?",
+    "options": [
+      "Paelya",
+      "Gúrish hám lobiya",
+      "Tako",
+      "Karri"
+    ],
+    "correctIndex": 0
+  },
+  {
+    "question": "\"drums\" sóziniń awdarması qaysı?",
+    "options": [
+      "Fleyta",
+      "Baraban",
+      "Saksofon",
+      "Tarelka"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "question": "\"make my bed\" sóziniń awdarması qaysı?",
+    "options": [
+      "Keshki tamaqtı pisiriw",
+      "Qoqıstı shığarıw",
+      "Tósegimdi jıynaw",
+      "Bólmemdi tazalaw"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "question": "\"Basqalarǵa járdem beriw\" inglizshede qalay aytıladı?",
+    "options": [
+      "cry",
+      "use a cell phone",
+      "text a friend",
+      "help others"
+    ],
+    "correctIndex": 3
+  },
+  {
+    "question": "\"pirate\" sóziniń awdarması qaysı?",
+    "options": [
+      "Muzıkant",
+      "Ajdarha",
+      "Qaraqshı",
+      "Attraksion baǵı"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "question": "\"smart\" sóziniń awdarması qaysı?",
+    "options": [
+      "Aqıllı",
+      "Kúlkili",
+      "Meyirban",
+      "Sózmar"
+    ],
+    "correctIndex": 0
+  },
+  {
+    "question": "\"help others\" sóziniń awdarması qaysı?",
+    "options": [
+      "Qıyqırıw",
+      "Sekiriw",
+      "Atlap júriw",
+      "Basqalarǵa járdem beriw"
+    ],
+    "correctIndex": 3
+  },
+  {
+    "question": "\"litter\" sóziniń awdarması qaysı?",
+    "options": [
+      "Sekiriw",
+      "Atlap júriw",
+      "Qoqıs taslaw",
+      "Qıyqırıw"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "question": "\"Sayt\" inglizshede qalay aytıladı?",
+    "options": [
+      "e-book",
+      "magazine",
+      "encyclopedia",
+      "website"
+    ],
+    "correctIndex": 3
+  },
+  {
+    "question": "\"windsurfing\" sóziniń awdarması qaysı?",
+    "options": [
+      "Jel taqtasında suzıw",
+      "Qayaǵa tırmasıw",
+      "Aqualang menen suwǵa shómiw",
+      "Batutta sekiriw"
+    ],
+    "correctIndex": 0
+  },
+  {
+    "question": "\"take the trash out\" sóziniń awdarması qaysı?",
+    "options": [
+      "Bólmemdi tazalaw",
+      "Hammamdı tazalaw",
+      "Poldı súpiriw",
+      "Qoqıstı shığarıw"
+    ],
+    "correctIndex": 3
+  },
+  {
+    "question": "\"stingray\" sóziniń awdarması qaysı?",
+    "options": [
+      "Shayan",
+      "Skat",
+      "Itbalıq",
+      "Kit"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "question": "\"do tricks\" sóziniń awdarması qaysı?",
+    "options": [
+      "Jonglyorlıq etiw",
+      "Ámeller kórsetiw",
+      "Óleń oqıw",
+      "Kóshe biyin orınlaw"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "question": "\"desert\" sóziniń awdarması qaysı?",
+    "options": [
+      "Kól",
+      "Sharshama",
+      "Aral",
+      "Shól"
+    ],
+    "correctIndex": 3
+  },
+  {
+    "question": "\"Spain\" sóziniń awdarması qaysı?",
+    "options": [
+      "Meksika",
+      "Fransiya",
+      "Ispaniya",
+      "Rossiya"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "question": "\"throw a ball\" sóziniń awdarması qaysı?",
+    "options": [
+      "Atlap júriw",
+      "Kúliw",
+      "Dop laqtırıw",
+      "Sekiriw"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "question": "\"television\" sóziniń awdarması qaysı?",
+    "options": [
+      "Televizor",
+      "Sanlı kamera",
+      "Elektron kitap oqıǵısh",
+      "Planshet"
+    ],
+    "correctIndex": 0
+  },
+  {
+    "question": "\"Meduza\" inglizshede qalay aytıladı?",
+    "options": [
+      "dolphin",
+      "stingray",
+      "jellyfish",
+      "crab"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "question": "\"talkative\" sóziniń awdarması qaysı?",
+    "options": [
+      "Erke",
+      "Sózmar",
+      "Kúlkili",
+      "Meyirban"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "question": "\"Russia\" sóziniń awdarması qaysı?",
+    "options": [
+      "Meksika",
+      "Braziliya",
+      "Italiya",
+      "Rossiya"
+    ],
+    "correctIndex": 3
+  },
+  {
+    "question": "\"turtle\" sóziniń awdarması qaysı?",
+    "options": [
+      "Shayan",
+      "Akula",
+      "Júldız balıq",
+      "Tasbaqa"
+    ],
+    "correctIndex": 3
+  },
+  {
+    "question": "\"Braziliya\" inglizshede qalay aytıladı?",
+    "options": [
+      "France",
+      "the United Kingdom",
+      "Italy",
+      "Brazil"
+    ],
+    "correctIndex": 3
+  },
+  {
+    "question": "\"Kúlkili\" inglizshede qalay aytıladı?",
+    "options": [
+      "talkative",
+      "kind",
+      "artistic",
+      "funny"
+    ],
+    "correctIndex": 3
+  },
+  {
+    "question": "\"bored\" sóziniń awdarması qaysı?",
+    "options": [
+      "Alańdaǵan",
+      "Zerikken",
+      "Shóllegen",
+      "Qızıqqan"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "question": "\"newspaper\" sóziniń awdarması qaysı?",
+    "options": [
+      "Sayt",
+      "Elektron xat",
+      "Gazeta",
+      "Entsiklopediya"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "question": "\"China\" sóziniń awdarması qaysı?",
+    "options": [
+      "Qurama Shtatlar",
+      "Meksika",
+      "Italiya",
+      "Qıtay"
+    ],
+    "correctIndex": 3
+  },
+  {
+    "question": "\"Itbalıq\" inglizshede qalay aytıladı?",
+    "options": [
+      "jellyfish",
+      "dolphin",
+      "shark",
+      "seal"
+    ],
+    "correctIndex": 3
+  },
+  {
+    "question": "\"Tań qalǵan\" inglizshede qalay aytıladı?",
+    "options": [
+      "surprised",
+      "excited",
+      "hungry",
+      "tired"
+    ],
+    "correctIndex": 0
+  },
+  {
+    "question": "\"dictionary\" sóziniń awdarması qaysı?",
+    "options": [
+      "Qısqa xabar",
+      "Sayt",
+      "Sózlik",
+      "Onlayn oyın"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "question": "\"artistic\" sóziniń awdarması qaysı?",
+    "options": [
+      "Aqıllı",
+      "Erke",
+      "Ónerpaz",
+      "Sózmar"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "question": "\"e-reader\" sóziniń awdarması qaysı?",
+    "options": [
+      "Noutbuk",
+      "Elektron kitap oqıǵısh",
+      "Smartfon",
+      "Video kamera"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "question": "\"mountain\" sóziniń awdarması qaysı?",
+    "options": [
+      "Dárya",
+      "Aral",
+      "Taw",
+      "Sharshama"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "question": "\"clarinet\" sóziniń awdarması qaysı?",
+    "options": [
+      "Klarnet",
+      "Saksofon",
+      "Tarelka",
+      "Fleyta"
+    ],
+    "correctIndex": 0
+  },
+  {
+    "question": "\"text a friend\" sóziniń awdarması qaysı?",
+    "options": [
+      "Jılaw",
+      "Qoqıs taslaw",
+      "Dosqa xabar jazıw",
+      "Basqalarǵa járdem beriw"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "question": "\"Colombia\" sóziniń awdarması qaysı?",
+    "options": [
+      "Ullı Britaniya",
+      "Qıtay",
+      "Kolumbiya",
+      "Meksika"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "question": "\"Qayaǵa tırmasıw\" inglizshede qalay aytıladı?",
+    "options": [
+      "windsurfing",
+      "rowing",
+      "scuba diving",
+      "rock climbing"
+    ],
+    "correctIndex": 3
+  },
+  {
+    "question": "\"tacos\" sóziniń awdarması qaysı?",
+    "options": [
+      "Kebab",
+      "Tako",
+      "Balıq hám kartoshka",
+      "Gúrish hám lobiya"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "question": "\"aluminum\" sóziniń awdarması qaysı?",
+    "options": [
+      "Gaz",
+      "Suw",
+      "Alyuminiy",
+      "Jel energiyası"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "question": "\"starfish\" sóziniń awdarması qaysı?",
+    "options": [
+      "Shayan",
+      "Júldız balıq",
+      "Tasbaqa",
+      "Itbalıq"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "question": "\"Ay\" inglizshede qalay aytıladı?",
+    "options": [
+      "astronaut",
+      "spacesuit",
+      "Earth",
+      "the Moon"
+    ],
+    "correctIndex": 3
+  },
+  {
+    "question": "\"float\" sóziniń awdarması qaysı?",
+    "options": [
+      "Ajdarha",
+      "Kostyum",
+      "Bayram arbası",
+      "Attraksion baǵı"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "question": "\"dolphin\" sóziniń awdarması qaysı?",
+    "options": [
+      "Kit",
+      "Shayan",
+      "Júldız balıq",
+      "Delfin"
+    ],
+    "correctIndex": 3
+  },
+  {
+    "question": "\"smartphone\" sóziniń awdarması qaysı?",
+    "options": [
+      "Televizor",
+      "Smartfon",
+      "Elektron kitap oqıǵısh",
+      "MP4 pleer"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "question": "\"octopus\" sóziniń awdarması qaysı?",
+    "options": [
+      "Segizayaq",
+      "Akula",
+      "Kit",
+      "Skat"
+    ],
+    "correctIndex": 0
+  },
+  {
+    "question": "\"games console\" sóziniń awdarması qaysı?",
+    "options": [
+      "Oyın konsolı",
+      "Elektron kitap oqıǵısh",
+      "Televizor",
+      "Smartfon"
+    ],
+    "correctIndex": 0
+  },
+  {
+    "question": "\"video camera\" sóziniń awdarması qaysı?",
+    "options": [
+      "MP4 pleer",
+      "Sanlı kamera",
+      "Video kamera",
+      "Televizor"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "question": "\"tired\" sóziniń awdarması qaysı?",
+    "options": [
+      "Qızıqqan",
+      "Sharshaǵan",
+      "Shóllegen",
+      "Ashıwlı"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "question": "\"clean the bathroom\" sóziniń awdarması qaysı?",
+    "options": [
+      "Keshki tamaqtı pisiriw",
+      "Dastarhandı jayıw",
+      "Hammamdı tazalaw",
+      "Qoqıstı shığarıw"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "question": "\"Elektr\" inglizshede qalay aytıladı?",
+    "options": [
+      "glass",
+      "electricity",
+      "cardboard",
+      "water"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "question": "\"clean my bedroom\" sóziniń awdarması qaysı?",
+    "options": [
+      "Gúllerdi suwgarıw",
+      "Qoqıstı shığarıw",
+      "Bólmemdi tazalaw",
+      "Idıstı súrtiw"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "question": "\"Akrobatika kórsetiw\" inglizshede qalay aytıladı?",
+    "options": [
+      "do street dancing",
+      "make sculptures",
+      "do tricks",
+      "do acrobatics"
+    ],
+    "correctIndex": 3
+  }
+]

@@ -1,5 +1,6 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { prisma } from '../db';
+import { badRequest, notFound } from '../lib/errors';
 
 export const adminRouter = Router();
 
@@ -126,6 +127,46 @@ adminRouter.post('/units/:id/words', async (req, res, next) => {
       data: { unitId, en, ipa, uz, example, emoji, order: nextOrder },
     });
     res.json({ word });
+  } catch (err) {
+    next(err);
+  }
+});
+
+const WORD_FIELDS = ['en', 'ipa', 'uz', 'example', 'emoji'] as const;
+
+/** Bulk word import — same row shape as server/content/units.json's `words`
+ * arrays, so content can be prepared as a JSON file and pasted in wholesale
+ * instead of one admin form submission per word. Appends after the unit's
+ * existing words in array order, with sequential `order`; all-or-nothing
+ * (a single invalid row fails the whole batch, nothing is created). */
+adminRouter.post('/units/:id/words/bulk', async (req, res, next) => {
+  try {
+    const unitId = Number(req.params.id);
+    const unit = await prisma.unit.findUnique({ where: { id: unitId } });
+    if (!unit) throw notFound('Tema tabılmadı');
+
+    const words = req.body?.words;
+    if (!Array.isArray(words) || words.length === 0) {
+      throw badRequest("So'zler massivi bos bolmawı kerek", 'INVALID_WORDS');
+    }
+
+    const validated = words.map((w, i) => {
+      for (const field of WORD_FIELDS) {
+        if (typeof w?.[field] !== 'string' || w[field].trim() === '') {
+          throw badRequest(`So'z #${i + 1}: '${field}' maydanı júdá kerek`, 'INVALID_WORDS');
+        }
+      }
+      return { en: w.en, ipa: w.ipa, uz: w.uz, example: w.example, emoji: w.emoji };
+    });
+
+    const agg = await prisma.word.aggregate({ where: { unitId }, _max: { order: true } });
+    const startOrder = (agg._max.order ?? -1) + 1;
+
+    const created = await prisma.$transaction(
+      validated.map((w, i) => prisma.word.create({ data: { unitId, ...w, order: startOrder + i } })),
+    );
+
+    res.json({ words: created });
   } catch (err) {
     next(err);
   }

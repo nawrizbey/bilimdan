@@ -1,0 +1,1381 @@
+[
+  {
+    "title": "1-tema — Dúnya boylap",
+    "order": 1,
+    "emoji": "🌍",
+    "words": [
+      {
+        "en": "Brazil",
+        "ipa": "/brəˈzɪl/",
+        "uz": "Braziliya",
+        "example": "Brazil is famous for its beautiful beaches and football.",
+        "emoji": "🇧🇷"
+      },
+      {
+        "en": "China",
+        "ipa": "/ˈtʃaɪnə/",
+        "uz": "Qıtay",
+        "example": "China has the longest wall in the world.",
+        "emoji": "🇨🇳"
+      },
+      {
+        "en": "Colombia",
+        "ipa": "/kəˈlɒmbiə/",
+        "uz": "Kolumbiya",
+        "example": "Colombia grows a lot of coffee every year.",
+        "emoji": "🇨🇴"
+      },
+      {
+        "en": "France",
+        "ipa": "/frɑːns/",
+        "uz": "Fransiya",
+        "example": "France is famous for the Eiffel Tower in Paris.",
+        "emoji": "🇫🇷"
+      },
+      {
+        "en": "Italy",
+        "ipa": "/ˈɪtəli/",
+        "uz": "Italiya",
+        "example": "Italy is well known for pizza and pasta.",
+        "emoji": "🇮🇹"
+      },
+      {
+        "en": "Mexico",
+        "ipa": "/ˈmeksɪkəʊ/",
+        "uz": "Meksika",
+        "example": "Mexico is located in North America.",
+        "emoji": "🇲🇽"
+      },
+      {
+        "en": "Russia",
+        "ipa": "/ˈrʌʃə/",
+        "uz": "Rossiya",
+        "example": "Russia is the largest country in the world.",
+        "emoji": "🇷🇺"
+      },
+      {
+        "en": "Spain",
+        "ipa": "/speɪn/",
+        "uz": "Ispaniya",
+        "example": "Spain has many sunny beaches and old castles.",
+        "emoji": "🇪🇸"
+      },
+      {
+        "en": "the United Kingdom",
+        "ipa": "/ðə juːˌnaɪtɪd ˈkɪŋdəm/",
+        "uz": "Ullı Britaniya",
+        "example": "The United Kingdom includes England, Scotland, and Wales.",
+        "emoji": "🇬🇧"
+      },
+      {
+        "en": "the United States",
+        "ipa": "/ðə juːˌnaɪtɪd ˈsteɪts/",
+        "uz": "Qurama Shtatlar",
+        "example": "The United States has fifty states and two oceans.",
+        "emoji": "🇺🇸"
+      }
+    ]
+  },
+  {
+    "title": "2-tema — Shańaraq hám úy haywanları",
+    "order": 2,
+    "emoji": "👨‍👩‍👧‍👦",
+    "words": [
+      {
+        "en": "artistic",
+        "ipa": "/ɑːˈtɪstɪk/",
+        "uz": "Ónerpaz",
+        "example": "My sister is artistic and loves painting pictures.",
+        "emoji": "🎨"
+      },
+      {
+        "en": "friendly",
+        "ipa": "/ˈfrendli/",
+        "uz": "Dostana",
+        "example": "Our new neighbor is very friendly and kind.",
+        "emoji": "😊"
+      },
+      {
+        "en": "funny",
+        "ipa": "/ˈfʌni/",
+        "uz": "Kúlkili",
+        "example": "My brother is funny and always makes us laugh.",
+        "emoji": "😂"
+      },
+      {
+        "en": "hardworking",
+        "ipa": "/ˌhɑːdˈwɜːkɪŋ/",
+        "uz": "Miynetsúyer",
+        "example": "My father is hardworking and never stops early.",
+        "emoji": "💪"
+      },
+      {
+        "en": "kind",
+        "ipa": "/kaɪnd/",
+        "uz": "Meyirban",
+        "example": "Our teacher is kind and helps every student.",
+        "emoji": "💛"
+      },
+      {
+        "en": "naughty",
+        "ipa": "/ˈnɔːti/",
+        "uz": "Erke",
+        "example": "The naughty puppy chewed my new shoes.",
+        "emoji": "😈"
+      },
+      {
+        "en": "shy",
+        "ipa": "/ʃaɪ/",
+        "uz": "Uyatshań",
+        "example": "The shy boy didn't want to speak in class.",
+        "emoji": "😳"
+      },
+      {
+        "en": "smart",
+        "ipa": "/smɑːt/",
+        "uz": "Aqıllı",
+        "example": "She is smart and always gets good grades.",
+        "emoji": "🧠"
+      },
+      {
+        "en": "sporty",
+        "ipa": "/ˈspɔːti/",
+        "uz": "Sportshı",
+        "example": "My cousin is sporty and plays football every day.",
+        "emoji": "⚽"
+      },
+      {
+        "en": "talkative",
+        "ipa": "/ˈtɔːkətɪv/",
+        "uz": "Sózmar",
+        "example": "My little sister is talkative and never stops chatting.",
+        "emoji": "🗣️"
+      }
+    ]
+  },
+  {
+    "title": "3-tema — Oyın maydanında",
+    "order": 3,
+    "emoji": "🛝",
+    "words": [
+      {
+        "en": "cry",
+        "ipa": "/kraɪ/",
+        "uz": "Jılaw",
+        "example": "The little boy started to cry when he fell down.",
+        "emoji": "😢"
+      },
+      {
+        "en": "help others",
+        "ipa": "/help ˈʌðəz/",
+        "uz": "Basqalarǵa járdem beriw",
+        "example": "We should always help others when they need us.",
+        "emoji": "🤝"
+      },
+      {
+        "en": "hop",
+        "ipa": "/hɒp/",
+        "uz": "Sekiriw",
+        "example": "The children like to hop over the small puddles.",
+        "emoji": "🦘"
+      },
+      {
+        "en": "litter",
+        "ipa": "/ˈlɪtə/",
+        "uz": "Qoqıs taslaw",
+        "example": "Please don't litter in the school playground.",
+        "emoji": "🚯"
+      },
+      {
+        "en": "shout",
+        "ipa": "/ʃaʊt/",
+        "uz": "Qıyqırıw",
+        "example": "Don't shout so loudly near the classroom windows.",
+        "emoji": "📢"
+      },
+      {
+        "en": "skip",
+        "ipa": "/skɪp/",
+        "uz": "Atlap júriw",
+        "example": "The girls skip happily around the playground.",
+        "emoji": "🤸"
+      },
+      {
+        "en": "laugh",
+        "ipa": "/lɑːf/",
+        "uz": "Kúliw",
+        "example": "We all laugh together at his funny jokes.",
+        "emoji": "😄"
+      },
+      {
+        "en": "text a friend",
+        "ipa": "/tekst ə frend/",
+        "uz": "Dosqa xabar jazıw",
+        "example": "She likes to text a friend during the break time.",
+        "emoji": "💬"
+      },
+      {
+        "en": "throw a ball",
+        "ipa": "/θrəʊ ə bɔːl/",
+        "uz": "Dop laqtırıw",
+        "example": "The boys throw a ball to each other in the yard.",
+        "emoji": "🏐"
+      },
+      {
+        "en": "use a cell phone",
+        "ipa": "/juːz ə sel fəʊn/",
+        "uz": "Mobil telefon paydalanıw",
+        "example": "Students shouldn't use a cell phone during the lesson.",
+        "emoji": "📱"
+      }
+    ]
+  },
+  {
+    "title": "4-tema — Okean astında",
+    "order": 4,
+    "emoji": "🐠",
+    "words": [
+      {
+        "en": "crab",
+        "ipa": "/kræb/",
+        "uz": "Shayan",
+        "example": "The crab walked sideways along the sandy beach.",
+        "emoji": "🦀"
+      },
+      {
+        "en": "dolphin",
+        "ipa": "/ˈdɒlfɪn/",
+        "uz": "Delfin",
+        "example": "Dolphins are very intelligent and friendly sea animals.",
+        "emoji": "🐬"
+      },
+      {
+        "en": "jellyfish",
+        "ipa": "/ˈdʒelifɪʃ/",
+        "uz": "Meduza",
+        "example": "Be careful, that jellyfish can sting you in the water.",
+        "emoji": "🪼"
+      },
+      {
+        "en": "octopus",
+        "ipa": "/ˈɒktəpəs/",
+        "uz": "Segizayaq",
+        "example": "An octopus has eight long arms and three hearts.",
+        "emoji": "🐙"
+      },
+      {
+        "en": "seal",
+        "ipa": "/siːl/",
+        "uz": "Itbalıq",
+        "example": "The seal swam gracefully near the icy shore.",
+        "emoji": "🦭"
+      },
+      {
+        "en": "shark",
+        "ipa": "/ʃɑːk/",
+        "uz": "Akula",
+        "example": "Sharks have many sharp teeth and swim very fast.",
+        "emoji": "🦈"
+      },
+      {
+        "en": "starfish",
+        "ipa": "/ˈstɑːfɪʃ/",
+        "uz": "Júldız balıq",
+        "example": "We found an orange starfish on the beach yesterday.",
+        "emoji": "⭐"
+      },
+      {
+        "en": "stingray",
+        "ipa": "/ˈstɪŋreɪ/",
+        "uz": "Skat",
+        "example": "The stingray hid under the sand at the bottom of the sea.",
+        "emoji": "🐟"
+      },
+      {
+        "en": "turtle",
+        "ipa": "/ˈtɜːtl/",
+        "uz": "Tasbaqa",
+        "example": "The turtle slowly crawled across the warm sand.",
+        "emoji": "🐢"
+      },
+      {
+        "en": "whale",
+        "ipa": "/weɪl/",
+        "uz": "Kit",
+        "example": "The whale is the biggest animal living in the ocean.",
+        "emoji": "🐋"
+      }
+    ]
+  },
+  {
+    "title": "5-tema — Elektron úskeneler",
+    "order": 5,
+    "emoji": "📱",
+    "words": [
+      {
+        "en": "digital camera",
+        "ipa": "/ˈdɪdʒɪtl ˈkæmərə/",
+        "uz": "Sanlı kamera",
+        "example": "She took amazing photos with her new digital camera.",
+        "emoji": "📷"
+      },
+      {
+        "en": "e-reader",
+        "ipa": "/ˈiː riːdə/",
+        "uz": "Elektron kitap oqıǵısh",
+        "example": "He reads many books on his e-reader every night.",
+        "emoji": "📖"
+      },
+      {
+        "en": "games console",
+        "ipa": "/ɡeɪmz ˈkɒnsəʊl/",
+        "uz": "Oyın konsolı",
+        "example": "My brother plays football games on his games console.",
+        "emoji": "🎮"
+      },
+      {
+        "en": "headphones",
+        "ipa": "/ˈhedfəʊnz/",
+        "uz": "Naushnik",
+        "example": "I listen to music using my headphones on the bus.",
+        "emoji": "🎧"
+      },
+      {
+        "en": "laptop",
+        "ipa": "/ˈlæptɒp/",
+        "uz": "Noutbuk",
+        "example": "She writes her school reports on a laptop computer.",
+        "emoji": "💻"
+      },
+      {
+        "en": "MP4 player",
+        "ipa": "/ˌem piː fɔː ˈpleɪə/",
+        "uz": "MP4 pleer",
+        "example": "He listens to songs and watches videos on his MP4 player.",
+        "emoji": "🎵"
+      },
+      {
+        "en": "smartphone",
+        "ipa": "/ˈsmɑːtfəʊn/",
+        "uz": "Smartfon",
+        "example": "Almost every student has a smartphone these days.",
+        "emoji": "📱"
+      },
+      {
+        "en": "tablet",
+        "ipa": "/ˈtæblɪt/",
+        "uz": "Planshet",
+        "example": "The children watched cartoons on the tablet after school.",
+        "emoji": "📲"
+      },
+      {
+        "en": "television",
+        "ipa": "/ˈtelɪvɪʒn/",
+        "uz": "Televizor",
+        "example": "The whole family watched the news on television together.",
+        "emoji": "📺"
+      },
+      {
+        "en": "video camera",
+        "ipa": "/ˈvɪdiəʊ ˈkæmərə/",
+        "uz": "Video kamera",
+        "example": "The photographer recorded the wedding with a video camera.",
+        "emoji": "🎥"
+      }
+    ]
+  },
+  {
+    "title": "6-tema — Tábiyiy dúnya",
+    "order": 6,
+    "emoji": "🏔️",
+    "words": [
+      {
+        "en": "cave",
+        "ipa": "/keɪv/",
+        "uz": "Úńgir",
+        "example": "A group of bats was sleeping inside the dark cave.",
+        "emoji": "🦇"
+      },
+      {
+        "en": "desert",
+        "ipa": "/ˈdezət/",
+        "uz": "Shól",
+        "example": "It rarely rains in the hot, dry desert.",
+        "emoji": "🏜️"
+      },
+      {
+        "en": "forest",
+        "ipa": "/ˈfɒrɪst/",
+        "uz": "Orman",
+        "example": "We walked through the green forest and saw many birds.",
+        "emoji": "🌲"
+      },
+      {
+        "en": "island",
+        "ipa": "/ˈaɪlənd/",
+        "uz": "Aral",
+        "example": "The small island in the lake has no people living there.",
+        "emoji": "🏝️"
+      },
+      {
+        "en": "jungle",
+        "ipa": "/ˈdʒʌŋɡl/",
+        "uz": "Tropikalıq orman",
+        "example": "Tigers and monkeys live in the thick jungle.",
+        "emoji": "🌴"
+      },
+      {
+        "en": "lake",
+        "ipa": "/leɪk/",
+        "uz": "Kól",
+        "example": "We swam in the cool water of the lake.",
+        "emoji": "🏞️"
+      },
+      {
+        "en": "mountain",
+        "ipa": "/ˈmaʊntɪn/",
+        "uz": "Taw",
+        "example": "It took us five hours to climb the tall mountain.",
+        "emoji": "⛰️"
+      },
+      {
+        "en": "river",
+        "ipa": "/ˈrɪvə/",
+        "uz": "Dárya",
+        "example": "The river flows from the mountains to the sea.",
+        "emoji": "🌊"
+      },
+      {
+        "en": "volcano",
+        "ipa": "/vɒlˈkeɪnəʊ/",
+        "uz": "Vulkan",
+        "example": "The volcano erupted and sent smoke into the sky.",
+        "emoji": "🌋"
+      },
+      {
+        "en": "waterfall",
+        "ipa": "/ˈwɔːtəfɔːl/",
+        "uz": "Sharshama",
+        "example": "The waterfall crashed down over the tall rocks.",
+        "emoji": "💦"
+      }
+    ]
+  },
+  {
+    "title": "7-tema — Úyde járdem beriw",
+    "order": 7,
+    "emoji": "🧹",
+    "words": [
+      {
+        "en": "clean the bathroom",
+        "ipa": "/kliːn ðə ˈbɑːθruːm/",
+        "uz": "Hammamdı tazalaw",
+        "example": "Please clean the bathroom before our guests arrive today.",
+        "emoji": "🛁"
+      },
+      {
+        "en": "cook dinner",
+        "ipa": "/kʊk ˈdɪnə/",
+        "uz": "Keshki tamaqtı pisiriw",
+        "example": "My mother likes to cook dinner for the whole family.",
+        "emoji": "🍳"
+      },
+      {
+        "en": "dry the dishes",
+        "ipa": "/draɪ ðə ˈdɪʃɪz/",
+        "uz": "Idıstı súrtiw",
+        "example": "Can you dry the dishes after I wash them, please?",
+        "emoji": "🧽"
+      },
+      {
+        "en": "make my bed",
+        "ipa": "/meɪk maɪ bed/",
+        "uz": "Tósegimdi jıynaw",
+        "example": "I always make my bed before I go to school.",
+        "emoji": "🛏️"
+      },
+      {
+        "en": "set the table",
+        "ipa": "/set ðə ˈteɪbl/",
+        "uz": "Dastarhandı jayıw",
+        "example": "Could you set the table before dinner is ready?",
+        "emoji": "🍽️"
+      },
+      {
+        "en": "take the trash out",
+        "ipa": "/teɪk ðə træʃ aʊt/",
+        "uz": "Qoqıstı shığarıw",
+        "example": "It's your turn to take the trash out tonight.",
+        "emoji": "🗑️"
+      },
+      {
+        "en": "sweep the floor",
+        "ipa": "/swiːp ðə flɔː/",
+        "uz": "Poldı súpiriw",
+        "example": "She swept the floor with a broom every morning.",
+        "emoji": "🧹"
+      },
+      {
+        "en": "clean my bedroom",
+        "ipa": "/kliːn maɪ ˈbedruːm/",
+        "uz": "Bólmemdi tazalaw",
+        "example": "I need to clean my bedroom before my friends visit.",
+        "emoji": "🧼"
+      },
+      {
+        "en": "wash my clothes",
+        "ipa": "/wɒʃ maɪ kləʊðz/",
+        "uz": "Kiyimlerimdi juwıw",
+        "example": "I wash my clothes every weekend with my sister.",
+        "emoji": "🧺"
+      },
+      {
+        "en": "water the plants",
+        "ipa": "/ˈwɔːtə ðə plɑːnts/",
+        "uz": "Gúllerdi suwgarıw",
+        "example": "She waters the plants on the balcony every evening.",
+        "emoji": "🪴"
+      }
+    ]
+  },
+  {
+    "title": "8-tema — Sezimler",
+    "order": 8,
+    "emoji": "🎭",
+    "words": [
+      {
+        "en": "angry",
+        "ipa": "/ˈæŋɡri/",
+        "uz": "Ashıwlı",
+        "example": "He was angry when he lost his favorite pen.",
+        "emoji": "😠"
+      },
+      {
+        "en": "bored",
+        "ipa": "/bɔːd/",
+        "uz": "Zerikken",
+        "example": "The students felt bored during the long lecture.",
+        "emoji": "😑"
+      },
+      {
+        "en": "excited",
+        "ipa": "/ɪkˈsaɪtɪd/",
+        "uz": "Tolqınlanǵan",
+        "example": "The children were excited about the school trip tomorrow.",
+        "emoji": "🤩"
+      },
+      {
+        "en": "hungry",
+        "ipa": "/ˈhʌŋɡri/",
+        "uz": "Aş",
+        "example": "I am hungry, so let's have lunch now.",
+        "emoji": "😋"
+      },
+      {
+        "en": "interested",
+        "ipa": "/ˈɪntrəstɪd/",
+        "uz": "Qızıqqan",
+        "example": "She is very interested in learning new foreign languages.",
+        "emoji": "🤔"
+      },
+      {
+        "en": "scared",
+        "ipa": "/skeəd/",
+        "uz": "Qorqqan",
+        "example": "The little boy was scared of the dark room.",
+        "emoji": "😨"
+      },
+      {
+        "en": "surprised",
+        "ipa": "/səˈpraɪzd/",
+        "uz": "Tań qalǵan",
+        "example": "We were surprised to see snow in April.",
+        "emoji": "😲"
+      },
+      {
+        "en": "thirsty",
+        "ipa": "/ˈθɜːsti/",
+        "uz": "Shóllegen",
+        "example": "After the run, he was very thirsty for water.",
+        "emoji": "🥤"
+      },
+      {
+        "en": "tired",
+        "ipa": "/ˈtaɪəd/",
+        "uz": "Sharshaǵan",
+        "example": "She was tired after working all day long.",
+        "emoji": "😴"
+      },
+      {
+        "en": "worried",
+        "ipa": "/ˈwʌrid/",
+        "uz": "Alańdaǵan",
+        "example": "My mother was worried when I came home late.",
+        "emoji": "😟"
+      }
+    ]
+  },
+  {
+    "title": "9-tema — Ashıq hawa sportı",
+    "order": 9,
+    "emoji": "🏕️",
+    "words": [
+      {
+        "en": "bodyboarding",
+        "ipa": "/ˈbɒdibɔːdɪŋ/",
+        "uz": "Tolqında taqta menen suzıw",
+        "example": "We tried bodyboarding at the beach during our summer holiday.",
+        "emoji": "🌊"
+      },
+      {
+        "en": "canoeing",
+        "ipa": "/kəˈnuːɪŋ/",
+        "uz": "Kanoeda esiw",
+        "example": "They went canoeing down the river last weekend.",
+        "emoji": "🛶"
+      },
+      {
+        "en": "go-carting",
+        "ipa": "/ˈɡəʊkɑːtɪŋ/",
+        "uz": "Kartingde jarısıw",
+        "example": "My brother loves go-carting with his friends on Saturdays.",
+        "emoji": "🏎️"
+      },
+      {
+        "en": "hiking",
+        "ipa": "/ˈhaɪkɪŋ/",
+        "uz": "Piyada sayaqatlaw",
+        "example": "Our family enjoys hiking in the mountains every summer.",
+        "emoji": "🥾"
+      },
+      {
+        "en": "rock climbing",
+        "ipa": "/rɒk ˈklaɪmɪŋ/",
+        "uz": "Qayaǵa tırmasıw",
+        "example": "He learned rock climbing at an outdoor adventure camp.",
+        "emoji": "🧗"
+      },
+      {
+        "en": "rowing",
+        "ipa": "/ˈrəʊɪŋ/",
+        "uz": "Qayıq esiw",
+        "example": "The team practiced rowing on the lake every morning.",
+        "emoji": "🚣"
+      },
+      {
+        "en": "scuba diving",
+        "ipa": "/ˈskuːbə ˌdaɪvɪŋ/",
+        "uz": "Aqualang menen suwǵa shómiw",
+        "example": "She wants to try scuba diving in the sea someday.",
+        "emoji": "🤿"
+      },
+      {
+        "en": "snorkeling",
+        "ipa": "/ˈsnɔːkəlɪŋ/",
+        "uz": "Trubka menen suzıw",
+        "example": "We saw colorful fish while snorkeling near the coral reef.",
+        "emoji": "🐠"
+      },
+      {
+        "en": "trampolining",
+        "ipa": "/ˌtræmpəˈliːnɪŋ/",
+        "uz": "Batutta sekiriw",
+        "example": "The children had fun trampolining in the park yesterday.",
+        "emoji": "🤸"
+      },
+      {
+        "en": "windsurfing",
+        "ipa": "/ˈwɪndsɜːfɪŋ/",
+        "uz": "Jel taqtasında suzıw",
+        "example": "He is learning windsurfing at the beach this summer.",
+        "emoji": "🏄"
+      }
+    ]
+  },
+  {
+    "title": "10-tema — Pasıllar hám hawa-rayı",
+    "order": 10,
+    "emoji": "🌦️",
+    "words": [
+      {
+        "en": "spring",
+        "ipa": "/sprɪŋ/",
+        "uz": "Báhár",
+        "example": "In spring, flowers bloom and the weather gets warmer.",
+        "emoji": "🌷"
+      },
+      {
+        "en": "summer",
+        "ipa": "/ˈsʌmə/",
+        "uz": "Jaz",
+        "example": "We often swim in the river during summer.",
+        "emoji": "☀️"
+      },
+      {
+        "en": "fall",
+        "ipa": "/fɔːl/",
+        "uz": "Kúz",
+        "example": "The leaves turn orange and yellow in fall.",
+        "emoji": "🍂"
+      },
+      {
+        "en": "winter",
+        "ipa": "/ˈwɪntə/",
+        "uz": "Qıs",
+        "example": "It snows a lot in winter.",
+        "emoji": "❄️"
+      },
+      {
+        "en": "monsoon",
+        "ipa": "/mɒnˈsuːn/",
+        "uz": "Musson",
+        "example": "The monsoon brings heavy rain to many countries in Asia.",
+        "emoji": "🌧️"
+      },
+      {
+        "en": "drought",
+        "ipa": "/draʊt/",
+        "uz": "Qurǵaqshılıq",
+        "example": "The long drought dried up the small river near our village.",
+        "emoji": "🏜️"
+      },
+      {
+        "en": "flood",
+        "ipa": "/flʌd/",
+        "uz": "Tasqın",
+        "example": "The flood damaged many houses along the river bank.",
+        "emoji": "🌊"
+      },
+      {
+        "en": "storm",
+        "ipa": "/stɔːm/",
+        "uz": "Boran",
+        "example": "A big storm destroyed many trees.",
+        "emoji": "🌪️"
+      },
+      {
+        "en": "thunder and lightning",
+        "ipa": "/ˈθʌndə ənd ˈlaɪtnɪŋ/",
+        "uz": "Gúrildew hám shaqmaq",
+        "example": "We saw thunder and lightning during the night storm.",
+        "emoji": "⛈️"
+      }
+    ]
+  },
+  {
+    "title": "11-tema — Kemping",
+    "order": 11,
+    "emoji": "⛺",
+    "words": [
+      {
+        "en": "blanket",
+        "ipa": "/ˈblæŋkɪt/",
+        "uz": "Kórpe",
+        "example": "I always bring a warm blanket when we go camping.",
+        "emoji": "🛏️"
+      },
+      {
+        "en": "bowl",
+        "ipa": "/bəʊl/",
+        "uz": "Kasa",
+        "example": "She poured hot soup into a small bowl.",
+        "emoji": "🥣"
+      },
+      {
+        "en": "cup",
+        "ipa": "/kʌp/",
+        "uz": "Kese",
+        "example": "He drank hot tea from a cup by the fire.",
+        "emoji": "☕"
+      },
+      {
+        "en": "map",
+        "ipa": "/mæp/",
+        "uz": "Karta",
+        "example": "We used a map to find the camping site.",
+        "emoji": "🗺️"
+      },
+      {
+        "en": "plate",
+        "ipa": "/pleɪt/",
+        "uz": "Tabaq",
+        "example": "Put the food on your plate before we eat.",
+        "emoji": "🍽️"
+      },
+      {
+        "en": "backpack",
+        "ipa": "/ˈbækpæk/",
+        "uz": "Ryukzak",
+        "example": "My backpack is full of clothes and snacks.",
+        "emoji": "🎒"
+      },
+      {
+        "en": "sleeping bag",
+        "ipa": "/ˈsliːpɪŋ bæg/",
+        "uz": "Uyqı qapı",
+        "example": "I slept warmly in my sleeping bag last night.",
+        "emoji": "🛌"
+      },
+      {
+        "en": "tent",
+        "ipa": "/tent/",
+        "uz": "Shatır",
+        "example": "We set up our tent near the lake.",
+        "emoji": "⛺"
+      },
+      {
+        "en": "flashlight",
+        "ipa": "/ˈflæʃlaɪt/",
+        "uz": "Fonarik",
+        "example": "We used a flashlight to see in the dark forest.",
+        "emoji": "🔦"
+      },
+      {
+        "en": "water bottle",
+        "ipa": "/ˈwɔːtə ˈbɒtl/",
+        "uz": "Suw shishesi",
+        "example": "Don't forget to fill your water bottle before the hike.",
+        "emoji": "🥤"
+      }
+    ]
+  },
+  {
+    "title": "12-tema — Talant kórsetiw keshesi",
+    "order": 12,
+    "emoji": "🎤",
+    "words": [
+      {
+        "en": "do acrobatics",
+        "ipa": "/duː ˌækrəˈbætɪks/",
+        "uz": "Akrobatika kórsetiw",
+        "example": "The gymnast can do amazing acrobatics on the stage.",
+        "emoji": "🎪"
+      },
+      {
+        "en": "do cartwheels",
+        "ipa": "/duː ˈkɑːtwiːlz/",
+        "uz": "Aylanba atlaw",
+        "example": "My sister loves to do cartwheels in the garden.",
+        "emoji": "🤸"
+      },
+      {
+        "en": "do tricks",
+        "ipa": "/duː trɪks/",
+        "uz": "Ámeller kórsetiw",
+        "example": "The clown did funny tricks to make children laugh.",
+        "emoji": "🎩"
+      },
+      {
+        "en": "juggle",
+        "ipa": "/ˈdʒʌgl/",
+        "uz": "Jonglyorlıq etiw",
+        "example": "He can juggle three balls at the same time.",
+        "emoji": "🤹"
+      },
+      {
+        "en": "make sculptures",
+        "ipa": "/meɪk ˈskʌlptʃəz/",
+        "uz": "Músin jasaw",
+        "example": "The artist makes beautiful sculptures out of clay.",
+        "emoji": "🗿"
+      },
+      {
+        "en": "paint portraits",
+        "ipa": "/peɪnt ˈpɔːtrɪts/",
+        "uz": "Portret sızıw",
+        "example": "She likes to paint portraits of her friends and family.",
+        "emoji": "🖼️"
+      },
+      {
+        "en": "play instruments",
+        "ipa": "/pleɪ ˈɪnstrəmənts/",
+        "uz": "Muzıka áspaplarında oynaw",
+        "example": "Many students learn to play instruments at school.",
+        "emoji": "🎸"
+      },
+      {
+        "en": "do street dancing",
+        "ipa": "/duː striːt ˈdɑːnsɪŋ/",
+        "uz": "Kóshe biyin orınlaw",
+        "example": "The boys practice street dancing every afternoon in the park.",
+        "emoji": "🕺"
+      },
+      {
+        "en": "read poetry",
+        "ipa": "/riːd ˈpəʊɪtri/",
+        "uz": "Óleń oqıw",
+        "example": "He reads poetry beautifully in front of the whole class.",
+        "emoji": "📜"
+      },
+      {
+        "en": "tell jokes",
+        "ipa": "/tel dʒəʊks/",
+        "uz": "Anekdot aytıw",
+        "example": "My best friend always tells jokes to make us laugh.",
+        "emoji": "😂"
+      }
+    ]
+  },
+  {
+    "title": "13-tema — Xalıqaralıq taǵamlar",
+    "order": 13,
+    "emoji": "🍽️",
+    "words": [
+      {
+        "en": "curry",
+        "ipa": "/ˈkʌri/",
+        "uz": "Karri",
+        "example": "My favourite dish is chicken curry with rice.",
+        "emoji": "🍛"
+      },
+      {
+        "en": "dumplings",
+        "ipa": "/ˈdʌmplɪŋz/",
+        "uz": "Dumpling",
+        "example": "We ate hot dumplings for dinner last night.",
+        "emoji": "🥟"
+      },
+      {
+        "en": "fish and chips",
+        "ipa": "/fɪʃ ənd tʃɪps/",
+        "uz": "Balıq hám kartoshka",
+        "example": "In England, people often eat fish and chips on Fridays.",
+        "emoji": "🍟"
+      },
+      {
+        "en": "kebabs",
+        "ipa": "/kɪˈbæbz/",
+        "uz": "Kebab",
+        "example": "We cooked kebabs on the fire during our picnic.",
+        "emoji": "🍢"
+      },
+      {
+        "en": "noodles",
+        "ipa": "/ˈnuːdlz/",
+        "uz": "Lapsha",
+        "example": "She likes eating noodles with vegetables for lunch.",
+        "emoji": "🍜"
+      },
+      {
+        "en": "paella",
+        "ipa": "/paɪˈelə/",
+        "uz": "Paelya",
+        "example": "Paella is a famous rice dish from Spain.",
+        "emoji": "🥘"
+      },
+      {
+        "en": "rice and beans",
+        "ipa": "/raɪs ənd biːnz/",
+        "uz": "Gúrish hám lobiya",
+        "example": "Rice and beans are a popular meal in many countries.",
+        "emoji": "🍚"
+      },
+      {
+        "en": "stew",
+        "ipa": "/stjuː/",
+        "uz": "Sorpa",
+        "example": "My grandmother makes delicious stew with meat and potatoes.",
+        "emoji": "🍲"
+      },
+      {
+        "en": "sushi",
+        "ipa": "/ˈsuːʃi/",
+        "uz": "Sushi",
+        "example": "Sushi is a traditional Japanese food made with rice and fish.",
+        "emoji": "🍣"
+      },
+      {
+        "en": "tacos",
+        "ipa": "/ˈtækəʊz/",
+        "uz": "Tako",
+        "example": "We made tacos with beef, cheese and vegetables.",
+        "emoji": "🌮"
+      }
+    ]
+  },
+  {
+    "title": "14-tema — Muzıka",
+    "order": 14,
+    "emoji": "🎵",
+    "words": [
+      {
+        "en": "clarinet",
+        "ipa": "/ˌklærɪˈnet/",
+        "uz": "Klarnet",
+        "example": "My brother learned to play the clarinet last year.",
+        "emoji": "🎶"
+      },
+      {
+        "en": "cymbals",
+        "ipa": "/ˈsɪmbəlz/",
+        "uz": "Tarelka",
+        "example": "The drummer hit the cymbals loudly at the end of the song.",
+        "emoji": "🥁"
+      },
+      {
+        "en": "drums",
+        "ipa": "/drʌmz/",
+        "uz": "Baraban",
+        "example": "He plays the drums in a rock band.",
+        "emoji": "🥁"
+      },
+      {
+        "en": "electric guitar",
+        "ipa": "/ɪˌlektrɪk ɡɪˈtɑː/",
+        "uz": "Elektr gitara",
+        "example": "She bought a new electric guitar for her birthday.",
+        "emoji": "🎸"
+      },
+      {
+        "en": "flute",
+        "ipa": "/fluːt/",
+        "uz": "Fleyta",
+        "example": "The girl practises the flute every afternoon after school.",
+        "emoji": "🪈"
+      },
+      {
+        "en": "keyboard",
+        "ipa": "/ˈkiːbɔːd/",
+        "uz": "Klaviatura",
+        "example": "He composes songs using an electronic keyboard at home.",
+        "emoji": "🎹"
+      },
+      {
+        "en": "saxophone",
+        "ipa": "/ˈsæksəfəʊn/",
+        "uz": "Saksofon",
+        "example": "The musician played a beautiful tune on the saxophone.",
+        "emoji": "🎷"
+      },
+      {
+        "en": "trombone",
+        "ipa": "/trɒmˈbəʊn/",
+        "uz": "Trombon",
+        "example": "The trombone makes a deep, rich sound in the band.",
+        "emoji": "🎶"
+      },
+      {
+        "en": "trumpet",
+        "ipa": "/ˈtrʌmpɪt/",
+        "uz": "Truba",
+        "example": "He blew the trumpet loudly during the parade.",
+        "emoji": "🎺"
+      },
+      {
+        "en": "violin",
+        "ipa": "/ˌvaɪəˈlɪn/",
+        "uz": "Skripka",
+        "example": "She has played the violin since she was six years old.",
+        "emoji": "🎻"
+      }
+    ]
+  },
+  {
+    "title": "15-tema — Házir hám burın",
+    "order": 15,
+    "emoji": "💻",
+    "words": [
+      {
+        "en": "dictionary",
+        "ipa": "/ˈdɪkʃənri/",
+        "uz": "Sózlik",
+        "example": "I looked up the new word in my English dictionary.",
+        "emoji": "📖"
+      },
+      {
+        "en": "e-book",
+        "ipa": "/ˈiːbʊk/",
+        "uz": "Elektron kitap",
+        "example": "She reads an e-book on her tablet every night.",
+        "emoji": "📱"
+      },
+      {
+        "en": "email",
+        "ipa": "/ˈiːmeɪl/",
+        "uz": "Elektron xat",
+        "example": "He sent me an email about the school trip yesterday.",
+        "emoji": "📧"
+      },
+      {
+        "en": "encyclopedia",
+        "ipa": "/ɪnˌsaɪkləˈpiːdiə/",
+        "uz": "Entsiklopediya",
+        "example": "This encyclopedia has information about animals from around the world.",
+        "emoji": "📚"
+      },
+      {
+        "en": "letter",
+        "ipa": "/ˈletə/",
+        "uz": "Xat",
+        "example": "My grandmother wrote me a letter last summer.",
+        "emoji": "✉️"
+      },
+      {
+        "en": "magazine",
+        "ipa": "/ˌmæɡəˈziːn/",
+        "uz": "Jurnal",
+        "example": "My sister buys a fashion magazine every month.",
+        "emoji": "📰"
+      },
+      {
+        "en": "newspaper",
+        "ipa": "/ˈnjuːzˌpeɪpə/",
+        "uz": "Gazeta",
+        "example": "My father reads the newspaper every morning with his tea.",
+        "emoji": "🗞️"
+      },
+      {
+        "en": "online game",
+        "ipa": "/ˈɒnlaɪn ɡeɪm/",
+        "uz": "Onlayn oyın",
+        "example": "The boys play an online game together after finishing homework.",
+        "emoji": "🎮"
+      },
+      {
+        "en": "text message",
+        "ipa": "/tekst ˈmesɪdʒ/",
+        "uz": "Qısqa xabar",
+        "example": "She sent a text message to her friend about the party.",
+        "emoji": "💬"
+      },
+      {
+        "en": "website",
+        "ipa": "/ˈwebsaɪt/",
+        "uz": "Sayt",
+        "example": "The library's website has information about new books.",
+        "emoji": "🌐"
+      }
+    ]
+  },
+  {
+    "title": "16-tema — Qorshaǵan ortalıq",
+    "order": 16,
+    "emoji": "♻️",
+    "words": [
+      {
+        "en": "aluminum",
+        "ipa": "/əˈluːmɪnəm/",
+        "uz": "Alyuminiy",
+        "example": "This drink can is made of lightweight aluminum.",
+        "emoji": "🥫"
+      },
+      {
+        "en": "cardboard",
+        "ipa": "/ˈkɑːdbɔːd/",
+        "uz": "Karton",
+        "example": "We packed all the old books in a cardboard box.",
+        "emoji": "📦"
+      },
+      {
+        "en": "electricity",
+        "ipa": "/ɪˌlekˈtrɪsɪti/",
+        "uz": "Elektr",
+        "example": "The village finally got electricity two years ago.",
+        "emoji": "⚡"
+      },
+      {
+        "en": "gas",
+        "ipa": "/ɡæs/",
+        "uz": "Gaz",
+        "example": "We cook our dinner every night using gas.",
+        "emoji": "🔥"
+      },
+      {
+        "en": "glass",
+        "ipa": "/ɡlɑːs/",
+        "uz": "Shisha",
+        "example": "Please put the empty glass bottles in this bin.",
+        "emoji": "🍾"
+      },
+      {
+        "en": "paper",
+        "ipa": "/ˈpeɪpə/",
+        "uz": "Qaǵaz",
+        "example": "She wrote a short letter on a piece of paper.",
+        "emoji": "📄"
+      },
+      {
+        "en": "plastic",
+        "ipa": "/ˈplæstɪk/",
+        "uz": "Plastik",
+        "example": "Plastic bottles can take hundreds of years to break down.",
+        "emoji": "🥤"
+      },
+      {
+        "en": "solar power",
+        "ipa": "/ˈsəʊlə ˈpaʊə/",
+        "uz": "Quyash energiyası",
+        "example": "Our new school building runs entirely on solar power.",
+        "emoji": "☀️"
+      },
+      {
+        "en": "water",
+        "ipa": "/ˈwɔːtə/",
+        "uz": "Suw",
+        "example": "Every plant in the garden needs water to grow.",
+        "emoji": "💧"
+      },
+      {
+        "en": "wind power",
+        "ipa": "/wɪnd ˈpaʊə/",
+        "uz": "Jel energiyası",
+        "example": "Wind power is a clean way to make electricity.",
+        "emoji": "🌬️"
+      }
+    ]
+  },
+  {
+    "title": "17-tema — Kosmos",
+    "order": 17,
+    "emoji": "🚀",
+    "words": [
+      {
+        "en": "astronaut",
+        "ipa": "/ˈæstrənɔːt/",
+        "uz": "Kosmonavt",
+        "example": "The astronaut floated freely inside the space station.",
+        "emoji": "👨‍🚀"
+      },
+      {
+        "en": "Earth",
+        "ipa": "/ɜːθ/",
+        "uz": "Jer",
+        "example": "The Earth takes exactly one year to orbit the Sun.",
+        "emoji": "🌍"
+      },
+      {
+        "en": "Mars",
+        "ipa": "/mɑːz/",
+        "uz": "Mars",
+        "example": "Scientists sent a small robot to explore Mars.",
+        "emoji": "🔴"
+      },
+      {
+        "en": "planets",
+        "ipa": "/ˈplænɪts/",
+        "uz": "Planetalar",
+        "example": "There are eight planets moving around our Sun.",
+        "emoji": "🪐"
+      },
+      {
+        "en": "space laboratory",
+        "ipa": "/speɪs ləˈbɒrətri/",
+        "uz": "Kosmos laboratoriyası",
+        "example": "Astronauts carry out experiments inside the space laboratory.",
+        "emoji": "🔬"
+      },
+      {
+        "en": "space station",
+        "ipa": "/speɪs ˈsteɪʃn/",
+        "uz": "Kosmos stansiyası",
+        "example": "The crew will live on the space station for six months.",
+        "emoji": "🛰️"
+      },
+      {
+        "en": "spacecraft",
+        "ipa": "/ˈspeɪskrɑːft/",
+        "uz": "Kosmos kemesi",
+        "example": "The spacecraft landed safely back on Earth this morning.",
+        "emoji": "🚀"
+      },
+      {
+        "en": "spacesuit",
+        "ipa": "/ˈspeɪssuːt/",
+        "uz": "Kosmos kostyumı",
+        "example": "He put on his spacesuit before going outside to work.",
+        "emoji": "🧑‍🚀"
+      },
+      {
+        "en": "stars",
+        "ipa": "/stɑːz/",
+        "uz": "Jıldızlar",
+        "example": "The astronomer counted hundreds of stars through her telescope.",
+        "emoji": "⭐"
+      },
+      {
+        "en": "the Moon",
+        "ipa": "/ðə muːn/",
+        "uz": "Ay",
+        "example": "The first astronauts walked on the Moon in 1969.",
+        "emoji": "🌙"
+      }
+    ]
+  },
+  {
+    "title": "18-tema — Bayramlar",
+    "order": 18,
+    "emoji": "🎉",
+    "words": [
+      {
+        "en": "clown",
+        "ipa": "/klaʊn/",
+        "uz": "Kloun",
+        "example": "The clown made all the children laugh loudly.",
+        "emoji": "🤡"
+      },
+      {
+        "en": "costume",
+        "ipa": "/ˈkɒstjuːm/",
+        "uz": "Kostyum",
+        "example": "She wore a colorful costume for the school parade.",
+        "emoji": "👗"
+      },
+      {
+        "en": "dancer",
+        "ipa": "/ˈdɑːnsə/",
+        "uz": "Biyshi",
+        "example": "The dancer performed a beautiful traditional dance on stage.",
+        "emoji": "💃"
+      },
+      {
+        "en": "dragon",
+        "ipa": "/ˈdræɡən/",
+        "uz": "Ajdarha",
+        "example": "A giant paper dragon led the festival parade downtown.",
+        "emoji": "🐉"
+      },
+      {
+        "en": "fireworks",
+        "ipa": "/ˈfaɪəwɜːks/",
+        "uz": "Salyut",
+        "example": "Bright fireworks lit up the night sky over the city.",
+        "emoji": "🎆"
+      },
+      {
+        "en": "float",
+        "ipa": "/fləʊt/",
+        "uz": "Bayram arbası",
+        "example": "A colorful float moved slowly through the crowded street.",
+        "emoji": "🎊"
+      },
+      {
+        "en": "amusement park",
+        "ipa": "/əˈmjuːzmənt pɑːk/",
+        "uz": "Attraksion baǵı",
+        "example": "We rode the roller coaster at the amusement park all day.",
+        "emoji": "🎡"
+      },
+      {
+        "en": "mask",
+        "ipa": "/mɑːsk/",
+        "uz": "Maska",
+        "example": "He wore a scary mask for the celebration last night.",
+        "emoji": "🎭"
+      },
+      {
+        "en": "musician",
+        "ipa": "/mjuːˈzɪʃn/",
+        "uz": "Muzıkant",
+        "example": "A musician played the drum during the whole parade.",
+        "emoji": "🎸"
+      },
+      {
+        "en": "pirate",
+        "ipa": "/ˈpaɪərət/",
+        "uz": "Qaraqshı",
+        "example": "The boy dressed up as a pirate for the party.",
+        "emoji": "🏴‍☠️"
+      }
+    ]
+  }
+]
