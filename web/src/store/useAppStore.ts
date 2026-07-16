@@ -10,6 +10,8 @@ import {
   startReviewSession,
 } from '../lib/learnApi';
 import { getTodayQuests } from '../lib/questsApi';
+import { gradeOffline } from '../lib/offlineGrade';
+import { enqueueOfflineAnswer } from '../lib/offlineQueue';
 import type {
   ApiBadge,
   ApiQuizQuestion,
@@ -504,6 +506,7 @@ export const useAppStore = create<AppState>((set, get) => {
     // correctness) — including practice/repeat attempts, so the UI can show
     // real feedback for them too, but those don't touch FSRS/mastery or the
     // session's answer log (see the `practice` flag on the endpoint).
+    const practice = item.isRepeat === true;
     let correct: boolean;
     let correctIndex: number | undefined;
     let almost: boolean | undefined;
@@ -513,15 +516,37 @@ export const useAppStore = create<AppState>((set, get) => {
         wordId: item.wordId,
         exercise: item.exercise,
         responseMs,
-        practice: item.isRepeat === true,
+        practice,
         ...payload,
       });
       correct = res.correct;
       correctIndex = res.correctIndex;
       almost = res.almost;
     } catch (err) {
-      console.error('Learn answer failed:', err);
-      return { correct: false };
+      if (err instanceof ApiError) {
+        // A real server response (validation, auth, etc.) — not a
+        // connectivity problem, so there's nothing to queue for later.
+        console.error('Learn answer failed:', err);
+        return { correct: false };
+      }
+      // fetch itself threw (offline / DNS / connection reset) — grade
+      // locally from the already-downloaded item and keep the session going,
+      // then queue the real attempt for the server to reconcile once back
+      // online (skip practice/repeat attempts — they never touch FSRS/the
+      // session log server-side either, so replaying them is pointless).
+      const graded = gradeOffline(item, payload);
+      correct = graded.correct;
+      almost = graded.almost;
+      if (!practice) {
+        enqueueOfflineAnswer({
+          sessionId: session.sessionId,
+          wordId: item.wordId,
+          exercise: item.exercise,
+          responseMs,
+          practice,
+          payload,
+        });
+      }
     }
 
     const cursorAtAnswer = session.cursor;

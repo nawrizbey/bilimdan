@@ -3,6 +3,7 @@ import { Outlet } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { Topbar } from './Topbar';
 import { ContentLoader } from './ContentLoader';
+import { OfflineBanner } from './OfflineBanner';
 import { useAppStore } from '../store/useAppStore';
 import { maybeNotifyDailyGoal } from '../lib/dailyReminder';
 
@@ -21,6 +22,7 @@ export function AppLayout() {
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <div className="flex-1 min-w-0 flex flex-col">
         <Topbar onMenuClick={() => setSidebarOpen((v) => !v)} />
+        <OfflineBanner />
         <main className="flex-1 py-5 px-4 sm:py-[26px] sm:px-[34px] pb-[60px]">
           <Suspense fallback={<ContentLoader />}>
             <Outlet />

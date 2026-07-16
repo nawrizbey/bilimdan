@@ -37,6 +37,10 @@ export const kaa = {
     loading: 'Júklenbekte…',
   },
 
+  offline: {
+    banner: 'Internet joq — juwaplarıńız saqlanıp atır, qosılǵanda avtomatik jiberiledi',
+  },
+
   topbar: {
     openMenu: 'Menyudı ashıw',
     searchPlaceholder: 'Sóz yamasa tema izlew…',
