@@ -698,29 +698,59 @@ async function main() {
     }
   }
 
-  // Full replace, not upsert: the UNITS list below was rebuilt from scratch
-  // (Cambridge "Guess What!" Grade 5/6 vocabulary, 2026-07-16) and no longer
-  // corresponds word-for-word to whatever used to occupy these unit/order
-  // slots. Upserting by order would silently reassign existing
-  // UserWordProgress/LearnSession/LearnBlockProgress rows to a completely
-  // different word, corrupting learners' FSRS state — so every dependent
-  // table is wiped first and rebuilt clean.
-  console.log('Clearing old units/words and dependent learn progress...');
-  await prisma.userWordProgress.deleteMany({});
-  await prisma.learnSession.deleteMany({});
-  await prisma.learnBlockProgress.deleteMany({});
-  await prisma.word.deleteMany({});
-  await prisma.unit.deleteMany({});
-  await prisma.user.updateMany({ data: { wordsKnownCount: 0 } });
-
-  console.log('Seeding units/words...');
-  for (const unit of UNITS) {
-    const createdUnit = await prisma.unit.create({ data: { title: unit.title, order: unit.order, emoji: unit.emoji } });
-    if (unit.words) {
-      await prisma.word.createMany({
-        data: unit.words.map((w, i) => ({ unitId: createdUnit.id, en: w.en, ipa: w.ipa, uz: w.uz, example: w.example, emoji: w.emoji, order: i })),
-      });
+  // Units/words are only ever touched when SEED_REPLACE_CONTENT=1 is set.
+  // A full replace deletes every learner's word progress (see the warning
+  // below), so it must never be the default behavior of a plain `npm run
+  // seed` — that command also refreshes regions/badges/demo/questions and
+  // gets run far more casually than a deliberate content swap should be.
+  if (process.env.SEED_REPLACE_CONTENT === '1') {
+    if (process.env.NODE_ENV === 'production' && process.env.SEED_REPLACE_CONTENT_CONFIRM_PROD !== '1') {
+      console.error(
+        'SEED_REPLACE_CONTENT=1 with NODE_ENV=production also requires SEED_REPLACE_CONTENT_CONFIRM_PROD=1 — refusing to run.',
+      );
+      process.exit(1);
     }
+
+    let dbHost = 'unknown';
+    try {
+      dbHost = new URL(process.env.DATABASE_URL ?? '').host;
+    } catch {
+      // leave dbHost as 'unknown'
+    }
+    console.warn(`
+!!! SEED_REPLACE_CONTENT=1 — this DELETES every Unit/Word row and every
+!!! learner's word progress (UserWordProgress, LearnSession,
+!!! LearnBlockProgress), then rebuilds units/words from the UNITS list in
+!!! this file. This cannot be undone without a database backup.
+!!! Target database host: ${dbHost}
+`);
+
+    // Full replace, not upsert: the UNITS list below was rebuilt from scratch
+    // (Cambridge "Guess What!" Grade 5/6 vocabulary, 2026-07-16) and no longer
+    // corresponds word-for-word to whatever used to occupy these unit/order
+    // slots. Upserting by order would silently reassign existing
+    // UserWordProgress/LearnSession/LearnBlockProgress rows to a completely
+    // different word, corrupting learners' FSRS state — so every dependent
+    // table is wiped first and rebuilt clean.
+    console.log('Clearing old units/words and dependent learn progress...');
+    await prisma.userWordProgress.deleteMany({});
+    await prisma.learnSession.deleteMany({});
+    await prisma.learnBlockProgress.deleteMany({});
+    await prisma.word.deleteMany({});
+    await prisma.unit.deleteMany({});
+    await prisma.user.updateMany({ data: { wordsKnownCount: 0 } });
+
+    console.log('Seeding units/words...');
+    for (const unit of UNITS) {
+      const createdUnit = await prisma.unit.create({ data: { title: unit.title, order: unit.order, emoji: unit.emoji } });
+      if (unit.words) {
+        await prisma.word.createMany({
+          data: unit.words.map((w, i) => ({ unitId: createdUnit.id, en: w.en, ipa: w.ipa, uz: w.uz, example: w.example, emoji: w.emoji, order: i })),
+        });
+      }
+    }
+  } else {
+    console.log('Skipping units/words (set SEED_REPLACE_CONTENT=1 to replace) — existing content left untouched.');
   }
 
   // No stable unique key on question text, and nothing references these rows by
