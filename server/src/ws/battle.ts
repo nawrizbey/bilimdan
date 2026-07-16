@@ -17,6 +17,7 @@ const HEARTBEAT_MS = 20_000;
 const BOT_MATCH_DELAY_MS = 8_000;
 const BOT_USER_ID = -1;
 const BOT_CORRECT_PROBABILITY = 0.55;
+const AUTH_TIMEOUT_MS = 5_000;
 
 interface PlayerInfo {
   userId: number;
@@ -382,72 +383,91 @@ export function setupBattleWebSocket(server: HttpServer) {
   server.on('upgrade', (req, socket, head) => {
     const url = new URL(req.url ?? '', 'http://localhost');
     if (url.pathname !== '/ws/battle') return;
-
-    const token = url.searchParams.get('token');
-    if (!token) {
-      socket.destroy();
-      return;
-    }
-    let userId: number;
-    try {
-      userId = verifyToken(token).userId;
-    } catch {
-      socket.destroy();
-      return;
-    }
-
+    // No token check here — the connection upgrades bare and must authenticate
+    // via a first-message `{ type: 'auth', token }` frame instead of a query
+    // param, so the token never lands in nginx/server access logs.
     wss.handleUpgrade(req, socket, head, (ws) => {
-      wss.emit('connection', ws, userId);
+      wss.emit('connection', ws);
     });
   });
 
-  wss.on('connection', async (ws: WebSocket, userId: number) => {
-    let info: PlayerInfo;
-    try {
-      info = await loadPlayerInfo(userId);
-    } catch {
-      ws.close();
-      return;
-    }
+  wss.on('connection', (ws: WebSocket) => {
+    let authTimer: ReturnType<typeof setTimeout> | null = setTimeout(() => ws.close(), AUTH_TIMEOUT_MS);
 
-    // Replace any prior stale connection for this user (e.g. duplicate tab).
-    const existing = userConnections.get(userId);
-    if (existing && existing.ws && existing.ws !== ws) {
-      existing.ws.close();
-    }
-
-    const conn: Connection = { ...info, ws, alive: true };
-    userConnections.set(userId, conn);
-
-    ws.on('pong', () => {
-      conn.alive = true;
-    });
-
-    if (!tryResume(conn)) {
-      // No active match to resume into; client must explicitly queue:join.
-    }
-
-    ws.on('message', (raw) => {
-      let data: { type?: string; [key: string]: unknown };
+    const onAuthMessage = async (raw: Buffer | ArrayBuffer | Buffer[]) => {
+      let data: { type?: string; token?: string };
       try {
         data = JSON.parse(raw.toString());
       } catch {
         return;
       }
+      if (data.type !== 'auth' || typeof data.token !== 'string') return; // wait for a real auth frame; ignore anything else
 
-      if (data.type === 'queue:join') {
-        if (userToMatchId.has(userId) || pairingInProgress.has(userId)) return; // already in/entering a match
-        removeFromQueue(conn);
-        waitingQueue.push(conn);
-        send(conn, { type: 'queue:waiting' });
-        tryMatchmake();
-        if (!userToMatchId.has(userId) && !pairingInProgress.has(userId)) scheduleBotFallback(conn);
-      } else if (data.type === 'answer:submit') {
-        handleAnswerSubmit(conn, data as { qIndex?: number; choice?: number });
+      if (authTimer) {
+        clearTimeout(authTimer);
+        authTimer = null;
       }
-    });
+      ws.off('message', onAuthMessage);
 
-    ws.on('close', () => handleDisconnect(conn));
+      let userId: number;
+      try {
+        userId = verifyToken(data.token).userId;
+      } catch {
+        ws.close();
+        return;
+      }
+
+      let info: PlayerInfo;
+      try {
+        info = await loadPlayerInfo(userId);
+      } catch {
+        ws.close();
+        return;
+      }
+
+      // Replace any prior stale connection for this user (e.g. duplicate tab).
+      const existing = userConnections.get(userId);
+      if (existing && existing.ws && existing.ws !== ws) {
+        existing.ws.close();
+      }
+
+      const conn: Connection = { ...info, ws, alive: true };
+      userConnections.set(userId, conn);
+
+      ws.on('pong', () => {
+        conn.alive = true;
+      });
+
+      send(conn, { type: 'auth:ok' });
+      tryResume(conn); // no-op (returns false) if there's no match to resume into
+
+      ws.on('message', (raw2) => {
+        let msg: { type?: string; [key: string]: unknown };
+        try {
+          msg = JSON.parse(raw2.toString());
+        } catch {
+          return;
+        }
+
+        if (msg.type === 'queue:join') {
+          if (userToMatchId.has(userId) || pairingInProgress.has(userId)) return; // already in/entering a match
+          removeFromQueue(conn);
+          waitingQueue.push(conn);
+          send(conn, { type: 'queue:waiting' });
+          tryMatchmake();
+          if (!userToMatchId.has(userId) && !pairingInProgress.has(userId)) scheduleBotFallback(conn);
+        } else if (msg.type === 'answer:submit') {
+          handleAnswerSubmit(conn, msg as { qIndex?: number; choice?: number });
+        }
+      });
+
+      ws.on('close', () => handleDisconnect(conn));
+    };
+
+    ws.on('message', onAuthMessage);
+    ws.on('close', () => {
+      if (authTimer) clearTimeout(authTimer);
+    });
   });
 
   const heartbeat = setInterval(() => {
