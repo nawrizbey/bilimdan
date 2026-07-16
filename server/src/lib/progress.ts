@@ -35,24 +35,32 @@ function rolloverBaseline(lastActiveDate: Date | null, streak: number, goalDoneT
 const userInclude = { region: true, district: true, school: true } as const;
 
 /** Central progress-award chokepoint: applies daily streak rollover, then adds
- * this session's minutes/XP, and persists. Returns the updated serialized user. */
+ * this session's minutes/XP, and persists. Returns the updated serialized user.
+ *
+ * The read (for the rollover baseline) and write happen inside one
+ * transaction, and the XP write itself is an atomic `increment` rather than
+ * `current + xpGain` computed from the earlier read — otherwise two
+ * near-simultaneous calls (double-tap, retry, two tabs) can race and one
+ * award silently overwrites the other. */
 export async function awardProgress(
   userId: number,
   { minutes = 0, xpGain = 0, extra = {} }: { minutes?: number; xpGain?: number; extra?: Record<string, { increment: number }> },
 ) {
-  const user = await prisma.user.findUniqueOrThrow({ where: { id: userId } });
-  const baseline = rolloverBaseline(user.lastActiveDate, user.streak, user.goalDoneToday);
+  const updated = await prisma.$transaction(async (tx) => {
+    const user = await tx.user.findUniqueOrThrow({ where: { id: userId } });
+    const baseline = rolloverBaseline(user.lastActiveDate, user.streak, user.goalDoneToday);
 
-  const updated = await prisma.user.update({
-    where: { id: userId },
-    data: {
-      xp: user.xp + xpGain,
-      streak: baseline.streak,
-      goalDoneToday: Math.min(baseline.goalDoneToday + minutes, 300),
-      lastActiveDate: new Date(),
-      ...extra,
-    },
-    include: userInclude,
+    return tx.user.update({
+      where: { id: userId },
+      data: {
+        xp: { increment: xpGain },
+        streak: baseline.streak,
+        goalDoneToday: Math.min(baseline.goalDoneToday + minutes, 300),
+        lastActiveDate: new Date(),
+        ...extra,
+      },
+      include: userInclude,
+    });
   });
 
   await checkAndAwardBadges(userId);
